@@ -1,0 +1,161 @@
+/* Must precede the @tailwind directives — postcss-import inlines this before
+   Tailwind runs, so the token layer is available to every generated utility. */
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans text-base antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Fraunces is a variable font — dial the optical size for display use so
+     large headings get the high-contrast cut rather than the text cut. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-variation-settings: 'opsz' 96;
+  }
+
+  /* Numbers in tables must align vertically. Non-negotiable for a data app. */
+  table,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-tomato/60 ring-offset-2 ring-offset-paper;
+  }
+
+  ::selection {
+    @apply bg-tomato/20 text-ink;
+  }
+
+  /* Scrollbars: warm, thin, and only visible against their own surface. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-4 border-solid border-transparent bg-line-strong bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-subtle bg-clip-content;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Eyebrow: the small tracked-out caps label above metrics and section heads.
+     Used constantly, so it earns a component class. */
+  .eyebrow {
+    @apply text-eyebrow font-semibold uppercase text-ink-subtle;
+  }
+
+  /* Editorial rule — a hairline that carries slightly more weight on the left,
+     used to open sections. Cheaper and calmer than boxing everything in cards. */
+  .rule {
+    @apply h-px w-full bg-gradient-to-r from-line-strong to-line;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded bg-elevated;
+  }
+  .skeleton::after {
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-surface/70 to-transparent;
+    content: '';
+  }
+}
+
+/* Print: used by the Export-to-PDF buttons on Reports and Analytics. The page
+   prints the marked section only, via the browser's own dialogue — which
+   already handles pagination and "Save as PDF" better than a bundled library
+   would, at zero bundle cost. */
+@media print {
+  body[data-printing] {
+    background: white;
+  }
+
+  /* Hide the app chrome. Nothing structural is unmounted, so nothing reflows
+     or loses chart canvases on the way to the printer. */
+  body[data-printing] aside,
+  body[data-printing] header,
+  body[data-printing] nav,
+  body[data-printing] [role='dialog'] {
+    display: none !important;
+  }
+
+  body[data-printing] main {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  [data-print-target] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Buttons in the printed header are actions the paper cannot offer. */
+  [data-print-target] button {
+    display: none !important;
+  }
+
+  /* Cards and table rows must not be split across a page break. */
+  [data-print-target] table,
+  [data-print-target] section {
+    break-inside: avoid;
+  }
+
+  [data-print-target] tr {
+    break-inside: avoid;
+  }
+
+  @page {
+    margin: 14mm;
+  }
+}
+
+@layer utilities {
+  /* Grain: a faint noise wash that keeps large paper areas from looking flat.
+     SVG is inlined so it costs no request and survives the artifact CSP. */
+  .grain {
+    position: relative;
+  }
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}

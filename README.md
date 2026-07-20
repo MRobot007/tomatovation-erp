@@ -271,13 +271,20 @@ vercel
 Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in **Project Settings →
 Environment Variables**.
 
-[`vercel.json`](vercel.json) provides the SPA rewrite (without it a hard refresh
-on `/leads/<id>` 404s), a CSP scoped to Supabase and Google Fonts, HSTS,
-immutable caching for content-hashed assets, and no-cache on `index.html` — the
-last matters because a cached `index.html` points at chunks a new deploy deleted.
+### What `vercel.json` does, and why
 
-`Permissions-Policy` allows `geolocation=(self)` deliberately: the punch flow
-asks for it. It never blocks on the answer.
+The file itself carries no comments — Vercel validates it against a strict
+schema that rejects unknown properties, including a `comment` key. So the
+reasoning lives here:
+
+| Entry | Why |
+|---|---|
+| `rewrites` → `/index.html` | Without it a hard refresh on `/leads/<id>` 404s: no such file exists on disk. The `(?!api/)` guard keeps future API routes from being swallowed. |
+| `Content-Security-Policy` | Scoped to Supabase (REST **and** `wss://` for Realtime) and Google Fonts. `style-src` needs `unsafe-inline` for Radix's inline positioning styles. |
+| `Strict-Transport-Security` | Standard, with `preload`. |
+| `Permissions-Policy` | `geolocation=(self)` is deliberate — the punch flow asks for it, and never blocks on the answer. Camera, mic and payment are denied outright. |
+| `Cache-Control` on `/assets/*` | Filenames are content-hashed, so they can be immutable for a year. |
+| `Cache-Control` on `/index.html` | Must **never** be cached: a stale `index.html` points at chunk filenames the next deploy deleted, and the app fails to load for anyone holding it. |
 
 ### Backend (Supabase)
 

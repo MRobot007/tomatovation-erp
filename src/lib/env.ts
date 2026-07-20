@@ -54,6 +54,24 @@ const anonKeySchema = z
     if (result !== true) ctx.addIssue({ code: z.ZodIssueCode.custom, message: result })
   })
 
+/**
+ * Values are cleaned before validation, not after.
+ *
+ * Pasting into a hosting dashboard's env field routinely carries a leading tab,
+ * a trailing newline, or wrapping quotes — and a single invisible character is
+ * enough to fail a `startsWith('https://')` check. That produced a blank page
+ * on the first production deploy, with the real value looking correct in every
+ * inspector because the tab was invisible.
+ *
+ * Cleaning here is not laxness: the guards below still reject anything that is
+ * genuinely wrong. It only removes characters that were never meant to be part
+ * of the value.
+ */
+function clean(value: unknown): unknown {
+  if (typeof value !== 'string') return value
+  return value.trim().replace(/^['"]|['"]$/g, '').trim()
+}
+
 const envSchema = z.object({
   VITE_SUPABASE_URL: z
     .string()
@@ -61,13 +79,15 @@ const envSchema = z.object({
     .refine(
       (url) => url.startsWith('https://') || url.startsWith('http://localhost'),
       'VITE_SUPABASE_URL must use https (or http://localhost for a local stack)',
-    ),
+    )
+    // A trailing slash makes every request path double-slashed.
+    .transform((url) => url.replace(/\/+$/, '')),
   VITE_SUPABASE_ANON_KEY: anonKeySchema,
 })
 
 const parsed = envSchema.safeParse({
-  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  VITE_SUPABASE_URL: clean(import.meta.env.VITE_SUPABASE_URL),
+  VITE_SUPABASE_ANON_KEY: clean(import.meta.env.VITE_SUPABASE_ANON_KEY),
 })
 
 if (!parsed.success) {

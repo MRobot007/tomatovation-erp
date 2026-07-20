@@ -42,6 +42,61 @@ describe('accepts valid configuration', () => {
   })
 })
 
+describe('tolerates the ways a pasted value gets mangled', () => {
+  // Every case here caused a blank white page on the first production deploy:
+  // a leading tab picked up when pasting the URL into Vercel's env field made
+  // startsWith('https://') false, env.ts threw at module load, and React never
+  // mounted — with nothing in the console to say why.
+
+  test('strips a leading tab', async () => {
+    const { env } = await loadEnv(`\t${VALID_URL}`, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('strips a trailing newline', async () => {
+    const { env } = await loadEnv(`${VALID_URL}\n`, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('strips surrounding whitespace on both sides', async () => {
+    const { env } = await loadEnv(`  ${VALID_URL}  `, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('strips wrapping double quotes', async () => {
+    const { env } = await loadEnv(`"${VALID_URL}"`, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('strips wrapping single quotes', async () => {
+    const { env } = await loadEnv(`'${VALID_URL}'`, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('strips a trailing slash, which would double-slash every request path', async () => {
+    const { env } = await loadEnv(`${VALID_URL}/`, VALID_PUBLISHABLE)
+    expect(env.VITE_SUPABASE_URL).toBe(VALID_URL)
+  })
+
+  test('cleans the key as well as the url', async () => {
+    const { env } = await loadEnv(VALID_URL, `\t ${VALID_PUBLISHABLE}\n`)
+    expect(env.VITE_SUPABASE_ANON_KEY).toBe(VALID_PUBLISHABLE)
+  })
+
+  test('cleaning does not rescue a genuinely wrong value', async () => {
+    // Trimming must not turn a real misconfiguration into a silent pass.
+    await expect(loadEnv(`  http://evil.example.com  `, VALID_PUBLISHABLE)).rejects.toThrow(
+      /must use https/i,
+    )
+  })
+
+  test('cleaning does not rescue a secret key', async () => {
+    await expect(loadEnv(VALID_URL, '  sb_secret_EXAMPLE_NOT_A_REAL_KEY_0000  ')).rejects.toThrow(
+      /SECRET key/i,
+    )
+  })
+})
+
 describe('rejects privileged keys that would leak through the browser bundle', () => {
   test('rejects a secret key by prefix', async () => {
     await expect(loadEnv(VALID_URL, 'sb_secret_EXAMPLE_NOT_A_REAL_KEY_0000')).rejects.toThrow(

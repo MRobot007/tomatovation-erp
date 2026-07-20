@@ -76,9 +76,27 @@ async function extractMessage(error: unknown): Promise<string> {
  * anything this module sends.
  */
 export async function createEmployee(input: CreateEmployeeInput): Promise<CreatedEmployee> {
+  // The token is attached explicitly rather than relying on functions.invoke
+  // to do it. It is supposed to inherit the session, but with a custom
+  // `global.headers` on the client it sent no Authorization header at all and
+  // the function correctly answered 401 "Not authenticated" — which reads like
+  // the user is signed out when they plainly are not.
+  //
+  // Reading the session here also gives a precise error when it has genuinely
+  // expired, instead of a bare 401 from the far end.
+  const { data: sessionData } = await supabase.auth.getSession()
+  const token = sessionData.session?.access_token
+
+  if (!token) {
+    throw new Error('Your session has expired. Sign in again and retry.')
+  }
+
   const { data, error } = await supabase.functions.invoke<CreatedEmployee | { error: string }>(
     'create-employee',
-    { body: input },
+    {
+      body: input,
+      headers: { Authorization: `Bearer ${token}` },
+    },
   )
 
   if (error) throw new Error(await extractMessage(error))

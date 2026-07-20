@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { Search, Wand2 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Input } from '@/components/ui/input'
@@ -111,9 +111,22 @@ export function TeamAttendancePage() {
       id: 'status',
       header: 'Status',
       cell: (row) => (
-        <Badge tone={STATUS_TONE[row.status]} dot={row.status === 'working'}>
-          {STATUS_LABEL[row.status]}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <Badge tone={STATUS_TONE[row.status]} dot={row.status === 'working'}>
+            {STATUS_LABEL[row.status]}
+          </Badge>
+          {/* Flags a day nobody verified. A manager reviewing hours needs to
+              see which ones are estimates before approving anything from them. */}
+          {row.auto_punched_out && (
+            <span
+              title="Closed automatically at midnight — the employee did not punch out, so these hours are an estimate."
+              className="flex items-center gap-1 rounded-sm border border-warning/25 bg-warning-soft px-1 py-0.5 text-2xs font-medium text-warning"
+            >
+              <Wand2 className="size-2.5" aria-hidden />
+              Auto
+            </span>
+          )}
+        </div>
       ),
     },
   ]

@@ -1,3 +1,4 @@
+import { Wand2 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { PunchCard } from '@/features/attendance/components/punch-card'
 import { DataTable, type Column } from '@/components/ui/data-table'
@@ -89,7 +90,22 @@ export function MyAttendancePage() {
     {
       id: 'status',
       header: 'Status',
-      cell: (row) => <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>,
+      cell: (row) => (
+        <div className="flex items-center gap-1.5">
+          <Badge tone={STATUS_TONE[row.status]}>{STATUS_LABEL[row.status]}</Badge>
+          {/* An auto-closed day is a record nobody verified. It must not look
+              identical to one the employee closed themselves. */}
+          {row.auto_punched_out && (
+            <span
+              title="You did not punch out — this day was closed automatically and the hours are an estimate."
+              className="flex items-center gap-1 rounded-sm border border-warning/25 bg-warning-soft px-1 py-0.5 text-2xs font-medium text-warning"
+            >
+              <Wand2 className="size-2.5" aria-hidden />
+              Auto
+            </span>
+          )}
+        </div>
+      ),
     },
   ]
 

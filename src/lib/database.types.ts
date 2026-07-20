@@ -104,6 +104,7 @@ export type Database = {
       }
       attendance: {
         Row: {
+          auto_punched_out: boolean
           break_minutes: number
           break_started_at: string | null
           browser: string | null
@@ -125,6 +126,7 @@ export type Database = {
           working_hours: number | null
         }
         Insert: {
+          auto_punched_out?: boolean
           break_minutes?: number
           break_started_at?: string | null
           browser?: string | null
@@ -146,6 +148,7 @@ export type Database = {
           working_hours?: number | null
         }
         Update: {
+          auto_punched_out?: boolean
           break_minutes?: number
           break_started_at?: string | null
           browser?: string | null
@@ -746,6 +749,7 @@ export type Database = {
           total_days: number
         }[]
       }
+      auto_punch_out_stale_days: { Args: never; Returns: number }
       bootstrap_first_super_admin: {
         Args: { p_email: string }
         Returns: {
@@ -804,6 +808,7 @@ export type Database = {
           p_lng?: number
         }
         Returns: {
+          auto_punched_out: boolean
           break_minutes: number
           break_started_at: string | null
           browser: string | null
@@ -834,6 +839,7 @@ export type Database = {
       punch_out: {
         Args: { p_lat?: number; p_lng?: number }
         Returns: {
+          auto_punched_out: boolean
           break_minutes: number
           break_started_at: string | null
           browser: string | null
@@ -862,6 +868,7 @@ export type Database = {
         }
       }
       purge_expired_invites: { Args: never; Returns: number }
+      reschedule_auto_punch_out: { Args: never; Returns: string }
       revoke_signup_domain: { Args: { p_domain: string }; Returns: string[] }
       tasks_needing_attention: {
         Args: { p_limit?: number }
@@ -880,6 +887,7 @@ export type Database = {
       toggle_break: {
         Args: never
         Returns: {
+          auto_punched_out: boolean
           break_minutes: number
           break_started_at: string | null
           browser: string | null
@@ -964,6 +972,7 @@ export type Database = {
         | "work_log_reviewed"
         | "lead_assigned"
         | "task_status_changed"
+        | "auto_punched_out"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "todo" | "in_progress" | "blocked" | "done" | "cancelled"
       user_role: "super_admin" | "manager" | "employee"
@@ -1155,6 +1164,7 @@ export const Constants = {
         "work_log_reviewed",
         "lead_assigned",
         "task_status_changed",
+        "auto_punched_out",
       ],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["todo", "in_progress", "blocked", "done", "cancelled"],

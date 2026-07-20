@@ -9,6 +9,7 @@ import {
   NotebookPen,
   Target,
   Timer,
+  Wand2,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -39,6 +40,7 @@ export const NOTIFICATION_ICONS: Record<NotificationType, LucideIcon> = {
   work_log_reviewed: NotebookPen,
   lead_assigned: Target,
   task_status_changed: ListChecks,
+  auto_punched_out: Wand2,
 }
 
 export function timeAgo(iso: string): string {

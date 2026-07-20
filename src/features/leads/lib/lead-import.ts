@@ -168,6 +168,12 @@ type Field =
   | 'contact_name'
   | 'phone'
   | 'email'
+  /** One cell holding some mix of name, phone and email — split on read. */
+  | 'contact_info'
+  | 'country'
+  | 'product_sector'
+  | 'website'
+  | 'scope'
   | 'source'
   | 'status'
   | 'priority'
@@ -182,10 +188,26 @@ function normalise(text: string): string {
 }
 
 const HEADERS: Record<Field, readonly string[]> = {
-  company: ['company', 'companyname', 'organisation', 'organization', 'account', 'business'],
+  company: [
+    'company',
+    'companyname',
+    'nameofbusiness',
+    'businessname',
+    'organisation',
+    'organization',
+    'account',
+    'business',
+  ],
   contact_name: ['contactname', 'contact', 'name', 'contactperson', 'person'],
   phone: ['phone', 'phonenumber', 'mobile', 'contactnumber', 'tel', 'telephone'],
   email: ['email', 'emailaddress', 'mail'],
+  contact_info: ['contactinfo', 'contactdetails', 'contactdetail', 'contacts'],
+  country: ['country', 'region', 'market', 'location'],
+  product_sector: ['productsector', 'sector', 'industry', 'product', 'productcategory', 'vertical'],
+  // "Website (if any)" normalises to websiteifany — people paste the heading
+  // verbatim out of a brief, parenthetical and all.
+  website: ['website', 'websiteifany', 'url', 'web', 'site', 'webaddress'],
+  scope: ['scope', 'requirement', 'requirements', 'opportunity'],
   source: ['source', 'leadsource'],
   status: ['status', 'leadstatus', 'stage'],
   priority: ['priority'],
@@ -270,6 +292,43 @@ function parseAmount(raw: string): { value: number } | { error: string } {
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const PHONE = /^[0-9+\-\s()]{6,20}$/
 
+/*
+ * Brackets and quotes are excluded on both sides, or "Ann <ann@acme.com>" —
+ * how every mail client formats a contact — yields "<ann@acme.com>", which is
+ * still shaped like an email and passes validation, so it would be stored
+ * broken rather than rejected. The domain also refuses a trailing dot so a
+ * sentence-ending "…at ann@acme.com." does not swallow the full stop.
+ */
+const ADDRESS_STOP = '\\s,;|<>()[\\]{}"\''
+const EMAIL_ANYWHERE = new RegExp(
+  `[^${ADDRESS_STOP}]+@[^${ADDRESS_STOP}]+\\.[^${ADDRESS_STOP}.]+`,
+)
+const PHONE_ANYWHERE = /\+?[0-9][0-9\-\s()]{5,19}/
+
+/**
+ * "Contact info" is usually one cell holding some mix of a person, a number and
+ * an address — "Ann Rao, +91 98765 43210, ann@acme.in". Splitting it beats
+ * dropping it into remarks, because phone and email are searchable columns.
+ *
+ * Whatever is left after both are lifted out is treated as the person's name;
+ * if that leaves nothing recognisable, the name is simply absent rather than
+ * some fragment of punctuation.
+ */
+function splitContactInfo(raw: string): { name: string; phone: string; email: string } {
+  let rest = raw
+
+  const email = EMAIL_ANYWHERE.exec(rest)?.[0] ?? ''
+  if (email) rest = rest.replace(email, ' ')
+
+  const phone = PHONE_ANYWHERE.exec(rest)?.[0]?.trim() ?? ''
+  if (phone) rest = rest.replace(phone, ' ')
+
+  // Separators are what is left holding the pieces together, not part of a name.
+  const name = rest.replace(/[,;|/]+/g, ' ').replace(/\s+/g, ' ').trim()
+
+  return { name, phone, email: email.toLowerCase() }
+}
+
 // --- Mapping ---------------------------------------------------------------
 
 /**
@@ -322,20 +381,36 @@ export function mapRows(rows: string[][], employees: readonly EmployeeRef[]): Im
     }
 
     const company = cell('company')
-    if (!company) fail('Company', 'Company is required')
-    else if (company.length > 160) fail('Company', 'Company name is too long (max 160)')
+    if (!company) fail('Name of business', 'A business name is required')
+    else if (company.length > 160) fail('Name of business', 'Business name is too long (max 160)')
 
-    const email = cell('email').toLowerCase()
+    // A dedicated Email/Phone/Contact name column always wins; the combined
+    // cell only fills what those left empty.
+    const combined = splitContactInfo(cell('contact_info'))
+
+    const email = (cell('email') || combined.email).toLowerCase()
     if (email && !EMAIL.test(email)) fail('Email', `"${email}" is not a valid email`)
 
-    const phone = cell('phone')
+    const phone = cell('phone') || combined.phone
     if (phone && !PHONE.test(phone)) fail('Phone', 'Use digits, spaces, and + - ( ) only')
 
-    const contactName = cell('contact_name')
+    const contactName = cell('contact_name') || combined.name
     if (contactName.length > 120) fail('Contact name', 'Contact name is too long (max 120)')
 
     const remarks = cell('remarks')
-    if (remarks.length > 4000) fail('Remarks', 'Remarks are too long (max 4000)')
+    if (remarks.length > 4000) fail('Notes', 'Notes are too long (max 4000)')
+
+    const country = cell('country')
+    if (country.length > 80) fail('Country', 'Country is too long (max 80)')
+
+    const productSector = cell('product_sector')
+    if (productSector.length > 120) fail('Product sector', 'Product sector is too long (max 120)')
+
+    const website = cell('website')
+    if (website.length > 255) fail('Website', 'Website is too long (max 255)')
+
+    const scope = cell('scope')
+    if (scope.length > 2000) fail('Scope', 'Scope is too long (max 2000)')
 
     // Blank enum cells fall back to the same defaults the new-lead form uses,
     // so a file with only companies in it still imports.
@@ -404,6 +479,10 @@ export function mapRows(rows: string[][], employees: readonly EmployeeRef[]): Im
       contact_name: contactName || null,
       phone: phone || null,
       email: email || null,
+      country: country || null,
+      product_sector: productSector || null,
+      website: website || null,
+      scope: scope || null,
       source: (source as { value: LeadSource }).value,
       status: (status as { value: LeadStatus }).value,
       priority: (priority as { value: LeadPriority }).value,
@@ -427,17 +506,22 @@ function resolveEnum<T extends string>(
   return match ? { value: match } : { error: true }
 }
 
-/** Column order matches the export, so an exported file re-imports unchanged. */
+/**
+ * The columns the downloadable template ships with — the qualification detail
+ * you actually have when a lead first arrives.
+ *
+ * The importer accepts more than this (Status, Priority, Source, Assigned to,
+ * Value estimate, Next follow-up); they are left out of the template because a
+ * brand-new lead has none of them, and a template full of columns you must
+ * leave blank invites people to invent values for them. Blank ones default to
+ * New / Medium / Other on import, and the export writes the full set.
+ */
 export const TEMPLATE_HEADERS = [
-  'Company',
-  'Contact name',
-  'Phone',
-  'Email',
-  'Source',
-  'Status',
-  'Priority',
-  'Assigned to',
-  'Value estimate',
-  'Next follow-up',
-  'Remarks',
+  'Name of business',
+  'Country',
+  'Product sector',
+  'Contact info',
+  'Website',
+  'Scope',
+  'Notes',
 ] as const

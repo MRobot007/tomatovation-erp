@@ -19,33 +19,29 @@ import { cn } from '@/lib/utils'
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-/** Enough rows to show the shape without implying the file must look like this. */
+/**
+ * Two rows: one filled in, one showing that everything except the business name
+ * may be left blank. The second row exists so nobody assumes every column is
+ * mandatory and pads the file with invented values.
+ */
 const TEMPLATE_ROWS = [
   {
-    Company: 'Acme Foods',
-    'Contact name': 'Ananya Rao',
-    Phone: '+91 98765 43210',
-    Email: 'ananya@acmefoods.in',
-    Source: 'Referral',
-    Status: 'Contacted',
-    Priority: 'High',
-    'Assigned to': 'priya@yourcompany.com',
-    'Value estimate': '250000',
-    'Next follow-up': '2026-08-14',
-    Remarks: 'Wants a quote for the Pune site.',
+    'Name of business': 'Acme Foods',
+    Country: 'India',
+    'Product sector': 'Food processing',
+    'Contact info': 'Ananya Rao, +91 98765 43210, ananya@acmefoods.in',
+    Website: 'acmefoods.in',
+    Scope: 'Three plants across Pune and Nashik; wants a quote for cold storage.',
+    Notes: 'Met at the Gulfood trade show.',
   },
   {
-    Company: 'Globex Retail',
-    'Contact name': '',
-    Phone: '',
-    Email: 'buying@globex.in',
-    Source: 'Website',
-    Status: 'New',
-    Priority: 'Medium',
-    'Assigned to': '',
-    'Value estimate': '',
-    'Next follow-up': '',
-    Remarks: '',
+    'Name of business': 'Globex Retail',
+    Country: 'UAE',
+    'Product sector': '',
+    'Contact info': 'buying@globex.ae',
+    Website: '',
+    Scope: '',
+    Notes: '',
   },
 ]
 
@@ -124,8 +120,9 @@ export function LeadImportDialog({
         <DialogHeader>
           <DialogTitle>Import leads</DialogTitle>
           <DialogDescription>
-            Upload a CSV or Excel file. Only <strong>Company</strong> is required — everything else is
-            optional and matched by column heading.
+            Upload a CSV or Excel file. Only <strong>Name of business</strong> is required —
+            everything else is optional and matched by column heading. Excel workbooks are read from
+            the first sheet.
           </DialogDescription>
         </DialogHeader>
 

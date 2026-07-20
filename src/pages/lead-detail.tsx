@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Mail, Pencil, Phone, Trash2 } from 'lucide-react'
+import { ArrowLeft, Globe, Mail, Pencil, Phone, Trash2 } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -263,6 +263,39 @@ export function LeadDetailPage() {
                     <span className="truncate">{lead.email}</span>
                   </a>
                 )}
+                {lead.website && (
+                  <a
+                    // Stored as typed, so a bare "acme.in" needs a scheme before
+                    // it will resolve as an absolute link.
+                    href={/^https?:\/\//i.test(lead.website) ? lead.website : `https://${lead.website}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-tomato"
+                  >
+                    <Globe className="size-3.5 shrink-0" aria-hidden />
+                    <span className="truncate">{lead.website}</span>
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {(lead.country || lead.product_sector) && (
+            <Card>
+              <CardContent className="space-y-3 pt-5">
+                {lead.country && <Detail label="Country">{lead.country}</Detail>}
+                {lead.product_sector && (
+                  <Detail label="Product sector">{lead.product_sector}</Detail>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {lead.scope && (
+            <Card>
+              <CardContent className="pt-5">
+                <p className="eyebrow mb-1.5">Scope</p>
+                <p className="whitespace-pre-wrap text-sm text-ink-muted">{lead.scope}</p>
               </CardContent>
             </Card>
           )}
@@ -270,7 +303,7 @@ export function LeadDetailPage() {
           {lead.remarks && (
             <Card>
               <CardContent className="pt-5">
-                <p className="eyebrow mb-1.5">Remarks</p>
+                <p className="eyebrow mb-1.5">Notes</p>
                 <p className="whitespace-pre-wrap text-sm text-ink-muted">{lead.remarks}</p>
               </CardContent>
             </Card>

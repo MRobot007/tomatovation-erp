@@ -132,6 +132,115 @@ describe('mapRows — headers', () => {
   })
 })
 
+describe('mapRows — market fields', () => {
+  test('reads the template columns as written', () => {
+    const result = map([
+      ['Name of business', 'Country', 'Product sector', 'Website', 'Scope', 'Notes'],
+      ['Acme Foods', 'India', 'Food processing', 'acmefoods.in', 'Three plants', 'Met at Gulfood'],
+    ])
+    expect(result.issues).toEqual([])
+    expect(at(result.ready, 0)).toMatchObject({
+      company: 'Acme Foods',
+      country: 'India',
+      product_sector: 'Food processing',
+      website: 'acmefoods.in',
+      scope: 'Three plants',
+      remarks: 'Met at Gulfood',
+    })
+  })
+
+  test('accepts "Website (if any)" verbatim, parenthetical and all', () => {
+    const result = map([
+      ['Name of business', 'Website (if any)'],
+      ['Acme', 'acme.in'],
+    ])
+    expect(at(result.ready, 0).website).toBe('acme.in')
+  })
+
+  test('accepts sector and country synonyms', () => {
+    const result = map([
+      ['Business name', 'Industry', 'Market'],
+      ['Acme', 'Textiles', 'Vietnam'],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({ product_sector: 'Textiles', country: 'Vietnam' })
+  })
+
+  test('leaves blank market cells null rather than empty strings', () => {
+    const result = map([
+      ['Name of business', 'Country', 'Scope'],
+      ['Acme', '', ''],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({ country: null, scope: null, website: null })
+  })
+
+  test('names the required column the way the template does', () => {
+    const result = map([
+      ['Country'],
+      ['India'],
+    ])
+    expect(at(result.issues, 0).column).toBe('Company')
+  })
+})
+
+describe('mapRows — combined contact info', () => {
+  test('splits a name, phone and email out of one cell', () => {
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Acme', 'Ananya Rao, +91 98765 43210, ananya@acmefoods.in'],
+    ])
+    expect(result.issues).toEqual([])
+    expect(at(result.ready, 0)).toMatchObject({
+      contact_name: 'Ananya Rao',
+      phone: '+91 98765 43210',
+      email: 'ananya@acmefoods.in',
+    })
+  })
+
+  test('handles a cell holding only an email', () => {
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Globex', 'buying@globex.ae'],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({
+      email: 'buying@globex.ae',
+      phone: null,
+      contact_name: null,
+    })
+  })
+
+  test('handles a cell holding only a phone number', () => {
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Globex', '+971 50 123 4567'],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({ phone: '+971 50 123 4567', email: null })
+  })
+
+  test('treats a cell holding only a name as the contact name', () => {
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Globex', 'Ravi Menon'],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({ contact_name: 'Ravi Menon', email: null })
+  })
+
+  test('lets dedicated columns win over the combined cell', () => {
+    const result = map([
+      ['Name of business', 'Contact info', 'Email'],
+      ['Acme', 'Ann, ann@old.com', 'ann@new.com'],
+    ])
+    expect(at(result.ready, 0).email).toBe('ann@new.com')
+  })
+
+  test('lowercases an email lifted out of the combined cell', () => {
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Acme', 'Ann <Ann@Acme.COM>'],
+    ])
+    expect(at(result.ready, 0).email).toBe('ann@acme.com')
+  })
+})
+
 describe('mapRows — enums', () => {
   test('accepts display labels', () => {
     const result = map([

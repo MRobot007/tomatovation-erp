@@ -151,10 +151,14 @@ export function LeadsPage() {
    * one — two employees can share a name, and an email cannot be misread.
    */
   const exportColumns: ReadonlyArray<ExportColumn<LeadRow>> = [
-    { header: 'Company', value: (row) => row.company },
+    { header: 'Name of business', value: (row) => row.company },
+    { header: 'Country', value: (row) => row.country },
+    { header: 'Product sector', value: (row) => row.product_sector },
     { header: 'Contact name', value: (row) => row.contact_name },
     { header: 'Phone', value: (row) => row.phone },
     { header: 'Email', value: (row) => row.email },
+    { header: 'Website', value: (row) => row.website },
+    { header: 'Scope', value: (row) => row.scope },
     { header: 'Source', value: (row) => SOURCE_LABEL[row.source] },
     { header: 'Status', value: (row) => STATUS_LABEL[row.status] },
     { header: 'Priority', value: (row) => PRIORITY_LABEL[row.priority] },
@@ -167,7 +171,7 @@ export function LeadsPage() {
     },
     { header: 'Value estimate', value: (row) => row.value_estimate },
     { header: 'Next follow-up', value: (row) => row.next_followup },
-    { header: 'Remarks', value: (row) => row.remarks },
+    { header: 'Notes', value: (row) => row.remarks },
     { header: 'Created at', value: (row) => row.created_at?.slice(0, 10) },
   ]
 

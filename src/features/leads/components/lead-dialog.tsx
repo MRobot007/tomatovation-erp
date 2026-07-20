@@ -31,6 +31,10 @@ const EMPTY: LeadFormInput = {
   contact_name: '',
   phone: '',
   email: '',
+  country: '',
+  product_sector: '',
+  website: '',
+  scope: '',
   source: 'other',
   status: 'new',
   priority: 'medium',
@@ -65,6 +69,10 @@ export function LeadDialog({
             contact_name: lead.contact_name ?? '',
             phone: lead.phone ?? '',
             email: lead.email ?? '',
+            country: lead.country ?? '',
+            product_sector: lead.product_sector ?? '',
+            website: lead.website ?? '',
+            scope: lead.scope ?? '',
             source: lead.source,
             status: lead.status,
             priority: lead.priority,
@@ -120,6 +128,33 @@ export function LeadDialog({
                 {(field) => <Input {...field} {...form.register('email')} type="email" />}
               </FormField>
             </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <FormField label="Country" error={form.formState.errors.country}>
+                {(field) => <Input {...field} {...form.register('country')} placeholder="India" />}
+              </FormField>
+
+              <FormField label="Product sector" error={form.formState.errors.product_sector}>
+                {(field) => (
+                  <Input {...field} {...form.register('product_sector')} placeholder="Food processing" />
+                )}
+              </FormField>
+
+              <FormField label="Website" error={form.formState.errors.website}>
+                {(field) => <Input {...field} {...form.register('website')} placeholder="acmefoods.in" />}
+              </FormField>
+            </div>
+
+            <FormField label="Scope" error={form.formState.errors.scope}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  {...form.register('scope')}
+                  rows={2}
+                  placeholder="What the opportunity covers — sites, volumes, requirements."
+                />
+              )}
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-3">
               <SelectField

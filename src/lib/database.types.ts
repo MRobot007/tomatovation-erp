@@ -306,6 +306,7 @@ export type Database = {
           closed_at: string | null
           company: string
           contact_name: string | null
+          country: string | null
           created_at: string
           created_by: string | null
           email: string | null
@@ -313,17 +314,21 @@ export type Database = {
           next_followup: string | null
           phone: string | null
           priority: Database["public"]["Enums"]["lead_priority"]
+          product_sector: string | null
           remarks: string | null
+          scope: string | null
           source: Database["public"]["Enums"]["lead_source"]
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
           value_estimate: number | null
+          website: string | null
         }
         Insert: {
           assigned_to?: string | null
           closed_at?: string | null
           company: string
           contact_name?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
@@ -331,17 +336,21 @@ export type Database = {
           next_followup?: string | null
           phone?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
+          product_sector?: string | null
           remarks?: string | null
+          scope?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
           value_estimate?: number | null
+          website?: string | null
         }
         Update: {
           assigned_to?: string | null
           closed_at?: string | null
           company?: string
           contact_name?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
@@ -349,11 +358,14 @@ export type Database = {
           next_followup?: string | null
           phone?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
+          product_sector?: string | null
           remarks?: string | null
+          scope?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
           value_estimate?: number | null
+          website?: string | null
         }
         Relationships: [
           {

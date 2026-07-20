@@ -31,6 +31,11 @@ export const leadSchema = z.object({
     .transform((value) => (value === '' ? null : value))
     .nullable(),
 
+  country: optional(80),
+  product_sector: optional(120),
+  website: optional(255),
+  scope: optional(2000),
+
   source: z.enum([
     'website',
     'referral',

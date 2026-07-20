@@ -350,5 +350,12 @@ server-side even when the client check is bypassed.
   sends you. The reader (`read-excel-file`) is behind a dynamic import, so it is
   a 12 kB gzipped chunk fetched only when someone actually picks an .xlsx —
   nobody pays for it on page load. Only the first sheet of a workbook is read.
+
+- **Import matches columns by heading, not position.** Headings are compared
+  with case and punctuation stripped, so "Name of business", `name_of_business`
+  and "NAME OF BUSINESS" are the same column. Only the business name is
+  required. A "Contact info" cell holding a mix of person, phone and email is
+  split into the three columns; a dedicated Email or Phone column wins over it.
+  Unrecognised headings are reported rather than silently dropped.
 - **Global search filters client-side per table.** Fine at the spec's 500-employee
   ceiling; a `pg_trgm` index would be the next step.

@@ -15,10 +15,30 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+/**
+ * Allowed headers are REFLECTED from the preflight, not hardcoded.
+ *
+ * A hardcoded list has to predict every header the client will send, and it
+ * silently failed the moment the app's Supabase client was configured with a
+ * custom `x-application-name`. The browser asks permission for it, the function
+ * refuses, and the request is blocked — surfacing only as "Failed to fetch",
+ * with no CORS message and nothing in the network tab.
+ *
+ * Reflecting cannot drift out of step with the client. It is not a widening:
+ * a request header is only useful to an attacker if the function reads it, and
+ * this function reads exactly one — Authorization — which it verifies against
+ * the database.
+ */
+function corsHeaders(req: Request): Record<string, string> {
+  const requested = req.headers.get('Access-Control-Request-Headers')
+
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers':
+      requested ?? 'authorization, x-client-info, apikey, content-type, x-application-name',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  }
 }
 
 const ROLES = ['super_admin', 'manager', 'employee'] as const
@@ -32,10 +52,14 @@ interface Payload {
   manager_id?: unknown
 }
 
-function json(body: unknown, status = 200): Response {
+function json(body: unknown, status = 200, req?: Request): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: {
+      ...(req ? corsHeaders(req) : {}),
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    },
   })
 }
 
@@ -54,19 +78,19 @@ function temporaryPassword(length = 16): string {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) })
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, req)
 
   const url = Deno.env.get('SUPABASE_URL')
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
   if (!url || !serviceKey || !anonKey) {
-    return json({ error: 'Function is not configured' }, 500)
+    return json({ error: 'Function is not configured' }, 500, req)
   }
 
   const authHeader = req.headers.get('Authorization')
-  if (!authHeader) return json({ error: 'Not authenticated' }, 401)
+  if (!authHeader) return json({ error: 'Not authenticated' }, 401, req)
 
   // --- Authorise the caller -------------------------------------------------
   // A client bound to the caller's JWT, so RLS applies exactly as it would in
@@ -76,7 +100,7 @@ Deno.serve(async (req: Request) => {
   })
 
   const { data: userData, error: userError } = await caller.auth.getUser()
-  if (userError || !userData.user) return json({ error: 'Not authenticated' }, 401)
+  if (userError || !userData.user) return json({ error: 'Not authenticated' }, 401, req)
 
   const { data: callerProfile } = await caller
     .from('profiles')
@@ -85,7 +109,7 @@ Deno.serve(async (req: Request) => {
     .maybeSingle()
 
   if (callerProfile?.role !== 'super_admin') {
-    return json({ error: 'Only a super admin can create employees' }, 403)
+    return json({ error: 'Only a super admin can create employees' }, 403, req)
   }
 
   // --- Validate the payload -------------------------------------------------
@@ -93,7 +117,7 @@ Deno.serve(async (req: Request) => {
   try {
     body = await req.json()
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400)
+    return json({ error: 'Invalid JSON body' }, 400, req)
   }
 
   const name = typeof body.name === 'string' ? body.name.trim() : ''
@@ -102,9 +126,9 @@ Deno.serve(async (req: Request) => {
   const department = typeof body.department === 'string' ? body.department.trim() || null : null
   const managerId = typeof body.manager_id === 'string' && body.manager_id ? body.manager_id : null
 
-  if (!name || name.length > 120) return json({ error: 'A name is required' }, 400)
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'A valid email is required' }, 400)
-  if (!ROLES.includes(role)) return json({ error: 'Invalid role' }, 400)
+  if (!name || name.length > 120) return json({ error: 'A name is required' }, 400, req)
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'A valid email is required' }, 400, req)
+  if (!ROLES.includes(role)) return json({ error: 'Invalid role' }, 400, req)
 
   // --- Create -------------------------------------------------------------
   const admin = createClient(url, serviceKey, {
@@ -129,7 +153,7 @@ Deno.serve(async (req: Request) => {
     )
 
   if (inviteError) {
-    return json({ error: `Could not record the invite: ${inviteError.message}` }, 500)
+    return json({ error: `Could not record the invite: ${inviteError.message}` }, 500, req)
   }
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
@@ -151,6 +175,7 @@ Deno.serve(async (req: Request) => {
     return json(
       { error: alreadyExists ? 'An account already exists for that email' : message },
       alreadyExists ? 409 : 400,
+      req,
     )
   }
 
@@ -167,10 +192,10 @@ Deno.serve(async (req: Request) => {
     // Roll back rather than leaving an auth user with no usable profile —
     // they would be able to sign in and land on a broken account.
     await admin.auth.admin.deleteUser(created.user.id)
-    return json({ error: `Could not set up the profile: ${profileError.message}` }, 500)
+    return json({ error: `Could not set up the profile: ${profileError.message}` }, 500, req)
   }
 
   // The password is returned ONCE and never stored anywhere retrievable. If the
   // admin loses it, the employee uses the forgot-password flow.
-  return json({ id: created.user.id, email, name, temporaryPassword: password }, 201)
+  return json({ id: created.user.id, email, name, temporaryPassword: password }, 201, req)
 })

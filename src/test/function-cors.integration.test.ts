@@ -35,16 +35,53 @@ describe('preflight', () => {
     expect(response.status).toBe(200)
   })
 
-  test('the preflight allows the headers the client actually sends', async () => {
+  /**
+   * The exact header set supabase-js sends from this app.
+   *
+   * `x-application-name` is ours, configured on the client in lib/supabase.ts.
+   * An earlier version of this test asserted only the three standard headers —
+   * the ones I assumed — so it passed while the browser was blocked, because
+   * the function's hardcoded allow-list did not include our own custom header.
+   * Testing assumed headers instead of real ones is how that shipped twice.
+   */
+  const CLIENT_HEADERS = [
+    'authorization',
+    'content-type',
+    'apikey',
+    'x-client-info',
+    'x-application-name',
+  ]
+
+  test('the preflight allows every header this app actually sends', async () => {
     const response = await fetch(ENDPOINT, {
       method: 'OPTIONS',
-      headers: { Origin: ORIGIN, 'Access-Control-Request-Method': 'POST' },
+      headers: {
+        Origin: ORIGIN,
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': CLIENT_HEADERS.join(', '),
+      },
+    })
+
+    expect(response.status).toBe(200)
+
+    const allowed = (response.headers.get('access-control-allow-headers') ?? '').toLowerCase()
+    for (const header of CLIENT_HEADERS) {
+      expect(allowed, `preflight must allow "${header}"`).toContain(header)
+    }
+  })
+
+  test('an unexpected custom header is still reflected, so the client cannot drift out of step', async () => {
+    const response = await fetch(ENDPOINT, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: ORIGIN,
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'authorization, x-some-future-header',
+      },
     })
 
     const allowed = (response.headers.get('access-control-allow-headers') ?? '').toLowerCase()
-    for (const header of ['authorization', 'content-type', 'apikey']) {
-      expect(allowed).toContain(header)
-    }
+    expect(allowed).toContain('x-some-future-header')
   })
 })
 

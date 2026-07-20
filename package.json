@@ -23,7 +23,8 @@
     "test:create-employee": "vitest run --config vitest.rls.config.ts src/test/create-employee.integration.test.ts",
     "test:fixtures": "node scripts/setup-rls-fixtures.mjs",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts"
+    "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
+    "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

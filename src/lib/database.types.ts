@@ -58,6 +58,7 @@ export type Database = {
           half_day_max_hours: number
           id: boolean
           late_grace_minutes: number
+          signup_allowed_domains: string[]
           standard_hours: number
           timezone: string
           updated_at: string
@@ -70,6 +71,7 @@ export type Database = {
           half_day_max_hours?: number
           id?: boolean
           late_grace_minutes?: number
+          signup_allowed_domains?: string[]
           standard_hours?: number
           timezone?: string
           updated_at?: string
@@ -82,6 +84,7 @@ export type Database = {
           half_day_max_hours?: number
           id?: boolean
           late_grace_minutes?: number
+          signup_allowed_domains?: string[]
           standard_hours?: number
           timezone?: string
           updated_at?: string
@@ -214,6 +217,35 @@ export type Database = {
           {
             foreignKeyName: "audit_logs_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invited_emails: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          invited_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          invited_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          invited_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invited_emails_invited_by_fkey"
+            columns: ["invited_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -629,6 +661,7 @@ export type Database = {
     }
     Functions: {
       acting_outside_postgrest: { Args: never; Returns: boolean }
+      allow_signup_domain: { Args: { p_domain: string }; Returns: string[] }
       analytics_attendance_summary: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -745,6 +778,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      provision_account: {
+        Args: { p_email: string; p_name: string; p_password: string }
+        Returns: string
+      }
       punch_in: {
         Args: {
           p_browser?: string
@@ -810,6 +847,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      purge_expired_invites: { Args: never; Returns: number }
+      revoke_signup_domain: { Args: { p_domain: string }; Returns: string[] }
       toggle_break: {
         Args: never
         Returns: {

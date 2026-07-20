@@ -113,6 +113,25 @@ Deno.serve(async (req: Request) => {
 
   const password = temporaryPassword()
 
+  // Record the invite BEFORE creating the user.
+  //
+  // enforce_signup_domain runs on auth.users and would otherwise refuse any
+  // address outside the company allowlist — including a contractor an admin is
+  // deliberately onboarding. The trigger cannot distinguish this call from
+  // public /signup, because both are GoTrue and arrive as the same database
+  // role. The invite row is how the intent is communicated. It is single-use:
+  // the trigger consumes it.
+  const { error: inviteError } = await admin
+    .from('invited_emails')
+    .upsert(
+      { email, invited_by: userData.user.id, expires_at: new Date(Date.now() + 600_000).toISOString() },
+      { onConflict: 'email' },
+    )
+
+  if (inviteError) {
+    return json({ error: `Could not record the invite: ${inviteError.message}` }, 500)
+  }
+
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
     password,
@@ -123,6 +142,10 @@ Deno.serve(async (req: Request) => {
   })
 
   if (createError || !created.user) {
+    // The invite was not consumed, so clear it rather than leaving a standing
+    // exemption to the domain allowlist for an address that has no account.
+    await admin.from('invited_emails').delete().eq('email', email)
+
     const message = createError?.message ?? 'Could not create the account'
     const alreadyExists = /already (been )?registered|already exists/i.test(message)
     return json(

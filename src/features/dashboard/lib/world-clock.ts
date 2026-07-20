@@ -103,12 +103,19 @@ export function dayOffset(viewerZone: string, targetZone: string, instant: Date)
 }
 
 export function readClock(zone: ClockZone, viewerZone: string, instant: Date): ClockReading {
-  const time = new Intl.DateTimeFormat('en-GB', {
+  // 12-hour with AM/PM for display. The business-hours and day-offset logic
+  // above still works in 24-hour internally — a meridiem string is for reading,
+  // not for comparing, and parsing one back would be a step backwards.
+  const time = new Intl.DateTimeFormat('en-US', {
     timeZone: zone.timeZone,
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(instant)
+    hour12: true,
+  })
+    .format(instant)
+    // Intl emits a narrow no-break space before AM/PM in newer ICU versions,
+    // which renders inconsistently. Normalised to a plain space.
+    .replace(/ | /g, ' ')
 
   const date = new Intl.DateTimeFormat('en-GB', {
     timeZone: zone.timeZone,

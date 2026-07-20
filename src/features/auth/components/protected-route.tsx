@@ -52,8 +52,9 @@ export function PublicOnlyRoute({ children }: { children: ReactNode }) {
   if (loading) return <FullPageLoader />
 
   if (session) {
+    // "/" rather than a fixed screen — the index route picks by role.
     const from = (location.state as { from?: Location } | null)?.from
-    return <Navigate to={from?.pathname ?? '/dashboard'} replace />
+    return <Navigate to={from?.pathname ?? '/'} replace />
   }
 
   return <>{children}</>

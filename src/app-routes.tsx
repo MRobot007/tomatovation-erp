@@ -1,7 +1,8 @@
 import { lazy, Suspense, type ComponentType } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/app-shell'
 import { ProtectedRoute, PublicOnlyRoute } from '@/features/auth/components/protected-route'
+import { HomeRedirect } from '@/features/auth/components/home-redirect'
 import { PlaceholderPage } from '@/pages/placeholder-page'
 import { ForbiddenPage, NotFoundPage } from '@/pages/forbidden'
 import { LoginPage } from '@/pages/auth/login'
@@ -141,7 +142,7 @@ export function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<HomeRedirect />} />
 
           {NAV_ITEMS.map((item) => {
             const Screen = BUILT[item.to]

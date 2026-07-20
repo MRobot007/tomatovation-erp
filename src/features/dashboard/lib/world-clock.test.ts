@@ -58,8 +58,8 @@ describe('DST is handled by Intl, not by hand', () => {
     const winter = readClock({ label: 'Prague', timeZone: PRAGUE }, KOLKATA, new Date('2026-01-15T12:00:00Z'))
     const summer = readClock({ label: 'Prague', timeZone: PRAGUE }, KOLKATA, new Date('2026-07-15T12:00:00Z'))
 
-    expect(winter.time).toBe('13:00')
-    expect(summer.time).toBe('14:00')
+    expect(winter.time).toBe('1:00 PM')
+    expect(summer.time).toBe('2:00 PM')
   })
 })
 
@@ -106,9 +106,33 @@ describe('isBusinessHours', () => {
 describe('readClock', () => {
   const instant = new Date('2026-07-21T08:30:00Z')
 
-  test('formats 24-hour time in the target zone', () => {
+  test('formats 12-hour time with AM/PM in the target zone', () => {
     const prague = readClock({ label: 'Prague', timeZone: PRAGUE }, KOLKATA, instant)
-    expect(prague.time).toBe('10:30')
+    expect(prague.time).toBe('10:30 AM')
+  })
+
+  test('uses PM after midday', () => {
+    // 2026-07-21 19:30 UTC = 15:30 in New York.
+    const ny = readClock({ label: 'NY', timeZone: NEW_YORK }, KOLKATA, new Date('2026-07-21T19:30:00Z'))
+    expect(ny.time).toBe('3:30 PM')
+  })
+
+  test('renders midnight as 12 AM, not 0 AM or 24', () => {
+    // 2026-07-21 04:00 UTC = 00:00 in New York.
+    const ny = readClock({ label: 'NY', timeZone: NEW_YORK }, KOLKATA, new Date('2026-07-21T04:00:00Z'))
+    expect(ny.time).toBe('12:00 AM')
+  })
+
+  test('renders midday as 12 PM', () => {
+    // 2026-07-21 16:00 UTC = 12:00 in New York.
+    const ny = readClock({ label: 'NY', timeZone: NEW_YORK }, KOLKATA, new Date('2026-07-21T16:00:00Z'))
+    expect(ny.time).toBe('12:00 PM')
+  })
+
+  test('contains no narrow no-break space before the meridiem', () => {
+    // Newer ICU emits U+202F here, which renders inconsistently across fonts.
+    const ny = readClock({ label: 'NY', timeZone: NEW_YORK }, KOLKATA, new Date('2026-07-21T16:00:00Z'))
+    expect(ny.time).not.toMatch(/[  ]/)
   })
 
   test('carries the label through unchanged', () => {

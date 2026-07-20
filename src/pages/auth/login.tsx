@@ -30,8 +30,11 @@ export function LoginPage() {
     try {
       await signIn(values)
       // Return them to whatever they were trying to reach before the redirect.
+      // Falling back to "/" rather than a fixed screen: the index route decides
+      // by role, so managers and employees land somewhere useful without this
+      // file needing to know the rule.
       const from = (location.state as { from?: { pathname?: string } } | null)?.from
-      navigate(from?.pathname ?? '/dashboard', { replace: true })
+      navigate(from?.pathname ?? '/', { replace: true })
     } catch (error) {
       setSubmitError(error)
     }

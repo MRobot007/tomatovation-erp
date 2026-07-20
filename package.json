@@ -24,7 +24,8 @@
     "test:fixtures": "node scripts/setup-rls-fixtures.mjs",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
-    "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts"
+    "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts && npm run test:invite:clean",
+    "test:invite:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\"\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

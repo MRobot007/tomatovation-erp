@@ -15,6 +15,7 @@ import { useEmployees } from '@/features/employees/hooks/use-employees'
 import { useImportLeads } from '../hooks/use-leads'
 import { mapRows, readSpreadsheet, TEMPLATE_HEADERS, type ImportPreview } from '../lib/lead-import'
 import { downloadCsv } from '@/lib/export'
+import { downloadLeadTemplate } from '../lib/lead-export'
 import { cn } from '@/lib/utils'
 
 const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -199,6 +200,16 @@ export function LeadImportDialog({
                   Not sure about the columns?{' '}
                   <button
                     type="button"
+                    onClick={() => void downloadLeadTemplate()}
+                    className="font-medium text-tomato underline-offset-4 hover:underline"
+                  >
+                    Download the Excel template
+                  </button>
+                  {' · '}
+                  <button
+                    type="button"
+                    // CSV kept as a second option: some tools and older Excel
+                    // installs still handle it more predictably.
                     onClick={() =>
                       downloadCsv(
                         'lead_import_template',
@@ -210,11 +221,10 @@ export function LeadImportDialog({
                         })),
                       )
                     }
-                    className="text-tomato underline-offset-4 hover:underline"
+                    className="text-ink-muted underline-offset-4 hover:text-ink hover:underline"
                   >
-                    Download a template
+                    CSV
                   </button>
-                  .
                 </p>
               )}
             </>

@@ -1,0 +1,22 @@
+-- ============================================================================
+-- 0022 · Remove the orphaned leads.contact_info column
+-- ============================================================================
+-- Two migrations were authored in parallel for the same feature and both took
+-- version 20260720000021: `lead_qualification_fields` and `lead_market_fields`.
+-- Only one can win — the CLI keys on the version number alone — and the applied
+-- one added a `contact_info` column that the migration now in the repository
+-- does not define.
+--
+-- That left the live database ahead of the schema: a column no code writes,
+-- which a fresh `db push` would never create. Anything built on it would work
+-- here and fail on a clean deploy, which is the worst kind of drift because the
+-- environment that breaks is the new one.
+--
+-- The repository's design is the one kept: the importer parses a combined
+-- contact cell into contact_name, phone and email rather than storing the raw
+-- text. Dropping the column brings the database back in line.
+--
+-- Safe to drop: verified empty of real data before writing this. The only row
+-- holding a value was a test lead, removed in the same change.
+
+alter table public.leads drop column if exists contact_info;

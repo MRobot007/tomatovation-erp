@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarClock, Columns3, Download, List, Plus, Search, Upload } from 'lucide-react'
+import {
+  CalendarClock,
+  ChevronDown,
+  Columns3,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  List,
+  Plus,
+  Search,
+  Upload,
+} from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -32,6 +43,13 @@ import { useEmployees } from '@/features/employees/hooks/use-employees'
 import { useTodayDate } from '@/features/attendance/hooks/use-attendance'
 import { useSearchParamState, useSortParam } from '@/hooks/use-search-param-state'
 import { useDebounced } from '@/hooks/use-debounced'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { downloadXlsx } from '@/features/leads/lib/lead-export'
 import { downloadCsv, exportFilename, type ExportColumn } from '@/lib/export'
 import { cn } from '@/lib/utils'
 
@@ -189,16 +207,33 @@ export function LeadsPage() {
               <Upload aria-hidden />
               Import
             </Button>
-            <Button
-              variant="secondary"
-              // Exports exactly what the filters are showing — the count in the
-              // badge and the rows in the file always agree.
-              disabled={!data?.length}
-              onClick={() => downloadCsv(exportFilename('leads'), data ?? [], exportColumns)}
-            >
-              <Download aria-hidden />
-              Export
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {/* Exports exactly what the filters are showing — the count in
+                    the badge and the rows in the file always agree. */}
+                <Button variant="secondary" disabled={!data?.length}>
+                  <Download aria-hidden />
+                  Export
+                  <ChevronDown className="size-3" aria-hidden />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() =>
+                    void downloadXlsx(exportFilename('leads'), data ?? [], exportColumns)
+                  }
+                >
+                  <FileSpreadsheet aria-hidden />
+                  Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => downloadCsv(exportFilename('leads'), data ?? [], exportColumns)}
+                >
+                  <FileText aria-hidden />
+                  CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="primary" onClick={() => setCreating(true)}>
               <Plus aria-hidden />
               New lead

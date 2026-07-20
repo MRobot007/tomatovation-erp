@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addLeadActivity,
   createLead,
+  createLeads,
   deleteLead,
   getLead,
   listFollowupsDue,
@@ -62,6 +63,21 @@ export function useCreateLead() {
   return useMutation({
     mutationFn: (input: Omit<LeadInsert, 'created_by'>) =>
       createLead({ ...input, created_by: user!.id }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: keys.all }),
+  })
+}
+
+/**
+ * Bulk create from an imported spreadsheet. Stamps created_by the same way
+ * useCreateLead does, so an imported lead is attributed to whoever imported it.
+ */
+export function useImportLeads() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: (rows: ReadonlyArray<Omit<LeadInsert, 'created_by'>>) =>
+      createLeads(rows.map((row) => ({ ...row, created_by: user!.id }))),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: keys.all }),
   })
 }

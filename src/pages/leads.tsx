@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarClock, Columns3, List, Plus, Search } from 'lucide-react'
+import { CalendarClock, Columns3, Download, List, Plus, Search, Upload } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { LeadDialog } from '@/features/leads/components/lead-dialog'
+import { LeadImportDialog } from '@/features/leads/components/lead-import-dialog'
 import { LeadKanban } from '@/features/leads/components/lead-kanban'
 import { useFollowupsDue, useLeads } from '@/features/leads/hooks/use-leads'
 import type { LeadRow } from '@/features/leads/api/leads.api'
@@ -31,6 +32,7 @@ import { useEmployees } from '@/features/employees/hooks/use-employees'
 import { useTodayDate } from '@/features/attendance/hooks/use-attendance'
 import { useSearchParamState, useSortParam } from '@/hooks/use-search-param-state'
 import { useDebounced } from '@/hooks/use-debounced'
+import { downloadCsv, exportFilename, type ExportColumn } from '@/lib/export'
 import { cn } from '@/lib/utils'
 
 export function LeadsPage() {
@@ -61,6 +63,7 @@ export function LeadsPage() {
 
   const { data: followups } = useFollowupsDue(todayDate)
   const [creating, setCreating] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   const open = data?.filter((l) => l.status !== 'won' && l.status !== 'lost').length ?? 0
   const won = data?.filter((l) => l.status === 'won').length ?? 0
@@ -142,6 +145,32 @@ export function LeadsPage() {
     },
   ]
 
+  /**
+   * Headings match what the importer reads, so an exported file can be edited
+   * and imported straight back. The owner goes out as an email where we have
+   * one — two employees can share a name, and an email cannot be misread.
+   */
+  const exportColumns: ReadonlyArray<ExportColumn<LeadRow>> = [
+    { header: 'Company', value: (row) => row.company },
+    { header: 'Contact name', value: (row) => row.contact_name },
+    { header: 'Phone', value: (row) => row.phone },
+    { header: 'Email', value: (row) => row.email },
+    { header: 'Source', value: (row) => SOURCE_LABEL[row.source] },
+    { header: 'Status', value: (row) => STATUS_LABEL[row.status] },
+    { header: 'Priority', value: (row) => PRIORITY_LABEL[row.priority] },
+    {
+      header: 'Assigned to',
+      value: (row) =>
+        row.assigned_to
+          ? (employees?.find((e) => e.id === row.assigned_to)?.email ?? row.assignee?.name ?? '')
+          : '',
+    },
+    { header: 'Value estimate', value: (row) => row.value_estimate },
+    { header: 'Next follow-up', value: (row) => row.next_followup },
+    { header: 'Remarks', value: (row) => row.remarks },
+    { header: 'Created at', value: (row) => row.created_at?.slice(0, 10) },
+  ]
+
   return (
     <>
       <PageHeader
@@ -152,6 +181,20 @@ export function LeadsPage() {
           <>
             <Badge tone="neutral">{open} open</Badge>
             {won > 0 && <Badge tone="success">{won} won</Badge>}
+            <Button variant="ghost" onClick={() => setImporting(true)}>
+              <Upload aria-hidden />
+              Import
+            </Button>
+            <Button
+              variant="secondary"
+              // Exports exactly what the filters are showing — the count in the
+              // badge and the rows in the file always agree.
+              disabled={!data?.length}
+              onClick={() => downloadCsv(exportFilename('leads'), data ?? [], exportColumns)}
+            >
+              <Download aria-hidden />
+              Export
+            </Button>
             <Button variant="primary" onClick={() => setCreating(true)}>
               <Plus aria-hidden />
               New lead
@@ -279,6 +322,7 @@ export function LeadsPage() {
       )}
 
       <LeadDialog lead={null} open={creating} onOpenChange={setCreating} />
+      <LeadImportDialog open={importing} onOpenChange={setImporting} />
     </>
   )
 }

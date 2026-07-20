@@ -345,5 +345,10 @@ server-side even when the client check is bypassed.
   feature used a few times a month, and Excel opens CSV natively (with a UTF-8
   BOM so accented names don't mojibake on Windows). PDF goes through the
   browser's print dialogue, which paginates better than a bundled library would.
+
+  Lead *import* does read .xlsx, because you do not control what a colleague
+  sends you. The reader (`read-excel-file`) is behind a dynamic import, so it is
+  a 12 kB gzipped chunk fetched only when someone actually picks an .xlsx —
+  nobody pays for it on page load. Only the first sheet of a workbook is read.
 - **Global search filters client-side per table.** Fine at the spec's 500-employee
   ceiling; a `pg_trgm` index would be the next step.

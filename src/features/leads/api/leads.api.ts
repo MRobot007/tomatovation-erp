@@ -102,6 +102,41 @@ export async function createLead(input: LeadInsert): Promise<Lead> {
   return data
 }
 
+/**
+ * Bulk insert for the spreadsheet importer.
+ *
+ * Chunked because a single statement carrying a few thousand rows runs into the
+ * request size limit, and because a failure then reports which chunk died
+ * instead of just "the import failed". Chunks are sequential rather than
+ * parallel: the rows arrive in file order, which is the order the user will
+ * look for them in.
+ *
+ * This is NOT a transaction. A chunk that fails leaves earlier chunks inserted —
+ * the caller reports how many landed so the user can fix the file and re-import
+ * the rest, which the importer's duplicate check then helps with.
+ */
+export async function createLeads(rows: readonly LeadInsert[], chunkSize = 500): Promise<Lead[]> {
+  const inserted: Lead[] = []
+
+  for (let start = 0; start < rows.length; start += chunkSize) {
+    const chunk = rows.slice(start, start + chunkSize)
+    const { data, error } = await supabase.from('leads').insert(chunk).select()
+
+    if (error) {
+      const failed = new Error(
+        inserted.length > 0
+          ? `${error.message} — ${inserted.length} of ${rows.length} leads were already imported`
+          : error.message,
+      )
+      throw Object.assign(failed, { insertedCount: inserted.length })
+    }
+
+    inserted.push(...(data ?? []))
+  }
+
+  return inserted
+}
+
 export type LeadUpdate = Partial<Omit<LeadInsert, 'created_by'>>
 
 /**

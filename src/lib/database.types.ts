@@ -660,6 +660,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acting_as_service_role: { Args: never; Returns: boolean }
+      acting_elevated: { Args: never; Returns: boolean }
       acting_outside_postgrest: { Args: never; Returns: boolean }
       allow_signup_domain: { Args: { p_domain: string }; Returns: string[] }
       analytics_attendance_summary: {
@@ -849,6 +851,20 @@ export type Database = {
       }
       purge_expired_invites: { Args: never; Returns: number }
       revoke_signup_domain: { Args: { p_domain: string }; Returns: string[] }
+      tasks_needing_attention: {
+        Args: { p_limit?: number }
+        Returns: {
+          assignee_id: string
+          assignee_name: string
+          completed_at: string
+          deadline: string
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }[]
+      }
       toggle_break: {
         Args: never
         Returns: {
@@ -935,6 +951,7 @@ export type Database = {
         | "announcement"
         | "work_log_reviewed"
         | "lead_assigned"
+        | "task_status_changed"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "todo" | "in_progress" | "blocked" | "done" | "cancelled"
       user_role: "super_admin" | "manager" | "employee"
@@ -1125,6 +1142,7 @@ export const Constants = {
         "announcement",
         "work_log_reviewed",
         "lead_assigned",
+        "task_status_changed",
       ],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["todo", "in_progress", "blocked", "done", "cancelled"],

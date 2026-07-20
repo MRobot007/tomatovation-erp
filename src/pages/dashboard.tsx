@@ -16,6 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PunchCard } from '@/features/attendance/components/punch-card'
+import { AttentionPanel } from '@/features/tasks/components/attention-panel'
 import { useTodayDate } from '@/features/attendance/hooks/use-attendance'
 import { useDashboardStats } from '@/features/analytics/hooks/use-analytics'
 import { useTasks } from '@/features/tasks/hooks/use-tasks'
@@ -87,6 +88,12 @@ export function DashboardPage() {
             loading={isLoading}
             to="/leaves"
           />
+        </div>
+      )}
+
+      {isManager && (
+        <div className="mb-5">
+          <AttentionPanel />
         </div>
       )}
 

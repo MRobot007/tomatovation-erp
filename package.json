@@ -27,7 +27,8 @@
     "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts && npm run test:invite:clean",
     "test:invite:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\"\"",
     "test:cors": "vitest run --config vitest.rls.config.ts src/test/function-cors.integration.test.ts",
-    "test:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\" or email like \\\"cors-probe-%\\\" or email like \\\"pipeline-%\\\" or email like \\\"mx_-%\\\"\""
+    "test:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\" or email like \\\"cors-probe-%\\\" or email like \\\"pipeline-%\\\" or email like \\\"mx_-%\\\"\"",
+    "test:task-notify": "vitest run --config vitest.rls.config.ts src/test/task-notification.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

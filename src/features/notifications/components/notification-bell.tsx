@@ -38,6 +38,7 @@ export const NOTIFICATION_ICONS: Record<NotificationType, LucideIcon> = {
   announcement: Megaphone,
   work_log_reviewed: NotebookPen,
   lead_assigned: Target,
+  task_status_changed: ListChecks,
 }
 
 export function timeAgo(iso: string): string {

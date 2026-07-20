@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PunchCard } from '@/features/attendance/components/punch-card'
 import { AttentionPanel } from '@/features/tasks/components/attention-panel'
+import { WorldClocks } from '@/features/dashboard/components/world-clocks'
 import { useTodayDate } from '@/features/attendance/hooks/use-attendance'
 import { useDashboardStats } from '@/features/analytics/hooks/use-analytics'
 import { useTasks } from '@/features/tasks/hooks/use-tasks'
@@ -50,6 +51,12 @@ export function DashboardPage() {
         title={`${greeting}, ${firstName}`}
         description="Your day at a glance."
       />
+
+      {/* Above the punch card: it is reference information, not an action, and
+          the primary action on this page should stay the most prominent thing. */}
+      <div className="mb-5">
+        <WorldClocks />
+      </div>
 
       <div className="mb-6">
         <PunchCard />

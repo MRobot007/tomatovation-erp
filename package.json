@@ -20,6 +20,7 @@
     "test:manager": "vitest run --config vitest.rls.config.ts src/test/manager-scoping.integration.test.ts",
     "test:storage": "vitest run --config vitest.rls.config.ts src/test/storage.integration.test.ts",
     "test:password": "vitest run --config vitest.rls.config.ts src/test/change-password.integration.test.ts",
+    "test:create-employee": "vitest run --config vitest.rls.config.ts src/test/create-employee.integration.test.ts",
     "test:fixtures": "node scripts/setup-rls-fixtures.mjs",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts"

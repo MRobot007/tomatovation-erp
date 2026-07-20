@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Search, UserCheck, UserX, Users } from 'lucide-react'
+import { Pencil, Plus, Search, UserCheck, UserX, Users } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { EmployeeEditDialog } from '@/features/employees/components/employee-edit-dialog'
+import { CreateEmployeeDialog } from '@/features/employees/components/create-employee-dialog'
 import {
   useDepartments,
   useEmployees,
@@ -60,6 +61,7 @@ export function EmployeesPage() {
   })
 
   const [editing, setEditing] = useState<EmployeeRow | null>(null)
+  const [creating, setCreating] = useState(false)
   const [deactivating, setDeactivating] = useState<EmployeeRow | null>(null)
   const setEmployeeStatus = useSetEmployeeStatus()
 
@@ -116,9 +118,15 @@ export function EmployeesPage() {
         title="Employees"
         description="Roles and reporting lines set here drive every permission in the system."
         actions={
-          <Badge tone="neutral">
-            {data?.length ?? 0} {data?.length === 1 ? 'person' : 'people'}
-          </Badge>
+          <>
+            <Badge tone="neutral">
+              {data?.length ?? 0} {data?.length === 1 ? 'person' : 'people'}
+            </Badge>
+            <Button variant="primary" onClick={() => setCreating(true)}>
+              <Plus aria-hidden />
+              Add employee
+            </Button>
+          </>
         }
       />
 
@@ -230,6 +238,8 @@ export function EmployeesPage() {
           </>
         )}
       />
+
+      <CreateEmployeeDialog open={creating} onOpenChange={setCreating} />
 
       <EmployeeEditDialog
         employee={editing}

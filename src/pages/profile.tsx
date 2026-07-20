@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { AvatarUpload } from '@/features/storage/components/avatar-upload'
+import { ChangePasswordCard } from '@/features/auth/components/change-password-card'
 import { FormError, FormField } from '@/components/ui/form-field'
 import { useAuth } from '@/features/auth/auth-context'
 import { useUpdateEmployee } from '@/features/employees/hooks/use-employees'
@@ -119,6 +120,7 @@ export function ProfilePage() {
           </Card>
         </div>
 
+        <div className="space-y-5">
         <Card>
           <CardHeader>
             <CardTitle>Your details</CardTitle>
@@ -164,6 +166,9 @@ export function ProfilePage() {
             </form>
           </CardContent>
         </Card>
+
+        <ChangePasswordCard />
+        </div>
       </div>
     </>
   )

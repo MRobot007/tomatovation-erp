@@ -86,6 +86,42 @@ export async function updatePassword(password: string) {
 }
 
 /**
+ * Change the password of a signed-in user.
+ *
+ * Supabase's updateUser({ password }) does NOT require the current password —
+ * a live session is enough. That means an unattended laptop is enough for
+ * someone to change the password and lock the real owner out of their own
+ * account, with no email involved. So the current password is verified first.
+ *
+ * signInWithPassword is the check: it is the only way to confirm a password
+ * from the client without the admin API. It refreshes the session on success,
+ * which is harmless here since it is the same user.
+ */
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const { data: session } = await supabase.auth.getUser()
+  const email = session.user?.email
+
+  if (!email) throw new AuthError('You are not signed in.')
+
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email,
+    password: currentPassword,
+  })
+
+  if (verifyError) {
+    throw new AuthError('Your current password is not correct.')
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw new AuthError(error.message)
+
+  // Any other device still holding a session was authorised by the OLD
+  // password. Changing it should end those too — otherwise a password change
+  // prompted by a suspected compromise achieves nothing.
+  await supabase.auth.signOut({ scope: 'others' })
+}
+
+/**
  * Returns null rather than throwing when the row is missing. That gap is a real
  * state — the auth user exists but handle_new_user has not committed yet — and
  * the provider handles it by retrying rather than dumping the user at an error

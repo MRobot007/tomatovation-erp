@@ -12,7 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:integration": "vitest run --config vitest.rls.config.ts; npm run test:clean",
+    "test:integration": "node scripts/run-integration.mjs",
     "test:rls": "vitest run --config vitest.rls.config.ts src/test/rls.integration.test.ts",
     "test:attendance": "npm run test:attendance:reset && vitest run --config vitest.rls.config.ts src/test/attendance.integration.test.ts",
     "test:attendance:reset": "supabase db query --linked \"delete from public.attendance where employee_id = (select id from public.profiles where email = 'rls-fixture-b@example.com')\"",
@@ -24,10 +24,8 @@
     "test:fixtures": "node scripts/setup-rls-fixtures.mjs",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
-    "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts && npm run test:invite:clean",
-    "test:invite:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\"\"",
+    "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts",
     "test:cors": "vitest run --config vitest.rls.config.ts src/test/function-cors.integration.test.ts",
-    "test:clean": "supabase db query --linked \"delete from auth.users where email like \\\"invite-probe-%\\\" or email like \\\"cors-probe-%\\\" or email like \\\"pipeline-%\\\" or email like \\\"mx_-%\\\"\"",
     "test:task-notify": "vitest run --config vitest.rls.config.ts src/test/task-notification.integration.test.ts"
   },
   "dependencies": {

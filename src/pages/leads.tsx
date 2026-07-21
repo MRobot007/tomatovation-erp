@@ -203,17 +203,20 @@ export function LeadsPage() {
           <>
             <Badge tone="neutral">{open} open</Badge>
             {won > 0 && <Badge tone="success">{won} won</Badge>}
-            <Button variant="ghost" onClick={() => setImporting(true)}>
+            {/* Labels collapse to icon-only below sm so five actions do not
+                crowd a phone; the aria-label keeps each button named when its
+                text is hidden. */}
+            <Button variant="ghost" onClick={() => setImporting(true)} aria-label="Import leads">
               <Upload aria-hidden />
-              Import
+              <span className="hidden sm:inline">Import</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {/* Exports exactly what the filters are showing — the count in
                     the badge and the rows in the file always agree. */}
-                <Button variant="secondary" disabled={!data?.length}>
+                <Button variant="secondary" disabled={!data?.length} aria-label="Export leads">
                   <Download aria-hidden />
-                  Export
+                  <span className="hidden sm:inline">Export</span>
                   <ChevronDown className="size-3" aria-hidden />
                 </Button>
               </DropdownMenuTrigger>
@@ -234,9 +237,9 @@ export function LeadsPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="primary" onClick={() => setCreating(true)}>
+            <Button variant="primary" onClick={() => setCreating(true)} aria-label="New lead">
               <Plus aria-hidden />
-              New lead
+              <span className="hidden sm:inline">New lead</span>
             </Button>
           </>
         }

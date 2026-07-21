@@ -130,7 +130,7 @@ export function PunchCard() {
           : 'Tap the dial to start your day.'
 
   return (
-    <Card className="flex h-full flex-col p-6">
+    <Card className="flex h-full flex-col p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="eyebrow">Today&rsquo;s attendance</p>
         <StatusPill state={state} />

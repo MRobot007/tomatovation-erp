@@ -28,7 +28,11 @@ export function PageHeader({ eyebrow, title, description, actions, className }: 
           </h2>
           {description && <p className="mt-2.5 max-w-2xl text-md text-ink-muted">{description}</p>}
         </div>
-        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+        {/* Wraps and right-aligns rather than shrink-0: a page with several
+            actions (leads has five) would otherwise push the row past a phone's
+            width and scroll the whole page sideways. On desktop they still sit
+            on one line; flex-wrap only breaks when they genuinely do not fit. */}
+        {actions && <div className="flex flex-wrap items-center justify-end gap-2">{actions}</div>}
       </div>
       <div className="rule mt-5" />
     </div>

@@ -169,7 +169,7 @@ export function NotificationsPage() {
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Delete notification"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
                     onClick={() => remove.mutate(notification.id)}
                   >
                     <Trash2 aria-hidden />

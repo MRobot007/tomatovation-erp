@@ -144,10 +144,12 @@ export function DataTable<T>({
               ))}
               {rowActions && (
                 <TableCell className="w-px pr-2">
-                  {/* Revealed on hover, but always present for keyboard and
-                      screen-reader users — focus-within keeps it visible when
-                      tabbed into. */}
-                  <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                  {/* Always visible on touch, hover-revealed on the desktop.
+                      There is no hover on a phone, so a hover-only control is
+                      simply unreachable there — the actions stay on screen
+                      below lg and only fade to hover-reveal from lg up. Keyboard
+                      and screen-reader users keep them via focus-within. */}
+                  <div className="flex items-center justify-end gap-1 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
                     {rowActions(row)}
                   </div>
                 </TableCell>

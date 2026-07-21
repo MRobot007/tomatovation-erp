@@ -11,47 +11,61 @@ interface MobileNavProps {
   onOpenChange: (open: boolean) => void
 }
 
+/**
+ * The same metal panel as the desktop rail, on a drawer.
+ *
+ * Deliberately not a lighter "mobile variant": the rail is a material, and a
+ * material that changes when the window narrows stops being one. Same tokens,
+ * same bevels, same sweep.
+ */
 export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
   const groups = groupedNavForRole(role)
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-fade-in lg:hidden" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px] data-[state=open]:animate-fade-in lg:hidden" />
         <Dialog.Content
           className={cn(
-            'fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col border-r border-line bg-surface shadow-lg lg:hidden',
+            'rail rail-grain fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col shadow-lg lg:hidden',
             'data-[state=open]:animate-rise-in',
           )}
         >
-          <div className="flex h-topbar shrink-0 items-center gap-2.5 border-b border-line px-3">
+          <div className="relative flex h-topbar shrink-0 items-center gap-2.5 px-3 shadow-[inset_0_-1px_0_hsl(0_0%_0%/0.4),inset_0_-2px_0_hsl(var(--rail-sheen)/0.04)]">
             <div
-              className="flex size-7 items-center justify-center rounded bg-tomato font-display text-md font-bold text-primary-foreground"
+              className={cn(
+                'flex size-8 items-center justify-center rounded-[0.3125rem]',
+                'bg-gradient-to-b from-tomato to-tomato-hover',
+                'font-display text-lg font-bold leading-none text-white',
+                'shadow-[inset_0_1px_0_hsl(var(--rail-sheen)/0.4),inset_0_-1px_0_hsl(0_0%_0%/0.25),0_1px_3px_hsl(0_0%_0%/0.4)]',
+              )}
               aria-hidden
             >
               T
             </div>
             <div className="min-w-0 leading-tight">
-              <Dialog.Title className="truncate font-display text-md font-semibold tracking-tight text-ink">
+              <Dialog.Title className="truncate font-display text-md font-semibold tracking-tight text-[hsl(var(--rail-ink))]">
                 Tomatovation
               </Dialog.Title>
-              <Dialog.Description className="truncate text-2xs text-ink-subtle">
+              <Dialog.Description className="truncate text-2xs uppercase tracking-[0.14em] text-[hsl(var(--rail-ink-subtle))]">
                 {ROLE_LABELS[role]}
               </Dialog.Description>
             </div>
             <Dialog.Close
-              className="ml-auto flex size-7 items-center justify-center rounded text-ink-muted transition-colors hover:bg-elevated hover:text-ink"
+              className="rail-item ml-auto flex size-8 items-center justify-center rounded text-[hsl(var(--rail-ink-muted))] hover:text-[hsl(var(--rail-ink))]"
               aria-label="Close navigation"
             >
               <X className="size-4" aria-hidden />
             </Dialog.Close>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-2 pb-4" aria-label="Main navigation">
+          <nav className="relative flex-1 overflow-y-auto px-2 pb-4" aria-label="Main navigation">
             {groups.map((group) => (
               <div key={group.section} className="mb-4">
-                <p className="eyebrow px-2 pb-1.5 pt-2">{group.section}</p>
-                <ul className="flex flex-col gap-px">
+                <p className="px-2 pb-1.5 pt-3 text-eyebrow font-semibold uppercase text-[hsl(var(--rail-ink-subtle))]">
+                  {group.section}
+                </p>
+                <ul className="flex flex-col gap-0.5">
                   {group.items.map((item) => (
                     <li key={item.to}>
                       <NavLink
@@ -59,15 +73,28 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
                         onClick={() => onOpenChange(false)}
                         className={({ isActive }) =>
                           cn(
-                            'relative flex h-9 items-center gap-2.5 rounded px-2 text-base transition-colors',
+                            'rail-item group flex h-10 items-center gap-2.5 rounded px-2 text-base',
                             isActive
-                              ? 'bg-tomato-soft font-semibold text-tomato-ink'
-                              : 'text-ink-muted hover:bg-elevated hover:text-ink',
+                              ? 'rail-item-active font-semibold text-[hsl(var(--rail-ink))]'
+                              : 'text-[hsl(var(--rail-ink-muted))] hover:text-[hsl(var(--rail-ink))]',
                           )
                         }
                       >
-                        <item.icon className="size-4 shrink-0" aria-hidden />
-                        <span className="truncate">{item.label}</span>
+                        {({ isActive }) => (
+                          <>
+                            {isActive && <span className="rail-marker" aria-hidden />}
+                            <item.icon
+                              className={cn(
+                                'size-4 shrink-0',
+                                isActive
+                                  ? 'text-tomato drop-shadow-[0_0_6px_hsl(var(--tomato)/0.55)]'
+                                  : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
+                              )}
+                              aria-hidden
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </>
+                        )}
                       </NavLink>
                     </li>
                   ))}

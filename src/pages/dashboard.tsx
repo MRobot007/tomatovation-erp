@@ -250,7 +250,7 @@ function Metric({
   if (!to) return <Card>{body}</Card>
 
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card interactive>
       <Link to={to} className="block">
         {body}
       </Link>
@@ -276,7 +276,7 @@ function QuickStat({
   const toneClass = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-ink'
 
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card interactive>
       <Link to={to} className="flex items-center gap-3 px-5 py-4">
         <Icon className="size-4 shrink-0 text-ink-subtle" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-sm text-ink-muted">{label}</span>

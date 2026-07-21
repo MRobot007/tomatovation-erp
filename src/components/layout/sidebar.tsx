@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { groupedNavForRole } from '@/config/navigation'
-import { ROLE_LABELS, type Role } from '@/lib/roles'
-import { Button } from '@/components/ui/button'
+import type { Role } from '@/lib/roles'
+import { Brand } from './brand'
 import { cn } from '@/lib/utils'
 
 interface SidebarProps {
@@ -12,9 +12,17 @@ interface SidebarProps {
 }
 
 /**
- * The active item is marked with a left rule and a tinted field rather than a
- * filled pill — it keeps the vertical rhythm of the list unbroken, which
- * matters when there are 15+ entries.
+ * A machined metal rail, cool against the warm paper of the content area.
+ *
+ * The opposition is the point. Everything to the right of this panel is warm
+ * neutral and lightly shadowed; the rail is cool, dark and hard-edged, so the
+ * eye reads them as two materials rather than two shades. It also gives the
+ * white logo the one surface in the app it can sit on at full strength.
+ *
+ * The active item is marked with a lit edge and a directional wash rather than
+ * a filled pill — it keeps the vertical rhythm of the list unbroken, which
+ * matters at 15+ entries, and emitted light is how a brand colour survives on
+ * a dark metal ground without looking stuck on.
  */
 export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
   const groups = groupedNavForRole(role)
@@ -22,19 +30,34 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'hidden h-full shrink-0 flex-col border-r border-line bg-surface transition-[width] duration-200 ease-out-expo lg:flex',
+        'rail rail-grain relative hidden h-full shrink-0 flex-col transition-[width] duration-300 ease-out-expo lg:flex',
         collapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
       )}
     >
       <Brand collapsed={collapsed} role={role} />
 
-      <nav className="flex-1 overflow-y-auto px-2 pb-4" aria-label="Main navigation">
+      <nav
+        className="relative flex-1 overflow-y-auto px-2 pb-4 [scrollbar-width:thin]"
+        aria-label="Main navigation"
+      >
         {groups.map((group) => (
           <div key={group.section} className="mb-4">
-            {!collapsed && <p className="eyebrow px-2 pb-1.5 pt-2">{group.section}</p>}
-            {collapsed && <div className="mx-2 my-2 h-px bg-line" aria-hidden />}
+            {!collapsed && (
+              <p className="px-2 pb-1.5 pt-3 text-eyebrow font-semibold uppercase text-[hsl(var(--rail-ink-subtle))]">
+                {group.section}
+              </p>
+            )}
+            {/* Collapsed: the group heading has nowhere to go, so the grouping
+                is carried by an etched divider instead — a dark score with a
+                lit edge under it, the way a seam in metal catches light. */}
+            {collapsed && (
+              <div
+                className="mx-3 my-2.5 h-px bg-[hsl(0_0%_0%/0.5)] shadow-[0_1px_0_hsl(var(--rail-sheen)/0.06)]"
+                aria-hidden
+              />
+            )}
 
-            <ul className="flex flex-col gap-px">
+            <ul className="flex flex-col gap-0.5">
               {group.items.map((item) => (
                 <li key={item.to}>
                   <NavLink
@@ -42,23 +65,29 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
                     title={collapsed ? item.label : undefined}
                     className={({ isActive }) =>
                       cn(
-                        'group relative flex h-8 items-center gap-2.5 rounded px-2 text-sm transition-colors duration-150',
+                        'rail-item group flex h-9 items-center gap-2.5 rounded px-2 text-sm',
                         collapsed && 'justify-center px-0',
                         isActive
-                          ? 'bg-tomato-soft font-semibold text-tomato-ink'
-                          : 'text-ink-muted hover:bg-elevated hover:text-ink',
+                          ? 'rail-item-active font-semibold text-[hsl(var(--rail-ink))]'
+                          : 'text-[hsl(var(--rail-ink-muted))] hover:text-[hsl(var(--rail-ink))]',
                       )
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        {isActive && (
-                          <span
-                            className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-tomato"
-                            aria-hidden
-                          />
-                        )}
-                        <item.icon className="size-4 shrink-0" aria-hidden />
+                        {isActive && <span className="rail-marker" aria-hidden />}
+                        <item.icon
+                          className={cn(
+                            'size-4 shrink-0 transition-transform duration-200 ease-out-expo',
+                            // Icons lift a hair on hover. Small enough to feel
+                            // like response rather than movement.
+                            'group-hover:scale-105',
+                            isActive
+                              ? 'text-tomato drop-shadow-[0_0_6px_hsl(var(--tomato)/0.55)]'
+                              : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
+                          )}
+                          aria-hidden
+                        />
                         {!collapsed && <span className="truncate">{item.label}</span>}
                       </>
                     )}
@@ -70,44 +99,24 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="border-t border-line p-2">
-        <Button
-          variant="ghost"
-          size={collapsed ? 'icon-sm' : 'sm'}
+      <div className="relative p-2 shadow-[inset_0_1px_0_hsl(var(--rail-sheen)/0.05)]">
+        <button
+          type="button"
           onClick={onToggleCollapsed}
-          className={cn('w-full', collapsed && 'w-7')}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={cn(
+            'rail-item flex h-8 w-full items-center justify-center gap-1.5 rounded',
+            'text-xs text-[hsl(var(--rail-ink-subtle))] hover:text-[hsl(var(--rail-ink))]',
+          )}
         >
-          {collapsed ? <PanelLeftOpen aria-hidden /> : <PanelLeftClose aria-hidden />}
-          {!collapsed && <span className="ml-1">Collapse</span>}
-        </Button>
+          {collapsed ? (
+            <PanelLeftOpen className="size-4" aria-hidden />
+          ) : (
+            <PanelLeftClose className="size-4" aria-hidden />
+          )}
+          {!collapsed && <span>Collapse</span>}
+        </button>
       </div>
     </aside>
-  )
-}
-
-function Brand({ collapsed, role }: { collapsed: boolean; role: Role }) {
-  return (
-    <div
-      className={cn(
-        'flex h-topbar shrink-0 items-center gap-2.5 border-b border-line px-3',
-        collapsed && 'justify-center px-0',
-      )}
-    >
-      <div
-        className="flex size-7 shrink-0 items-center justify-center rounded bg-tomato font-display text-md font-bold text-primary-foreground shadow-sm"
-        aria-hidden
-      >
-        T
-      </div>
-      {!collapsed && (
-        <div className="min-w-0 leading-tight">
-          <p className="truncate font-display text-md font-semibold tracking-tight text-ink">
-            Tomatovation
-          </p>
-          <p className="truncate text-2xs text-ink-subtle">{ROLE_LABELS[role]}</p>
-        </div>
-      )}
-    </div>
   )
 }

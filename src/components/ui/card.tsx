@@ -1,11 +1,27 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Opt in for cards that DO something when clicked — they lift, brighten
+   * their border and catch a hairline of light along the top edge.
+   *
+   * Deliberately opt-in rather than automatic. If every card responds to the
+   * pointer, the response stops meaning "this is a control" and becomes
+   * ambient noise on a screen that already has fifteen of them.
+   */
+  interactive?: boolean
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-lg border border-line bg-surface shadow-sm', className)}
+      className={cn(
+        'relative overflow-hidden rounded-lg border border-line bg-surface shadow-sm',
+        interactive && 'card-interactive',
+        className,
+      )}
       {...props}
     />
   ),

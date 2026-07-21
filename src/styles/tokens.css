@@ -49,6 +49,35 @@
     --presence-break: 35 62% 48%;
     --presence-offline: 38 8% 66%;
 
+    /* ---- Rail (the metallic sidebar) ------------------------------------
+     * Deliberately COOL, at hue 220, against a palette where every other
+     * neutral is warm at 36-42deg. That opposition is the whole point: the rail
+     * reads as machined steel set beside paper, and the white logo has
+     * somewhere dark to sit. Matching the warm hue here would make the sidebar
+     * look like a dimmer version of the page rather than a different material.
+     *
+     * Saturation stays under 10% — enough for the eye to read "steel" rather
+     * than "navy", which is where a blue-black sidebar usually lands.
+     *
+     * These are the same in light and dark mode. The rail is the constant the
+     * content area flips against; a metal panel does not become paper when the
+     * lights go out.
+     */
+    --rail-top: 220 8% 17%;
+    --rail-bottom: 220 11% 7%;
+    --rail-raised: 220 8% 22%;
+    --rail-line: 220 7% 24%;
+    --rail-ink: 210 14% 97%;
+    --rail-ink-muted: 214 8% 68%;
+    /* 60%, not the 48% this started at. Against the LIGHTEST point of the rail
+       gradient (17%) that was ~3.2:1 — under AA, and these are 11px uppercase
+       labels, which is the worst case for legibility, not the best. 60% clears
+       4.5:1 at the top of the panel and improves further down it. */
+    --rail-ink-subtle: 214 7% 60%;
+    /* Specular highlight — the lit edge of a bevel. Kept as a raw channel
+       triplet so it can be used at very low alpha without muddying. */
+    --rail-sheen: 210 30% 100%;
+
     /* ---- Elevation ------------------------------------------------------ */
     /* Warm-tinted shadows. A neutral black shadow on warm paper reads muddy. */
     --shadow-color: 30 25% 20%;

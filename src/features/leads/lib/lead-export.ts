@@ -78,7 +78,11 @@ const TEMPLATE_EXAMPLE: Record<(typeof TEMPLATE_HEADERS)[number], string> = {
   'Name of business': 'Acme Industries Ltd',
   Country: 'India',
   'Product sector': 'Industrial pumps',
-  'Contact info': 'Priya Sharma, +91 98765 43210, priya@acme.example',
+  'Contact info': 'Priya Sharma, priya@acme.example',
+  // Its own column as well as inside "Contact info": most lists people are
+  // sent already have a phone column, and the example shows a second number is
+  // fine in one cell rather than being a reason to drop the row.
+  'Contact number': '+91 98765 43210 / 022 6789 0123',
   Website: 'acme.example',
   Scope: '500 units per quarter, delivered to Pune',
   Notes: 'Met at the trade fair, wants a quote by month end',

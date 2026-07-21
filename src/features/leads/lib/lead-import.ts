@@ -199,7 +199,26 @@ const HEADERS: Record<Field, readonly string[]> = {
     'business',
   ],
   contact_name: ['contactname', 'contact', 'name', 'contactperson', 'person'],
-  phone: ['phone', 'phonenumber', 'mobile', 'contactnumber', 'tel', 'telephone'],
+  phone: [
+    'phone',
+    'phonenumber',
+    'phonenumbers',
+    'phoneno',
+    'contactphone',
+    'contactnumber',
+    'contactnumbers',
+    'contactno',
+    'mobile',
+    'mobileno',
+    'mobilenumber',
+    'cell',
+    'cellphone',
+    'whatsapp',
+    'whatsappnumber',
+    'landline',
+    'tel',
+    'telephone',
+  ],
   email: ['email', 'emailaddress', 'mail'],
   contact_info: ['contactinfo', 'contactdetails', 'contactdetail', 'contacts'],
   country: ['country', 'region', 'market', 'location'],
@@ -290,7 +309,79 @@ function parseAmount(raw: string): { value: number } | { error: string } {
 }
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+/** Mirrors the column constraint — the last word on what can be stored. */
 const PHONE = /^[0-9+\-\s()]{6,20}$/
+
+/*
+ * Phone numbers arrive in whatever shape the sender's CRM exported them, and
+ * the column only accepts [0-9+-\s()] up to 20 characters. Validating the raw
+ * cell against that meant "+91.98765.43210" failed and, because a failed cell
+ * rejects the whole row, the company was dropped over a full stop.
+ *
+ * So these coerce rather than reject: a leading "Tel:", an extension, dots and
+ * slashes all come off, and what remains is judged on its digit count. Only a
+ * cell with no usable number left in it is reported as a problem.
+ */
+const PHONE_LABEL = /^\s*(?:tel|telephone|phone|ph|mob|mobile|cell|contact|whatsapp|wa)\b\s*(?:nos?\.?|numbers?)?\s*[.:\-]*\s*/i
+const PHONE_EXTENSION = /\s*(?:x|ext|extn|extension)\s*[.:]?\s*(\d{1,6})\s*$/i
+/** What people put *between* two numbers in one cell. */
+const PHONE_SEPARATOR = /\s*(?:[/,;|]|\bor\b|\band\b)\s*/i
+
+export interface PhoneRead {
+  /** Normalised and safe to store, or '' when the cell held no number. */
+  value: string
+  /** Further numbers and extensions from the same cell, in reading order. */
+  extra: string[]
+}
+
+function normaliseOnePhone(raw: string): string {
+  const trimmed = raw.replace(PHONE_LABEL, '').trim()
+  if (!trimmed) return ''
+
+  const hasPlus = trimmed.startsWith('+')
+  // Dots and underscores are separators someone typed; anything else the
+  // column cannot hold is dropped rather than failing the row.
+  const body = trimmed
+    .replace(/[._]/g, ' ')
+    .replace(/[^0-9\-\s()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  const digits = body.replace(/\D/g, '')
+  // E.164 tops out at 15 digits. Below 6 it is a house number, not a phone.
+  if (digits.length < 6 || digits.length > 15) return ''
+
+  const spaced = `${hasPlus ? '+' : ''}${body}`
+  // Too decorated to store as written — keep the number, drop the decoration.
+  return spaced.length <= 20 ? spaced : `${hasPlus ? '+' : ''}${digits}`
+}
+
+/**
+ * Reads every number out of one cell. The first is what gets stored, since the
+ * column holds one; the rest come back separately so the caller can keep them
+ * somewhere rather than bin them.
+ */
+export function readPhone(raw: string): PhoneRead {
+  const found: Array<{ number: string; extension: string }> = []
+
+  for (const part of raw.split(PHONE_SEPARATOR)) {
+    if (!part.trim()) continue
+    const match = PHONE_EXTENSION.exec(part)
+    const number = normaliseOnePhone(match ? part.slice(0, match.index) : part)
+    if (number) found.push({ number, extension: match?.[1] ?? '' })
+  }
+
+  const [first, ...rest] = found
+  if (!first) return { value: '', extra: [] }
+
+  return {
+    value: first.number,
+    extra: [
+      ...(first.extension ? [`ext ${first.extension}`] : []),
+      ...rest.map((entry) => (entry.extension ? `${entry.number} ext ${entry.extension}` : entry.number)),
+    ],
+  }
+}
 
 /*
  * Brackets and quotes are excluded on both sides, or "Ann <ann@acme.com>" —
@@ -303,7 +394,9 @@ const ADDRESS_STOP = '\\s,;|<>()[\\]{}"\''
 const EMAIL_ANYWHERE = new RegExp(
   `[^${ADDRESS_STOP}]+@[^${ADDRESS_STOP}]+\\.[^${ADDRESS_STOP}.]+`,
 )
-const PHONE_ANYWHERE = /\+?[0-9][0-9\-\s()]{5,19}/
+// Dots included so "Ann Rao +91.98765.43210" lifts the number out instead of
+// leaving it glued to the name. readPhone normalises whatever this matches.
+const PHONE_ANYWHERE = /\+?[0-9][0-9.\-\s()]{5,19}/
 
 /**
  * "Contact info" is usually one cell holding some mix of a person, a number and
@@ -391,13 +484,24 @@ export function mapRows(rows: string[][], employees: readonly EmployeeRef[]): Im
     const email = (cell('email') || combined.email).toLowerCase()
     if (email && !EMAIL.test(email)) fail('Email', `"${email}" is not a valid email`)
 
-    const phone = cell('phone') || combined.phone
-    if (phone && !PHONE.test(phone)) fail('Phone', 'Use digits, spaces, and + - ( ) only')
+    const rawPhone = cell('phone') || combined.phone
+    const { value: phone, extra: extraPhones } = readPhone(rawPhone)
+    // A cell with no digits at all is a placeholder — "n/a", "-", "none". That
+    // is an empty phone number, not a failed one, and must not reject the row.
+    if (rawPhone && !phone && /\d/.test(rawPhone)) {
+      fail('Phone', `No phone number could be read from "${rawPhone}"`)
+    } else if (phone && !PHONE.test(phone)) {
+      fail('Phone', `"${phone}" cannot be stored as a phone number`)
+    }
 
     const contactName = cell('contact_name') || combined.name
     if (contactName.length > 120) fail('Contact name', 'Contact name is too long (max 120)')
 
-    const remarks = cell('remarks')
+    // A second number, or an extension, has nowhere to live in the single
+    // phone column. Appending keeps it on the lead instead of dropping it.
+    const remarks = [cell('remarks'), extraPhones.length > 0 ? `Also: ${extraPhones.join(', ')}` : '']
+      .filter(Boolean)
+      .join('\n')
     if (remarks.length > 4000) fail('Notes', 'Notes are too long (max 4000)')
 
     const country = cell('country')
@@ -521,6 +625,7 @@ export const TEMPLATE_HEADERS = [
   'Country',
   'Product sector',
   'Contact info',
+  'Contact number',
   'Website',
   'Scope',
   'Notes',

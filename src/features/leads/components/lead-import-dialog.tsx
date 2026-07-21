@@ -25,12 +25,16 @@ const ACCEPT = '.csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedo
  * may be left blank. The second row exists so nobody assumes every column is
  * mandatory and pads the file with invented values.
  */
-const TEMPLATE_ROWS = [
+/** Typed off the headers, so adding a column fails to compile until it is filled in. */
+type TemplateRow = Record<(typeof TEMPLATE_HEADERS)[number], string>
+
+const TEMPLATE_ROWS: TemplateRow[] = [
   {
     'Name of business': 'Acme Foods',
     Country: 'India',
     'Product sector': 'Food processing',
-    'Contact info': 'Ananya Rao, +91 98765 43210, ananya@acmefoods.in',
+    'Contact info': 'Ananya Rao, ananya@acmefoods.in',
+    'Contact number': '+91 98765 43210',
     Website: 'acmefoods.in',
     Scope: 'Three plants across Pune and Nashik; wants a quote for cold storage.',
     Notes: 'Met at the Gulfood trade show.',
@@ -40,6 +44,8 @@ const TEMPLATE_ROWS = [
     Country: 'UAE',
     'Product sector': '',
     'Contact info': 'buying@globex.ae',
+    // Two numbers in one cell is fine — the first is stored, the rest go to the notes.
+    'Contact number': '+971 50 123 4567 / 04 887 1200',
     Website: '',
     Scope: '',
     Notes: '',
@@ -216,8 +222,7 @@ export function LeadImportDialog({
                         TEMPLATE_ROWS,
                         TEMPLATE_HEADERS.map((header) => ({
                           header,
-                          value: (row: (typeof TEMPLATE_ROWS)[number]) =>
-                            row[header as keyof typeof row],
+                          value: (row: TemplateRow) => row[header],
                         })),
                       )
                     }

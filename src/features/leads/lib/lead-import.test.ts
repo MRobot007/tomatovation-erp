@@ -241,6 +241,124 @@ describe('mapRows — combined contact info', () => {
   })
 })
 
+describe('mapRows — phone numbers', () => {
+  /**
+   * These are formats taken off real supplier lists. Each one used to fail
+   * validation, and because a failed cell rejects its whole row, the company
+   * was lost over a full stop or a slash. Storing something usable beats
+   * dropping the lead.
+   */
+  const phoneFrom = (raw: string) => {
+    const result = map([
+      ['Name of business', 'Contact number'],
+      ['Acme', raw],
+    ])
+    expect(result.issues).toEqual([])
+    return at(result.ready, 0)
+  }
+
+  test('keeps a plainly written number as it is', () => {
+    expect(phoneFrom('+91 98765 43210').phone).toBe('+91 98765 43210')
+    expect(phoneFrom('9876543210').phone).toBe('9876543210')
+    expect(phoneFrom('(022) 6789 0123').phone).toBe('(022) 6789 0123')
+  })
+
+  test('accepts dots as separators instead of rejecting the row', () => {
+    expect(phoneFrom('+91.98765.43210').phone).toBe('+91 98765 43210')
+  })
+
+  test('strips a label someone typed in front of the number', () => {
+    expect(phoneFrom('Tel: +91 98765 43210').phone).toBe('+91 98765 43210')
+    expect(phoneFrom('Mobile no. 98765 43210').phone).toBe('98765 43210')
+  })
+
+  test('keeps the leading zero of a national number', () => {
+    // Losing it turns a dialable number into one that is not.
+    expect(phoneFrom('098765 43210').phone).toBe('098765 43210')
+  })
+
+  test('stores the first of several numbers and keeps the rest in the notes', () => {
+    // The column holds one number. The second is still worth having, so it
+    // goes somewhere visible rather than being dropped on import.
+    const lead = phoneFrom('9876543210 / 9123456780')
+    expect(lead.phone).toBe('9876543210')
+    expect(lead.remarks).toBe('Also: 9123456780')
+  })
+
+  test('separates numbers written with a comma or the word "or"', () => {
+    expect(phoneFrom('+91 98765 43210, +91 22 6789 0123').phone).toBe('+91 98765 43210')
+    expect(phoneFrom('+91 98765 43210 or 022 6789 0123').remarks).toBe('Also: 022 6789 0123')
+  })
+
+  test('moves an extension to the notes, since the column cannot hold one', () => {
+    const lead = phoneFrom('+1 555 0100 x23')
+    expect(lead.phone).toBe('+1 555 0100')
+    expect(lead.remarks).toBe('Also: ext 23')
+  })
+
+  test('appends the extras below an existing note rather than replacing it', () => {
+    const result = map([
+      ['Name of business', 'Contact number', 'Notes'],
+      ['Acme', '9876543210 / 9123456780', 'Met at the fair'],
+    ])
+    expect(at(result.ready, 0).remarks).toBe('Met at the fair\nAlso: 9123456780')
+  })
+
+  test('drops the decoration when a number is too ornate to store as written', () => {
+    // The column caps at 20 characters; the number matters more than its shape.
+    const lead = phoneFrom('+91 (022) 6789-0123 ext 45')
+    expect(lead.phone).toBe('+91 (022) 6789-0123')
+    expect(lead.phone?.length).toBeLessThanOrEqual(20)
+  })
+
+  test('treats a placeholder as no number rather than a bad one', () => {
+    // "n/a" in a phone column must not cost you the whole lead.
+    for (const placeholder of ['n/a', '-', 'none', 'unknown']) {
+      expect(phoneFrom(placeholder).phone).toBeNull()
+    }
+  })
+
+  test('still reports something that has digits but cannot be a phone number', () => {
+    const result = map([
+      ['Name of business', 'Contact number'],
+      ['Acme', '12345'],
+    ])
+    expect(result.ready).toEqual([])
+    expect(at(result.issues, 0).column).toBe('Phone')
+  })
+
+  test('recognises the column whatever it is called', () => {
+    for (const header of ['Phone', 'Contact Number', 'Mobile No', 'WhatsApp', 'Cell Phone', 'Tel.']) {
+      const result = map([
+        ['Name of business', header],
+        ['Acme', '9876543210'],
+      ])
+      expect(at(result.ready, 0).phone, `header "${header}"`).toBe('9876543210')
+      expect(result.ignoredColumns, `header "${header}"`).toEqual([])
+    }
+  })
+
+  test('lifts a dotted number out of a combined contact cell', () => {
+    // It used to stay glued to the name: "Ann Rao +91.98765.43210".
+    const result = map([
+      ['Name of business', 'Contact info'],
+      ['Acme', 'Ann Rao +91.98765.43210'],
+    ])
+    expect(at(result.ready, 0)).toMatchObject({
+      contact_name: 'Ann Rao',
+      phone: '+91 98765 43210',
+    })
+  })
+
+  test('lets a dedicated phone column win over the combined cell', () => {
+    const result = map([
+      ['Name of business', 'Contact info', 'Phone'],
+      ['Acme', 'Ann, 9111111111', '9222222222'],
+    ])
+    expect(at(result.ready, 0).phone).toBe('9222222222')
+  })
+})
+
 describe('mapRows — enums', () => {
   test('accepts display labels', () => {
     const result = map([

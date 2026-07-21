@@ -29,7 +29,8 @@
     "test:task-notify": "vitest run --config vitest.rls.config.ts src/test/task-notification.integration.test.ts",
     "test:autopunch": "supabase db query --linked --file supabase/tests/auto_punch_out.sql",
     "test:reset-password": "vitest run --config vitest.rls.config.ts src/test/reset-password.integration.test.ts",
-    "test:departments": "vitest run --config vitest.rls.config.ts src/test/departments.integration.test.ts"
+    "test:departments": "vitest run --config vitest.rls.config.ts src/test/departments.integration.test.ts",
+    "test:lead-access": "vitest run --config vitest.rls.config.ts src/test/lead-access.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

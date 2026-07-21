@@ -6,6 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { useGlobalSearch } from './use-global-search'
 import { useDebounced } from '@/hooks/use-debounced'
 import { navForRole } from '@/config/navigation'
+import { useLeadAccess } from '@/features/leads/hooks/use-lead-access'
 import { useAuth } from '@/features/auth/auth-context'
 import { cn } from '@/lib/utils'
 
@@ -51,7 +52,8 @@ export function CommandPalette() {
     navigate(to)
   }
 
-  const pages = role ? navForRole(role) : []
+  const { canAccessLeads } = useLeadAccess()
+  const pages = role ? navForRole(role, { crm: canAccessLeads }) : []
   const matchingPages = query
     ? pages.filter((page) => page.label.toLowerCase().includes(query.toLowerCase()))
     : pages.slice(0, 6)

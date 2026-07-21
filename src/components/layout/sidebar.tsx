@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { groupedNavForRole } from '@/config/navigation'
+import { useLeadAccess } from '@/features/leads/hooks/use-lead-access'
 import type { Role } from '@/lib/roles'
 import { Brand } from './brand'
 import { cn } from '@/lib/utils'
@@ -25,7 +26,8 @@ interface SidebarProps {
  * a dark metal ground without looking stuck on.
  */
 export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
-  const groups = groupedNavForRole(role)
+  const { canAccessLeads } = useLeadAccess()
+  const groups = groupedNavForRole(role, { crm: canAccessLeads })
 
   return (
     <aside

@@ -230,18 +230,21 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          has_crm_access: boolean
           id: string
           name: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          has_crm_access?: boolean
           id?: string
           name: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          has_crm_access?: boolean
           id?: string
           name?: string
         }
@@ -802,6 +805,7 @@ export type Database = {
         }
       }
       can_access_employee: { Args: { target: string }; Returns: boolean }
+      can_access_leads: { Args: never; Returns: boolean }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]

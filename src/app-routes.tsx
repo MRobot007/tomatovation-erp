@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AppShell } from '@/components/layout/app-shell'
 import { ProtectedRoute, PublicOnlyRoute } from '@/features/auth/components/protected-route'
 import { HomeRedirect } from '@/features/auth/components/home-redirect'
+import { RequireLeadAccess } from '@/features/leads/components/require-lead-access'
 import { PlaceholderPage } from '@/pages/placeholder-page'
 import { ForbiddenPage, NotFoundPage } from '@/pages/forbidden'
 import { LoginPage } from '@/pages/auth/login'
@@ -140,17 +141,22 @@ export function AppRoutes() {
 
           {NAV_ITEMS.map((item) => {
             const Screen = BUILT[item.to]
+            const screen = Screen ? (
+              <Screen />
+            ) : (
+              <PlaceholderPage title={item.label} phase={PHASES[item.to] ?? 'a later phase'} />
+            )
+
             return (
               <Route
                 key={item.to}
                 path={item.to}
                 element={
                   <ProtectedRoute allowedRoles={rolesFor(item.to)}>
-                    {Screen ? (
-                      <Screen />
-                    ) : (
-                      <PlaceholderPage title={item.label} phase={PHASES[item.to] ?? 'a later phase'} />
-                    )}
+                    {/* The gate is read from the same NAV_ITEMS entry the
+                        sidebar filters on, so a link and its route cannot
+                        disagree about who is allowed through. */}
+                    {item.gate === 'crm' ? <RequireLeadAccess>{screen}</RequireLeadAccess> : screen}
                   </ProtectedRoute>
                 }
               />
@@ -163,7 +169,9 @@ export function AppRoutes() {
             path="/leads/:id"
             element={
               <ProtectedRoute allowedRoles={rolesFor('/leads')}>
-                <LeadDetailPage />
+                <RequireLeadAccess>
+                  <LeadDetailPage />
+                </RequireLeadAccess>
               </ProtectedRoute>
             }
           />

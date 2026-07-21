@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { NavLink } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { groupedNavForRole } from '@/config/navigation'
+import { useLeadAccess } from '@/features/leads/hooks/use-lead-access'
 import { ROLE_LABELS, type Role } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +20,8 @@ interface MobileNavProps {
  * same bevels, same sweep.
  */
 export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
-  const groups = groupedNavForRole(role)
+  const { canAccessLeads } = useLeadAccess()
+  const groups = groupedNavForRole(role, { crm: canAccessLeads })
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

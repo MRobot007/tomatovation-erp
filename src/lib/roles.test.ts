@@ -67,10 +67,32 @@ describe('navForRole', () => {
     expect(paths).not.toContain('/audit-logs')
   })
 
-  test('super_admin sees every destination', () => {
-    expect(navForRole('super_admin')).toHaveLength(
+  test('super_admin sees every destination once its gates are open', () => {
+    expect(navForRole('super_admin', { crm: true })).toHaveLength(
       NAV_ITEMS.filter((item) => item.roles.includes('super_admin')).length,
     )
+  })
+
+  test('a gated destination is hidden until its gate says otherwise', () => {
+    // Role is necessary but not sufficient for the pipeline: a super admin
+    // with the CRM gate closed still does not see it. Asserting on
+    // super_admin specifically, because the tempting shortcut is to let the
+    // top role skip gates — and that is how an admin ends up on a screen the
+    // database will hand them nothing for.
+    expect(navForRole('super_admin').map((item) => item.to)).not.toContain('/leads')
+    expect(navForRole('super_admin', { crm: false }).map((item) => item.to)).not.toContain('/leads')
+    expect(navForRole('super_admin', { crm: true }).map((item) => item.to)).toContain('/leads')
+  })
+
+  test('a marketing employee sees the pipeline; a tech one does not', () => {
+    expect(navForRole('employee', { crm: true }).map((item) => item.to)).toContain('/leads')
+    expect(navForRole('employee', { crm: false }).map((item) => item.to)).not.toContain('/leads')
+  })
+
+  test('closing the CRM gate does not disturb anything else', () => {
+    const open = navForRole('manager', { crm: true }).map((item) => item.to)
+    const shut = navForRole('manager', { crm: false }).map((item) => item.to)
+    expect(open.filter((path) => path !== '/leads')).toEqual(shut)
   })
 
   test('every role can reach the dashboard', () => {

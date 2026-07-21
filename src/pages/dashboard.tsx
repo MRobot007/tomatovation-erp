@@ -22,6 +22,7 @@ import { useTodayDate } from '@/features/attendance/hooks/use-attendance'
 import { useDashboardStats } from '@/features/analytics/hooks/use-analytics'
 import { useTasks } from '@/features/tasks/hooks/use-tasks'
 import { useAuth } from '@/features/auth/auth-context'
+import { useLeadAccess } from '@/features/leads/hooks/use-lead-access'
 import { ROLE_LABELS, atLeast } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +31,8 @@ export function DashboardPage() {
   const { data: todayDate } = useTodayDate()
   const { data: stats, isLoading } = useDashboardStats(todayDate)
   const { data: myTasks } = useTasks({ assignedTo: user?.id, status: 'all' })
+
+  const { canAccessLeads } = useLeadAccess()
 
   const isManager = atLeast(role, 'manager')
 
@@ -166,21 +169,29 @@ export function DashboardPage() {
         </Card>
 
         <div className="space-y-4">
-          <QuickStat
-            label="Open leads"
-            value={stats?.open_leads}
-            loading={isLoading}
-            icon={Target}
-            to="/leads"
-          />
-          <QuickStat
-            label="Follow-ups due"
-            value={stats?.followups_due}
-            loading={isLoading}
-            icon={CalendarClock}
-            to="/leads"
-            tone={stats && stats.followups_due > 0 ? 'warning' : undefined}
-          />
+          {/* Hidden rather than zeroed for anyone outside the pipeline. RLS
+              already returns nothing to them, so these would read "Open leads
+              0" — which is not a permission message, it is a false statement
+              about the business. */}
+          {canAccessLeads && (
+            <>
+              <QuickStat
+                label="Open leads"
+                value={stats?.open_leads}
+                loading={isLoading}
+                icon={Target}
+                to="/leads"
+              />
+              <QuickStat
+                label="Follow-ups due"
+                value={stats?.followups_due}
+                loading={isLoading}
+                icon={CalendarClock}
+                to="/leads"
+                tone={stats && stats.followups_due > 0 ? 'warning' : undefined}
+              />
+            </>
+          )}
           <QuickStat
             label="Overdue tasks"
             value={stats?.overdue_tasks}

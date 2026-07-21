@@ -103,18 +103,6 @@ export async function listManagerCandidates(): Promise<Array<Pick<Profile, 'id' 
   return data ?? []
 }
 
-/** Distinct departments, for the filter dropdown. */
-export async function listDepartments(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('department')
-    .not('department', 'is', null)
-    .order('department')
-
-  if (error) throw error
-  return [...new Set((data ?? []).map((row) => row.department).filter((d): d is string => Boolean(d)))]
-}
-
 export interface ManagerWithReports {
   manager: Pick<Profile, 'id' | 'name' | 'email' | 'department' | 'profile_photo'>
   reports: Array<Pick<Profile, 'id' | 'name' | 'profile_photo' | 'status'>>

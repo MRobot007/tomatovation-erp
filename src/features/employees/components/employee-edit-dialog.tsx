@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormError, FormField } from '@/components/ui/form-field'
+import { DepartmentSelect } from '@/features/departments/components/department-select'
 import {
   Select,
   SelectContent,
@@ -153,11 +154,21 @@ export function EmployeeEditDialog({
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="Department" error={form.formState.errors.department}>
-                {(field) => (
-                  <Input {...field} {...form.register('department')} placeholder="e.g. Marketing" />
+              <Controller
+                control={form.control}
+                name="department"
+                render={({ field, fieldState }) => (
+                  <FormField label="Department" error={fieldState.error}>
+                    {(aria) => (
+                      <DepartmentSelect
+                        id={aria.id}
+                        value={field.value === '' ? null : (field.value ?? null)}
+                        onChange={(next) => field.onChange(next ?? '')}
+                      />
+                    )}
+                  </FormField>
                 )}
-              </FormField>
+              />
 
               <FormField label="Phone" error={form.formState.errors.phone}>
                 {(field) => <Input {...field} {...form.register('phone')} placeholder="+91 98765 43210" />}

@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getEmployee,
-  listDepartments,
   listEmployees,
   listManagerCandidates,
   listManagersWithReports,
@@ -18,7 +17,9 @@ const keys = {
   detail: (id: string) => ['employees', 'detail', id] as const,
   managers: ['employees', 'managers'] as const,
   managerCandidates: ['employees', 'manager-candidates'] as const,
-  departments: ['employees', 'departments'] as const,
+  // No departments key: the option list is its own resource now, owned by
+  // features/departments. Deriving it from profiles cannot express a
+  // department nobody is in yet.
 }
 
 export function useEmployees(filters: EmployeeFilters) {
@@ -41,10 +42,6 @@ export function useEmployee(id: string | undefined) {
 
 export function useManagerCandidates() {
   return useQuery({ queryKey: keys.managerCandidates, queryFn: listManagerCandidates })
-}
-
-export function useDepartments() {
-  return useQuery({ queryKey: keys.departments, queryFn: listDepartments })
 }
 
 export function useManagersWithReports() {

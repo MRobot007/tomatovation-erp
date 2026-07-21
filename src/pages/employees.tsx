@@ -17,8 +17,8 @@ import {
 import { EmployeeEditDialog } from '@/features/employees/components/employee-edit-dialog'
 import { CreateEmployeeDialog } from '@/features/employees/components/create-employee-dialog'
 import { ResetPasswordDialog } from '@/features/employees/components/reset-password-dialog'
+import { useDepartments } from '@/features/departments/hooks/use-departments'
 import {
-  useDepartments,
   useEmployees,
   useSetEmployeeStatus,
 } from '@/features/employees/hooks/use-employees'
@@ -177,7 +177,7 @@ export function EmployeesPage() {
           placeholder="All departments"
           options={[
             { value: 'all', label: 'All departments' },
-            ...(departments ?? []).map((d) => ({ value: d, label: d })),
+            ...(departments ?? []).map((d) => ({ value: d.name, label: d.name })),
           ]}
         />
 

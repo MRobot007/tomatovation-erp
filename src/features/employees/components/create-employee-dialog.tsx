@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormError, FormField } from '@/components/ui/form-field'
 import { CopyRow } from '@/components/ui/copy-row'
+import { DepartmentSelect } from '@/features/departments/components/department-select'
 import {
   Select,
   SelectContent,
@@ -186,9 +187,21 @@ export function CreateEmployeeDialog({
                 )}
               />
 
-              <FormField label="Department" error={form.formState.errors.department}>
-                {(field) => <Input {...field} {...form.register('department')} placeholder="e.g. Marketing" />}
-              </FormField>
+              <Controller
+                control={form.control}
+                name="department"
+                render={({ field, fieldState }) => (
+                  <FormField label="Department" error={fieldState.error}>
+                    {(aria) => (
+                      <DepartmentSelect
+                        id={aria.id}
+                        value={field.value === '' ? null : (field.value ?? null)}
+                        onChange={(next) => field.onChange(next ?? '')}
+                      />
+                    )}
+                  </FormField>
+                )}
+              />
             </div>
 
             <Controller

@@ -256,7 +256,8 @@
      dark mode it is a lighter dark against near-black. Either way the content
      sits on something dark, so it wants the same treatment. */
   .dark .glass,
-  .dark .glass-flat {
+  .dark .glass-flat,
+  .glass-dark {
     --ink: var(--og-ink);
     --ink-muted: var(--og-ink-muted);
     --ink-subtle: var(--og-ink-subtle);
@@ -335,6 +336,31 @@
     content: '';
     @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
     background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.06) 0%, transparent 38%);
+  }
+
+  /* Always-dark frosted glass — the "black morphism" card, on any theme.
+     Unlike .glass, which is a white card in light mode, this stays a smoked
+     dark pane so it reads as a deliberate feature panel against the paper. In
+     light mode the --glass token is the near-black pane; in dark mode it is
+     the theme's own glass. The content tokens are flipped in the block above,
+     so text and dividers come out white either way, with no per-element work
+     at the call site. */
+  .glass-dark {
+    isolation: isolate;
+    background-color: hsl(var(--glass) / var(--glass-opacity));
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.3),
+      var(--shadow-lg);
+  }
+
+  .glass-dark::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
+    background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.07) 0%, transparent 40%);
   }
 
   /* Glass without the blur, for anything that repeats.

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { formatClock, frozenSeconds } from './punch-card'
+import { formatClock, formatShort, frozenSeconds, sessionSpanSeconds } from './punch-card'
 import type { Attendance } from '../api/attendance.api'
+import type { AttendanceSession } from '../hooks/use-attendance'
 
 /**
  * The dial's clock.
@@ -18,6 +19,48 @@ function row(fields: Partial<Attendance>): Attendance {
 }
 
 const at = (hhmm: string) => `2026-07-21T${hhmm}:00.000Z`
+
+describe('sessionSpanSeconds', () => {
+  const session = (punch_in: string, punch_out: string | null): AttendanceSession =>
+    ({ id: 'x', punch_in, punch_out }) as AttendanceSession
+
+  test('measures a closed session from its own in to its own out', () => {
+    // The whole point of the fix: a session is timed on ITS punch-in, not the
+    // day's first. A ten-second stint reads as ten seconds, not the day total.
+    expect(sessionSpanSeconds(session(at('20:18'), at('20:18')))).toBe(0)
+    expect(
+      sessionSpanSeconds({ id: 'x', punch_in: at('09:00'), punch_out: at('09:00') } as AttendanceSession) +
+        10,
+    ).toBe(10)
+  })
+
+  test('a 3h30m session is 12600 seconds', () => {
+    expect(sessionSpanSeconds(session(at('09:00'), at('12:30')))).toBe(12600)
+  })
+
+  test('never negative if the timestamps are somehow reversed', () => {
+    expect(sessionSpanSeconds(session(at('12:00'), at('09:00')))).toBe(0)
+  })
+})
+
+describe('formatShort', () => {
+  test('reads minutes under an hour', () => {
+    expect(formatShort(0)).toBe('0m')
+    expect(formatShort(56 * 60)).toBe('56m')
+    expect(formatShort(56 * 60 + 20)).toBe('56m') // rounds down to the nearest minute
+  })
+
+  test('rounds up into the next hour cleanly', () => {
+    // 59m40s rounds to 60 minutes, which reads as 1h, not "60m".
+    expect(formatShort(59 * 60 + 40)).toBe('1h')
+  })
+
+  test('reads hours and minutes past an hour', () => {
+    expect(formatShort(60 * 60)).toBe('1h')
+    expect(formatShort(65 * 60)).toBe('1h 5m')
+    expect(formatShort(8 * 3600 + 30 * 60)).toBe('8h 30m')
+  })
+})
 
 describe('formatClock', () => {
   test('renders H:MM:SS with padded minutes and seconds', () => {

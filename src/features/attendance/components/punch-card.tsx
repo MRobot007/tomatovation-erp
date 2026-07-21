@@ -8,11 +8,12 @@ import {
   useMyAttendanceToday,
   usePunchActions,
   useTodaySessions,
+  type AttendanceSession,
 } from '../hooks/use-attendance'
 import { useSettings } from '@/features/admin/hooks/use-admin'
 import { SessionList } from './session-list'
 import type { Attendance } from '../api/attendance.api'
-import { cn, formatHours } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 function formatTime(value: string | null | undefined): string {
   if (!value) return '--'
@@ -25,6 +26,21 @@ export function formatClock(totalSeconds: number): string {
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
   return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+/** Seconds as a coarse "56m" / "1h 5m" — for the day total, which need not tick. */
+export function formatShort(totalSeconds: number): string {
+  const totalMinutes = Math.round(totalSeconds / 60)
+  if (totalMinutes < 60) return `${totalMinutes}m`
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  return minutes ? `${hours}h ${minutes}m` : `${hours}h`
+}
+
+/** One session's length in seconds; an open session runs to now. */
+export function sessionSpanSeconds(session: AttendanceSession): number {
+  const end = session.punch_out ? new Date(session.punch_out).getTime() : Date.now()
+  return Math.max(0, Math.floor((end - new Date(session.punch_in).getTime()) / 1000))
 }
 
 /**
@@ -53,7 +69,9 @@ export function PunchCard() {
   const { data: settings } = useSettings()
 
   const onBreak = Boolean(today?.break_started_at)
-  const openSession = (sessions ?? []).find((session) => session.punch_out == null) ?? null
+  const list = sessions ?? []
+  const openSession = list.find((session) => session.punch_out == null) ?? null
+  const lastSession = list.length > 0 ? list[list.length - 1] : null
 
   // The live count of the CURRENT session, from its own punch-in, from zero.
   // Paused during a break. Hooks run unconditionally, so the start is passed as
@@ -63,24 +81,34 @@ export function PunchCard() {
 
   const state = deriveState(today)
 
-  // What the dial shows: the running session live, a paused session frozen at
-  // the break, the whole day once it is closed, or nothing before it starts.
-  let shownSeconds = 0
-  if (state.key === 'completed') {
-    shownSeconds = frozenSeconds(today)
-  } else if (openSession) {
-    shownSeconds =
-      onBreak && today?.break_started_at
-        ? Math.max(
-            0,
-            Math.floor(
-              (new Date(today.break_started_at).getTime() -
-                new Date(openSession.punch_in).getTime()) /
-                1000,
-            ),
-          )
-        : liveSeconds
-  }
+  // The open session's own seconds — live while working, frozen at the break.
+  const openSeconds = openSession
+    ? onBreak && today?.break_started_at
+      ? Math.max(
+          0,
+          Math.floor(
+            (new Date(today.break_started_at).getTime() -
+              new Date(openSession.punch_in).getTime()) /
+              1000,
+          ),
+        )
+      : liveSeconds
+    : 0
+
+  // The dial shows THIS session, from zero — the open one live, or the last one
+  // that closed. Never the day's total: jumping from a ten-second stint to the
+  // day sum the moment you punch out is exactly what read as a bug. The total
+  // lives in its own fact below.
+  const shownSeconds = openSession
+    ? openSeconds
+    : lastSession
+      ? sessionSpanSeconds(lastSession)
+      : 0
+
+  // Everything worked today: the closed sessions plus the open one's live time.
+  const totalTodaySeconds =
+    list.filter((s) => s.punch_out).reduce((sum, s) => sum + sessionSpanSeconds(s), 0) +
+    (openSession ? openSeconds : 0)
 
   const standardHours = settings?.standard_hours ?? 8
   const progress = Math.min(1, shownSeconds / Math.max(1, standardHours * 3600))
@@ -98,7 +126,7 @@ export function PunchCard() {
       : state.key === 'on_break'
         ? 'Clock paused — you are on a break'
         : state.key === 'completed'
-          ? `${formatTime(today?.punch_in)} to ${formatTime(today?.punch_out)}`
+          ? `Last shift ended ${formatTime(lastSession?.punch_out ?? today?.punch_out)}`
           : 'Tap the dial to start your day.'
 
   return (
@@ -144,7 +172,10 @@ export function PunchCard() {
       {today?.punch_in && (
         <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-lg border border-line">
           <Fact label="First in" value={formatTime(today.punch_in)} />
-          <Fact label="Sessions" value={String((sessions ?? []).length || 1)} divider />
+          {/* The day's total, distinct from the dial's per-session count. This
+              is where "how long did I work today" is answered — the dial answers
+              "how long this stint". */}
+          <Fact label="Today" value={formatShort(totalTodaySeconds)} divider />
           <Fact label="Break" value={today.break_minutes ? `${today.break_minutes}m` : '0m'} divider />
         </div>
       )}
@@ -165,7 +196,7 @@ export function PunchCard() {
 
       {state.key === 'completed' && (
         <p className="mt-3 rounded-lg border border-line bg-elevated px-4 py-3 text-center text-sm font-medium text-ink">
-          {formatHours(today?.working_hours)} today — tap the dial to start another shift
+          Tap the dial to start another shift
         </p>
       )}
 

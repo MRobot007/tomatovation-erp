@@ -11,7 +11,14 @@ import {
   type TeamAttendanceFilters,
 } from '../api/attendance.api'
 import { detectClientContext, requestCoordinates } from '../lib/client-context'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/auth-context'
+
+export interface AttendanceSession {
+  id: string
+  punch_in: string
+  punch_out: string | null
+}
 
 const keys = {
   all: ['attendance'] as const,
@@ -40,6 +47,30 @@ export function useMyAttendanceToday() {
     queryKey: keys.today(user?.id ?? '', date ?? ''),
     queryFn: () => getMyAttendanceToday(user!.id, date!),
     enabled: Boolean(user?.id && date),
+  })
+}
+
+/**
+ * The individual punch-in/out sessions of a day.
+ *
+ * Keyed UNDER ['attendance'] so the punch mutations, which invalidate that
+ * whole prefix, refetch it for free after every punch. A sibling key like
+ * ['attendance-sessions'] would look related and match nothing.
+ */
+export function useTodaySessions(attendanceId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['attendance', 'sessions', attendanceId] as const,
+    enabled: Boolean(attendanceId),
+    queryFn: async (): Promise<AttendanceSession[]> => {
+      const { data, error } = await supabase
+        .from('attendance_sessions')
+        .select('id, punch_in, punch_out')
+        .eq('attendance_id', attendanceId as string)
+        .order('punch_in', { ascending: true })
+
+      if (error) throw error
+      return data ?? []
+    },
   })
 }
 

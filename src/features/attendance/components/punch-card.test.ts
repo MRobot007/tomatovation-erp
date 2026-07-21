@@ -41,27 +41,13 @@ describe('frozenSeconds', () => {
     expect(frozenSeconds(row({ punch_in: null }))).toBe(0)
   })
 
-  test('holds the time worked up to the moment a break began', () => {
-    // 09:00 to 12:30 is three and a half hours.
+  test('is zero while paused on a break', () => {
+    // frozenSeconds now answers one question only — "how long was this closed
+    // day" — because the dial counts the CURRENT session live from its own
+    // punch-in. A day still open (on break, no punch_out) is that live path's
+    // job, so this returns zero rather than owning the number twice.
     const paused = row({ punch_in: at('09:00'), break_started_at: at('12:30') })
-    expect(frozenSeconds(paused)).toBe(3.5 * 3600)
-  })
-
-  test('subtracts breaks already banked earlier in the day', () => {
-    // Same span, but 20 minutes were already taken and paid back.
-    const paused = row({
-      punch_in: at('09:00'),
-      break_started_at: at('12:30'),
-      break_minutes: 20,
-    })
-    expect(frozenSeconds(paused)).toBe(3.5 * 3600 - 20 * 60)
-  })
-
-  test('never goes negative when the banked break exceeds the span', () => {
-    // Shouldn't happen, but a clock skew or an edited row must not render a
-    // negative timer rather than an obviously wrong zero.
-    const odd = row({ punch_in: at('09:00'), break_started_at: at('09:05'), break_minutes: 60 })
-    expect(frozenSeconds(odd)).toBe(0)
+    expect(frozenSeconds(paused)).toBe(0)
   })
 
   test('uses the stored total once the day is closed', () => {

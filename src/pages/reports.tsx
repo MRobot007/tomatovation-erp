@@ -14,7 +14,6 @@ const COLUMNS = [
   { header: 'Employee', value: (row: EmployeePerformance) => row.employee_name },
   { header: 'Department', value: (row: EmployeePerformance) => row.department },
   { header: 'Days present', value: (row: EmployeePerformance) => row.days_present },
-  { header: 'Days late', value: (row: EmployeePerformance) => row.days_late },
   { header: 'Total hours', value: (row: EmployeePerformance) => row.total_hours },
   { header: 'Avg hours per day', value: (row: EmployeePerformance) => row.avg_hours },
   { header: 'Overtime hours', value: (row: EmployeePerformance) => row.overtime_hours },
@@ -31,10 +30,9 @@ export function ReportsPage() {
     (accumulator, row) => ({
       hours: accumulator.hours + Number(row.total_hours),
       overtime: accumulator.overtime + Number(row.overtime_hours),
-      late: accumulator.late + row.days_late,
       tasks: accumulator.tasks + row.tasks_completed,
     }),
-    { hours: 0, overtime: 0, late: 0, tasks: 0 },
+    { hours: 0, overtime: 0, tasks: 0 },
   )
 
   const columns: ReadonlyArray<Column<EmployeePerformance>> = [
@@ -49,17 +47,6 @@ export function ReportsPage() {
       ),
     },
     { id: 'days_present', header: 'Present', numeric: true, cell: (row) => row.days_present },
-    {
-      id: 'days_late',
-      header: 'Late',
-      numeric: true,
-      cell: (row) =>
-        row.days_late > 0 ? (
-          <span className="text-warning">{row.days_late}</span>
-        ) : (
-          <span className="text-ink-subtle">—</span>
-        ),
-    },
     {
       id: 'total_hours',
       header: 'Hours',
@@ -124,10 +111,9 @@ export function ReportsPage() {
         }
       />
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <Total label="Total hours" value={formatHours(totals.hours)} />
         <Total label="Overtime" value={formatHours(totals.overtime)} tone="success" />
-        <Total label="Late arrivals" value={String(totals.late)} tone={totals.late > 0 ? 'warning' : undefined} />
         <Total label="Tasks completed" value={String(totals.tasks)} />
       </div>
 

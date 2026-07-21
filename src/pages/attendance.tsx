@@ -63,7 +63,6 @@ export function TeamAttendancePage() {
 
   const present = data?.filter((row) => row.punch_in != null).length ?? 0
   const working = data?.filter((row) => row.status === 'working').length ?? 0
-  const late = data?.filter((row) => (row.late_minutes ?? 0) > 0).length ?? 0
   const completed = data?.filter((row) => row.status === 'completed').length ?? 0
 
   const columns: ReadonlyArray<Column<AttendanceRow>> = [
@@ -97,17 +96,6 @@ export function TeamAttendancePage() {
       cell: (row) => formatHours(row.working_hours),
     },
     {
-      id: 'late_minutes',
-      header: 'Late',
-      numeric: true,
-      cell: (row) =>
-        row.late_minutes ? (
-          <span className="text-warning">{row.late_minutes}m</span>
-        ) : (
-          <span className="text-ink-subtle">—</span>
-        ),
-    },
-    {
       id: 'status',
       header: 'Status',
       cell: (row) => (
@@ -139,10 +127,9 @@ export function TeamAttendancePage() {
         description="You see the people who report to you. Super admins see everyone."
       />
 
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-5 grid gap-4 sm:grid-cols-3">
         <Metric label="Punched in" value={present} />
         <Metric label="Currently working" value={working} tone="brand" />
-        <Metric label="Late arrivals" value={late} tone={late > 0 ? 'warning' : undefined} />
         <Metric label="Day completed" value={completed} tone="success" />
       </div>
 

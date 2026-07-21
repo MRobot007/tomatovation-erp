@@ -140,11 +140,6 @@ export function LiveBoardPage() {
                           <p className="font-mono text-sm text-ink" data-numeric>
                             {row.punch_out ? formatHours(row.working_hours) : time(row.punch_in)}
                           </p>
-                          {(row.late_minutes ?? 0) > 0 && (
-                            <p className="font-mono text-2xs text-warning" data-numeric>
-                              +{row.late_minutes}m late
-                            </p>
-                          )}
                         </div>
                       </CardContent>
                     </Card>

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import {
-  AlertTriangle,
   ArrowRight,
   CalendarCheck,
   CalendarClock,
@@ -77,7 +76,7 @@ export function DashboardPage() {
       </div>
 
       {isManager && (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
           <Metric
             label="Present today"
             value={stats?.present_today}
@@ -93,14 +92,6 @@ export function DashboardPage() {
             loading={isLoading}
             tone="brand"
             to="/live"
-          />
-          <Metric
-            label="Late today"
-            value={stats?.late_today}
-            icon={AlertTriangle}
-            loading={isLoading}
-            tone={stats && stats.late_today > 0 ? 'warning' : undefined}
-            to="/attendance"
           />
           <Metric
             label="On leave"

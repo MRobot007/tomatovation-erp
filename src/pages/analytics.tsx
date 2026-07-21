@@ -84,7 +84,6 @@ export function AnalyticsPage() {
   const summary = useMemo(() => {
     const days = attendanceData.length
     const present = attendanceData.reduce((sum, row) => sum + (row.present_count ?? 0), 0)
-    const late = attendanceData.reduce((sum, row) => sum + (row.late_count ?? 0), 0)
     const hours = (performance.data ?? []).reduce((sum, row) => sum + (row.total_hours ?? 0), 0)
     const created = leadsData.reduce((sum, row) => sum + (row.created ?? 0), 0)
     const won = leadsData.reduce((sum, row) => sum + (row.won ?? 0), 0)
@@ -93,9 +92,6 @@ export function AnalyticsPage() {
 
     return {
       avgPresent: days > 0 ? present / days : 0,
-      // Of the attendance recorded, not of the workforce — a rate against
-      // headcount would quietly improve every time someone took leave.
-      lateRate: present > 0 ? (late / present) * 100 : 0,
       totalHours: hours,
       created,
       // Null, not zero, when nothing closed. A 0% win rate and no closed deals
@@ -131,7 +127,6 @@ export function AnalyticsPage() {
                     { header: 'Employee', value: (row) => row.employee_name },
                     { header: 'Department', value: (row) => row.department },
                     { header: 'Days present', value: (row) => row.days_present },
-                    { header: 'Days late', value: (row) => row.days_late },
                     { header: 'Total hours', value: (row) => row.total_hours },
                     { header: 'Avg hours/day', value: (row) => row.avg_hours },
                     { header: 'Overtime hours', value: (row) => row.overtime_hours },
@@ -167,7 +162,7 @@ export function AnalyticsPage() {
       )}
 
       {!isEmpty && (
-        <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-5 grid gap-4 sm:grid-cols-3">
           <Kpi
             label="Average present"
             value={summary.avgPresent.toFixed(1)}
@@ -176,19 +171,11 @@ export function AnalyticsPage() {
             index={0}
           />
           <Kpi
-            label="Late arrivals"
-            value={`${summary.lateRate.toFixed(0)}%`}
-            unit="of attendance"
-            tone={summary.lateRate > 15 ? 'warning' : undefined}
-            loading={attendance.isLoading}
-            index={1}
-          />
-          <Kpi
             label="Hours worked"
             value={Math.round(summary.totalHours).toLocaleString()}
             unit="across the period"
             loading={performance.isLoading}
-            index={2}
+            index={1}
           />
           <Kpi
             label="Win rate"
@@ -200,7 +187,7 @@ export function AnalyticsPage() {
             }
             tone={summary.winRate != null && summary.winRate >= 50 ? 'success' : undefined}
             loading={dailyLeads.isLoading}
-            index={3}
+            index={2}
           />
         </div>
       )}
@@ -210,7 +197,7 @@ export function AnalyticsPage() {
           <ChartCard
             index={0}
             title="Attendance"
-            description="People present each day, and how many arrived late."
+            description="People present each day."
             loading={attendance.isLoading}
           >
             <ResponsiveContainer width="100%" height={260}>
@@ -233,16 +220,6 @@ export function AnalyticsPage() {
                   strokeWidth={2}
                   fill="url(#presentFill)"
                   {...seriesAnimation(0)}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="late_count"
-                  name="Late"
-                  stroke={colors.warning}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4, strokeWidth: 2, stroke: colors.surface }}
-                  {...seriesAnimation(1)}
                 />
               </AreaChart>
             </ResponsiveContainer>

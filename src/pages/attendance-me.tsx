@@ -66,17 +66,6 @@ export function MyAttendancePage() {
       cell: (row) => formatHours(row.working_hours),
     },
     {
-      id: 'late_minutes',
-      header: 'Late',
-      numeric: true,
-      cell: (row) =>
-        row.late_minutes ? (
-          <span className="text-warning">{row.late_minutes}m</span>
-        ) : (
-          <span className="text-ink-subtle">—</span>
-        ),
-    },
-    {
       id: 'overtime',
       header: 'Overtime',
       numeric: true,

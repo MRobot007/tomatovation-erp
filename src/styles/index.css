@@ -279,9 +279,9 @@
   }
 
   :root:not(.dark) .glass-flat {
-    border-color: hsl(0 0% 0% / 0.06);
+    border-color: hsl(220 14% 30% / 0.14);
     box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.9),
+      inset 0 1px 0 hsl(var(--glass-edge) / 1),
       var(--shadow-sm);
   }
 
@@ -298,13 +298,14 @@
     );
   }
 
-  /* Light mode: the fill is brighter than the room, so the bevel has to invert
-     too or the edge reads upside down. */
+  /* Light mode: the pane is a thin cool tint, so the lit edge has to be strong
+     enough to still read against paper — a white bevel on a near-white card is
+     the same invisibility problem one layer up. */
   :root:not(.dark) .glass {
-    border-color: hsl(0 0% 0% / 0.06);
+    border-color: hsl(220 14% 30% / 0.14);
     box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.9),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.04),
+      inset 0 1px 0 hsl(var(--glass-edge) / 1),
+      inset 0 -1px 0 hsl(220 14% 20% / 0.06),
       var(--shadow-md);
   }
 

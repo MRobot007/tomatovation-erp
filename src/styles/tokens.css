@@ -119,14 +119,17 @@
     --rail-accent: 0 0% 100%;
 
     /* ---- Glass ----------------------------------------------------------
-     * Light mode gets frost, not smoked glass: a pane lighter than the paper
-     * behind it, with the same lit top edge. Inverting the fill rather than
-     * the idea — glass still filters what is behind, it is just a bright room
-     * now. Opacity runs higher because dark text on a busy translucent field
-     * is where legibility goes first.
+     * Light mode is smoked glass too, just thinner: a COOL, slightly darker
+     * pane over warm paper.
+     *
+     * The first version was white at 72% over near-white paper, which is
+     * white — the panes were invisible and the cards looked exactly as flat as
+     * before. Glass has to be darker than the room in both themes; that is the
+     * whole mechanism. What changes between themes is how dark, not which
+     * direction.
      */
-    --glass: 40 30% 100%;
-    --glass-opacity: 0.72;
+    --glass: 220 16% 40%;
+    --glass-opacity: 0.07;
     --glass-edge: 0 0% 100%;
     --glass-blur: 14px;
 
@@ -188,15 +191,19 @@
      * Cards in the dark theme are panes of smoked glass over the ambient
      * light behind them, not filled rectangles.
      *
-     * The fill is deliberately DARKER than --surface and translucent: glass
-     * is a filter, so what you see through it should be dimmer and cooler
-     * than the room, never a lighter grey painted on top. The edge is the
-     * other half — a real pane catches light along its top bevel and goes
-     * dark at the bottom, and it is that edge, not the blur, that stops it
-     * reading as a flat box at 40% opacity.
+     * The fill is LIGHTER than the paper behind it, which is the opposite of
+     * the light theme and is not an inconsistency. Over a dark room you are
+     * looking mostly at the pane's own surface reflecting the ambient light,
+     * not through it; over a bright room you are looking through it and seeing
+     * the tint. Glass goes light on dark and dark on light for the same
+     * physical reason.
+     *
+     * Getting this backwards composited to 8.1% against a 7% paper — a step of
+     * one percent, which is no card at all. It now lands near 13.6%, a clear
+     * six-point step, and the lit top bevel does the rest.
      */
-    --glass: 220 16% 9%;
-    --glass-opacity: 0.55;
+    --glass: 220 13% 18%;
+    --glass-opacity: 0.6;
     --glass-edge: 210 30% 100%;
     --glass-blur: 16px;
 

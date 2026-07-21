@@ -9,7 +9,16 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
-const STORAGE_KEY = 'tomatovation-erp-theme'
+/**
+ * The `-v2` matters.
+ *
+ * Switching the default to dark did nothing for anyone who had already opened
+ * the app: a stored value always wins over a default, so every existing user
+ * stayed exactly where they were and saw none of the redesign. Retiring the old
+ * key is what actually lands it. Anyone who preferred light simply picks it
+ * again — one click, against a design that otherwise never gets seen.
+ */
+const STORAGE_KEY = 'tomatovation-erp-theme-v2'
 
 /**
  * Dark is the default, not 'system'.

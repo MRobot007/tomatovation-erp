@@ -3,13 +3,44 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FormError } from '@/components/ui/form-field'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useElapsed, useMyAttendanceToday, usePunchActions } from '../hooks/use-attendance'
+import { useElapsedSeconds, useMyAttendanceToday, usePunchActions } from '../hooks/use-attendance'
+import { useSettings } from '@/features/admin/hooks/use-admin'
 import type { Attendance } from '../api/attendance.api'
 import { cn, formatHours } from '@/lib/utils'
 
 function formatTime(value: string | null): string {
   if (!value) return '--'
   return new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+/** Seconds as H:MM:SS, the running-clock format. */
+export function formatClock(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+/**
+ * Time worked on a day whose clock is not currently ticking — paused for a
+ * break, or already finished.
+ *
+ * Break time is subtracted in both branches: the row's break_minutes is what
+ * the punch RPCs bank, and counting a lunch hour as worked would put the
+ * number on the dial at odds with the one payroll sees.
+ */
+export function frozenSeconds(today: Attendance | null | undefined): number {
+  if (!today?.punch_in) return 0
+
+  if (today.punch_out) return Math.round((today.working_hours ?? 0) * 3600)
+
+  if (today.break_started_at) {
+    const upToBreak =
+      (new Date(today.break_started_at).getTime() - new Date(today.punch_in).getTime()) / 1000
+    return Math.max(0, Math.floor(upToBreak) - (today.break_minutes ?? 0) * 60)
+  }
+
+  return 0
 }
 
 /**
@@ -25,17 +56,30 @@ function formatTime(value: string | null): string {
 export function PunchCard() {
   const { data: today, isLoading } = useMyAttendanceToday()
   const actions = usePunchActions()
+  const { data: settings } = useSettings()
 
   // Called before the early return and unconditionally: hooks cannot sit
   // behind a branch, and deriveState is a plain function, not a component.
-  const elapsed = useElapsed(
-    today?.punch_in && !today.punch_out && !today.break_started_at ? today.punch_in : null,
-    today?.break_minutes ?? 0,
-  )
+  const running =
+    today?.punch_in && !today.punch_out && !today.break_started_at ? today.punch_in : null
+
+  const liveSeconds = useElapsedSeconds(running, today?.break_minutes ?? 0)
+
+  // The clock only ticks while actually working, so a paused or finished day
+  // needs its total computed rather than read from the live counter — which is
+  // zero the moment `running` goes null. Without this the dial reads "0:00:00"
+  // the instant someone takes a break, as if the morning had not happened.
+  const workedSeconds = running ? liveSeconds : frozenSeconds(today)
+
+  // The ring fills across a standard day, from settings rather than a constant
+  // — an office on a 7-hour day should not see a permanently under-filled dial.
+  const standardHours = settings?.standard_hours ?? 8
+  const progress = Math.min(1, workedSeconds / Math.max(1, standardHours * 3600))
+  const elapsed = today?.punch_in ? formatClock(workedSeconds) : '—'
 
   if (isLoading) return <PunchCardSkeleton />
 
-  const state = deriveState(today, elapsed)
+  const state = deriveState(today)
   const error = actions.punchIn.error ?? actions.punchOut.error ?? actions.toggleBreak.error
   const busy =
     actions.punchIn.isPending || actions.punchOut.isPending || actions.toggleBreak.isPending
@@ -86,27 +130,14 @@ export function PunchCard() {
         <div className="hidden w-px self-stretch bg-line sm:block" aria-hidden />
 
         <div className="flex flex-col items-center justify-center gap-1 text-center">
-          <div
-            className={cn(
-              'mb-2 flex size-28 items-center justify-center rounded-full transition-colors duration-500',
-              state.key === 'working' && 'bg-success-soft',
-              state.key === 'on_break' && 'bg-warning-soft',
-              state.key === 'completed' && 'bg-success-soft',
-              state.key === 'not_started' && 'bg-elevated',
-            )}
-          >
-            <state.icon
-              className={cn(
-                'size-9',
-                state.key === 'working' && 'text-success',
-                state.key === 'on_break' && 'text-warning',
-                state.key === 'completed' && 'text-success',
-                state.key === 'not_started' && 'text-danger',
-              )}
-              aria-hidden
-            />
-          </div>
-          <p className="font-display text-lg font-semibold leading-tight tracking-tight text-ink">
+          <Dial
+            state={state}
+            elapsed={elapsed}
+            progress={progress}
+            busy={busy}
+            onStart={() => actions.punchIn.mutate()}
+          />
+          <p className="mt-3 font-display text-lg font-semibold leading-tight tracking-tight text-ink">
             {state.headline}
           </p>
           <p className="max-w-[16rem] text-sm text-ink-muted">{state.detail}</p>
@@ -191,6 +222,110 @@ export function PunchCard() {
   )
 }
 
+/** r=45 in a 100-unit viewBox, so the ring's full length is 2·pi·45. */
+const RING_LENGTH = 2 * Math.PI * 45
+
+/**
+ * The dial: tap it to start the day, then watch it count.
+ *
+ * Before punching in it is a button — the largest, most obvious target on the
+ * card, which is right for the thing everyone opens the app to do. Once
+ * running it stops being a button and becomes a readout.
+ *
+ * Deliberately NOT a toggle. Tapping the same circle to punch OUT would put
+ * the one irreversible action of the day under the same careless tap that
+ * started it; ending a day is worth a deliberate, labelled press. So the ring
+ * starts the clock and the button below stops it.
+ */
+function Dial({
+  state,
+  elapsed,
+  progress,
+  busy,
+  onStart,
+}: {
+  state: DerivedState
+  elapsed: string
+  progress: number
+  busy: boolean
+  onStart: () => void
+}) {
+  const running = state.key === 'working' || state.key === 'on_break'
+
+  const ringClass =
+    state.key === 'on_break'
+      ? 'text-warning'
+      : state.key === 'not_started'
+        ? 'text-danger'
+        : 'text-success'
+
+  const face = (
+    <>
+      {/* -rotate-90 so the ring fills from twelve o'clock. An SVG arc starts at
+          three o'clock, which reads as starting the day an hour and a half in. */}
+      <svg viewBox="0 0 100 100" className="absolute inset-0 size-full -rotate-90" aria-hidden>
+        <circle cx="50" cy="50" r="45" fill="none" strokeWidth="6" className="stroke-line" />
+        {running && (
+          <circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            strokeWidth="6"
+            strokeLinecap="round"
+            className={cn('stroke-current transition-[stroke-dashoffset] duration-1000 ease-linear', ringClass)}
+            strokeDasharray={RING_LENGTH}
+            strokeDashoffset={RING_LENGTH * (1 - progress)}
+          />
+        )}
+      </svg>
+
+      {running ? (
+        <span className="font-mono text-xl font-semibold tracking-tight text-ink" data-numeric>
+          {elapsed}
+        </span>
+      ) : (
+        <state.icon className={cn('size-9', ringClass)} aria-hidden />
+      )}
+    </>
+  )
+
+  const shell = cn(
+    'relative flex size-32 items-center justify-center rounded-full transition-colors duration-500',
+    state.key === 'working' && 'bg-success-soft',
+    state.key === 'on_break' && 'bg-warning-soft',
+    state.key === 'completed' && 'bg-success-soft',
+    state.key === 'not_started' && 'bg-elevated',
+  )
+
+  if (state.key !== 'not_started') {
+    return <div className={shell}>{face}</div>
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      disabled={busy}
+      aria-label="Punch in and start the clock"
+      className={cn(
+        shell,
+        'group cursor-pointer hover:bg-elevated/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        'active:scale-95 disabled:cursor-not-allowed disabled:opacity-60',
+        'transition-[background-color,transform] duration-200 ease-out-expo',
+      )}
+    >
+      {face}
+      {/* A ring that widens on hover, so the circle reads as pressable before
+          it is pressed rather than only once the cursor is on it. */}
+      <span
+        className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-transparent transition-all duration-200 group-hover:ring-danger/25 group-hover:ring-offset-2 group-hover:ring-offset-surface"
+        aria-hidden
+      />
+    </button>
+  )
+}
+
 const TONE_CLASS = {
   success: 'bg-success-soft text-success',
   danger: 'bg-danger-soft text-danger',
@@ -266,7 +401,7 @@ interface DerivedState {
  * only disagree if something wrote them directly, and the timestamps are the
  * ones payroll cares about.
  */
-function deriveState(today: Attendance | null | undefined, elapsed: string): DerivedState {
+function deriveState(today: Attendance | null | undefined): DerivedState {
   if (!today?.punch_in) {
     return {
       key: 'not_started',
@@ -293,8 +428,10 @@ function deriveState(today: Attendance | null | undefined, elapsed: string): Der
     return {
       key: 'on_break',
       pill: 'On Break',
-      headline: `Since ${formatTime(today.break_started_at)}`,
-      detail: 'Break time is deducted from the day automatically.',
+      headline: 'On break',
+      // The dial holds the count, so the line under it says what the count is
+      // doing rather than repeating the figure a centimetre above it.
+      detail: `Paused at ${formatTime(today.break_started_at)} — the clock is stopped.`,
       icon: Coffee,
     }
   }
@@ -302,7 +439,7 @@ function deriveState(today: Attendance | null | undefined, elapsed: string): Der
   return {
     key: 'working',
     pill: 'Working',
-    headline: elapsed,
+    headline: 'Working now',
     detail: `Since ${formatTime(today.punch_in)}`,
     icon: Timer,
   }

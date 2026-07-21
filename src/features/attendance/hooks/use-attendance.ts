@@ -100,7 +100,17 @@ export function usePunchActions() {
  * a backgrounded tab (where timers are throttled) shows the right number the
  * moment it returns to the foreground.
  */
-export function useElapsed(since: string | null | undefined, bankedMinutes = 0): string {
+/**
+ * Seconds worked so far, ticking once a second.
+ *
+ * Recomputed from the clock on every tick rather than incremented, so a laptop
+ * coming back from sleep is immediately right instead of however far behind
+ * the interval fell while it was suspended.
+ *
+ * Returns 0 rather than null when not running, so callers can do arithmetic on
+ * it without a guard at every use.
+ */
+export function useElapsedSeconds(since: string | null | undefined, bankedMinutes = 0): number {
   const [, forceTick] = useState(0)
 
   useEffect(() => {
@@ -109,12 +119,19 @@ export function useElapsed(since: string | null | undefined, bankedMinutes = 0):
     return () => window.clearInterval(timer)
   }, [since])
 
-  if (!since) return '—'
+  if (!since) return 0
 
-  const totalSeconds = Math.max(
+  return Math.max(
     0,
     Math.floor((Date.now() - new Date(since).getTime()) / 1000) - bankedMinutes * 60,
   )
+}
+
+export function useElapsed(since: string | null | undefined, bankedMinutes = 0): string {
+  const totalSeconds = useElapsedSeconds(since, bankedMinutes)
+
+  if (!since) return '—'
+
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60

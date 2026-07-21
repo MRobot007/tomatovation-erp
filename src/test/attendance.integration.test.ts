@@ -168,7 +168,23 @@ describe('punch RPCs', () => {
   test('punching out twice is rejected rather than silently overwriting', async () => {
     const { error } = await client.rpc('punch_out', {})
     expect(error).not.toBeNull()
-    expect(error?.message).toMatch(/already punched out/i)
+
+    // The wording changed with migration 0029 and the change is the point: a
+    // day can now be reopened, so "already punched out" is no longer a
+    // terminal state to complain about. What is actually wrong is that no
+    // session is open, and that is what the message says.
+    expect(error?.message).toMatch(/not currently punched in/i)
+  })
+
+  test('but punching in again after punching out IS allowed', async () => {
+    // The whole reason for the change above. Asserted here as well as in the
+    // sessions suite, because this file is where the punch state machine is
+    // documented and "punch out is final" was previously part of it.
+    const back = await client.rpc('punch_in', {})
+    expect(back.error).toBeNull()
+    expect((back.data as unknown as { status: string }).status).toBe('working')
+
+    await client.rpc('punch_out', {})
   })
 
   test('a break cannot be started after the day is closed', async () => {

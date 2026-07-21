@@ -179,6 +179,66 @@ export type Database = {
           },
         ]
       }
+      attendance_sessions: {
+        Row: {
+          attendance_id: string
+          browser: string | null
+          created_at: string
+          device: string | null
+          employee_id: string
+          id: string
+          punch_in: string
+          punch_in_lat: number | null
+          punch_in_lng: number | null
+          punch_out: string | null
+          punch_out_lat: number | null
+          punch_out_lng: number | null
+        }
+        Insert: {
+          attendance_id: string
+          browser?: string | null
+          created_at?: string
+          device?: string | null
+          employee_id: string
+          id?: string
+          punch_in: string
+          punch_in_lat?: number | null
+          punch_in_lng?: number | null
+          punch_out?: string | null
+          punch_out_lat?: number | null
+          punch_out_lng?: number | null
+        }
+        Update: {
+          attendance_id?: string
+          browser?: string | null
+          created_at?: string
+          device?: string | null
+          employee_id?: string
+          id?: string
+          punch_in?: string
+          punch_in_lat?: number | null
+          punch_in_lng?: number | null
+          punch_out?: string | null
+          punch_out_lat?: number | null
+          punch_out_lng?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_sessions_attendance_id_fkey"
+            columns: ["attendance_id"]
+            isOneToOne: false
+            referencedRelation: "attendance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_sessions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: Database["public"]["Enums"]["audit_action"]

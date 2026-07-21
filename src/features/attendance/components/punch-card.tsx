@@ -1,6 +1,7 @@
 import { Coffee, LogIn, LogOut, MapPin, MonitorSmartphone, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { SessionList } from './session-list'
 import { FormError } from '@/components/ui/form-field'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useElapsedSeconds, useMyAttendanceToday, usePunchActions } from '../hooks/use-attendance'
@@ -196,11 +197,29 @@ export function PunchCard() {
         )}
 
         {state.key === 'completed' && (
-          <p className="w-full rounded-lg border border-success/25 bg-success-soft px-4 py-3 text-center text-sm font-medium text-success">
-            Day complete — {formatHours(today?.working_hours)} recorded
-          </p>
+          <>
+            <p className="flex flex-1 items-center justify-center rounded-lg border border-success/25 bg-success-soft px-4 py-3 text-center text-sm font-medium text-success">
+              {formatHours(today?.working_hours)} recorded so far
+            </p>
+            {/* Punching out is no longer the end of the day. Leaving for a site
+                visit and coming back is normal, and without this the afternoon
+                simply could not be recorded. */}
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+              loading={actions.punchIn.isPending}
+              disabled={busy}
+              onClick={() => actions.punchIn.mutate()}
+            >
+              <LogIn aria-hidden />
+              Punch in again
+            </Button>
+          </>
         )}
       </div>
+
+      <SessionList attendanceId={today?.id} />
 
       {today && (today.device || today.punch_in_lat != null) && (
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-subtle">

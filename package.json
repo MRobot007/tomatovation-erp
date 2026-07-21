@@ -15,7 +15,7 @@
     "test:integration": "node scripts/run-integration.mjs",
     "test:rls": "vitest run --config vitest.rls.config.ts src/test/rls.integration.test.ts",
     "test:attendance": "npm run test:attendance:reset && vitest run --config vitest.rls.config.ts src/test/attendance.integration.test.ts",
-    "test:attendance:reset": "supabase db query --linked \"delete from public.attendance where employee_id = (select id from public.profiles where email = 'rls-fixture-b@example.com')\"",
+    "test:attendance:reset": "npx supabase db query --linked \"delete from public.attendance where employee_id = (select id from public.profiles where email = 'rls-fixture-b@example.com')\"",
     "test:db": "supabase db query --linked --file supabase/tests/attendance_calculations.sql",
     "test:manager": "vitest run --config vitest.rls.config.ts src/test/manager-scoping.integration.test.ts",
     "test:storage": "vitest run --config vitest.rls.config.ts src/test/storage.integration.test.ts",
@@ -30,7 +30,8 @@
     "test:autopunch": "supabase db query --linked --file supabase/tests/auto_punch_out.sql",
     "test:reset-password": "vitest run --config vitest.rls.config.ts src/test/reset-password.integration.test.ts",
     "test:departments": "vitest run --config vitest.rls.config.ts src/test/departments.integration.test.ts",
-    "test:lead-access": "vitest run --config vitest.rls.config.ts src/test/lead-access.integration.test.ts"
+    "test:lead-access": "vitest run --config vitest.rls.config.ts src/test/lead-access.integration.test.ts",
+    "test:sessions": "vitest run --config vitest.rls.config.ts src/test/punch-sessions.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

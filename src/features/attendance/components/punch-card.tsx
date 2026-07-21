@@ -136,7 +136,16 @@ export function PunchCard() {
             elapsed={elapsed}
             progress={progress}
             busy={busy}
-            onStart={() => actions.punchIn.mutate()}
+            onToggle={() => {
+              // The circle is the whole control: it punches in when off, and
+              // punches out when on. Tapping while on break ends the day too,
+              // which the punch_out RPC handles by banking the open break.
+              if (state.key === 'working' || state.key === 'on_break') {
+                actions.punchOut.mutate()
+              } else {
+                actions.punchIn.mutate()
+              }
+            }}
           />
           <p className="mt-3 font-display text-lg font-semibold leading-tight tracking-tight text-ink">
             {state.headline}
@@ -151,30 +160,17 @@ export function PunchCard() {
         </div>
       )}
 
-      {/* The action spans the card. This is the one thing most people open the
-          app to do, and a full-width target says so without a label having to
-          explain that it is the primary. */}
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-        {state.key === 'not_started' && (
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full"
-            loading={actions.punchIn.isPending}
-            disabled={busy}
-            onClick={() => actions.punchIn.mutate()}
-          >
-            <LogIn aria-hidden />
-            Punch In
-          </Button>
-        )}
-
-        {(state.key === 'working' || state.key === 'on_break') && (
-          <>
+      {/* Punch in and out now live in the dial itself, so the only action left
+          down here is the break — a secondary thing that would be wrong to give
+          the same weight as the tap target above. Not started has nothing to
+          show, so the row is dropped entirely rather than left as a gap. */}
+      {state.key !== 'not_started' && (
+        <div className="mt-5 flex flex-col gap-2">
+          {(state.key === 'working' || state.key === 'on_break') && (
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto"
+              className="w-full"
               loading={actions.toggleBreak.isPending}
               disabled={busy}
               onClick={() => actions.toggleBreak.mutate()}
@@ -182,42 +178,15 @@ export function PunchCard() {
               <Coffee aria-hidden />
               {state.key === 'on_break' ? 'End break' : 'Take a break'}
             </Button>
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full flex-1"
-              loading={actions.punchOut.isPending}
-              disabled={busy}
-              onClick={() => actions.punchOut.mutate()}
-            >
-              <LogOut aria-hidden />
-              Punch Out
-            </Button>
-          </>
-        )}
+          )}
 
-        {state.key === 'completed' && (
-          <>
-            <p className="flex flex-1 items-center justify-center rounded-lg border border-success/25 bg-success-soft px-4 py-3 text-center text-sm font-medium text-success">
-              {formatHours(today?.working_hours)} recorded so far
+          {state.key === 'completed' && (
+            <p className="w-full rounded-lg border border-success/25 bg-success-soft px-4 py-3 text-center text-sm font-medium text-success">
+              {formatHours(today?.working_hours)} recorded — tap the dial to start another shift
             </p>
-            {/* Punching out is no longer the end of the day. Leaving for a site
-                visit and coming back is normal, and without this the afternoon
-                simply could not be recorded. */}
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto"
-              loading={actions.punchIn.isPending}
-              disabled={busy}
-              onClick={() => actions.punchIn.mutate()}
-            >
-              <LogIn aria-hidden />
-              Punch in again
-            </Button>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <SessionList attendanceId={today?.id} />
 
@@ -245,29 +214,28 @@ export function PunchCard() {
 const RING_LENGTH = 2 * Math.PI * 45
 
 /**
- * The dial: tap it to start the day, then watch it count.
+ * The dial IS the control. Tap it to punch in, and it starts counting; tap it
+ * again to punch out.
  *
- * Before punching in it is a button — the largest, most obvious target on the
- * card, which is right for the thing everyone opens the app to do. Once
- * running it stops being a button and becomes a readout.
- *
- * Deliberately NOT a toggle. Tapping the same circle to punch OUT would put
- * the one irreversible action of the day under the same careless tap that
- * started it; ending a day is worth a deliberate, labelled press. So the ring
- * starts the clock and the button below stops it.
+ * It was punch-in-only before, with a separate button to punch out, on the
+ * grounds that punching out was irreversible and should not sit under the same
+ * careless tap that started the day. That reasoning went away with the
+ * multiple-sessions change: a day can be reopened by punching in again, so a
+ * mistaken tap costs one more tap to undo, not a lost afternoon. A single
+ * toggle is simpler and is what was asked for.
  */
 function Dial({
   state,
   elapsed,
   progress,
   busy,
-  onStart,
+  onToggle,
 }: {
   state: DerivedState
   elapsed: string
   progress: number
   busy: boolean
-  onStart: () => void
+  onToggle: () => void
 }) {
   const running = state.key === 'working' || state.key === 'on_break'
 
@@ -278,19 +246,37 @@ function Dial({
         ? 'text-danger'
         : 'text-success'
 
-  const face = (
-    <>
+  const caption = running ? 'Tap to punch out' : 'Tap to punch in'
+  const CaptionIcon = running ? LogOut : LogIn
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={busy}
+      aria-label={running ? 'Punch out and stop the clock' : 'Punch in and start the clock'}
+      className={cn(
+        'group relative flex size-36 items-center justify-center rounded-full',
+        'cursor-pointer transition-[background-color,transform] duration-300 ease-out-expo',
+        'active:scale-95 disabled:cursor-not-allowed disabled:opacity-60',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+        state.key === 'working' && 'bg-success-soft',
+        state.key === 'on_break' && 'bg-warning-soft',
+        state.key === 'completed' && 'bg-success-soft',
+        state.key === 'not_started' && 'bg-elevated hover:bg-elevated/70',
+      )}
+    >
       {/* -rotate-90 so the ring fills from twelve o'clock. An SVG arc starts at
           three o'clock, which reads as starting the day an hour and a half in. */}
       <svg viewBox="0 0 100 100" className="absolute inset-0 size-full -rotate-90" aria-hidden>
-        <circle cx="50" cy="50" r="45" fill="none" strokeWidth="6" className="stroke-line" />
+        <circle cx="50" cy="50" r="45" fill="none" strokeWidth="5" className="stroke-line" />
         {running && (
           <circle
             cx="50"
             cy="50"
             r="45"
             fill="none"
-            strokeWidth="6"
+            strokeWidth="5"
             strokeLinecap="round"
             className={cn('stroke-current transition-[stroke-dashoffset] duration-1000 ease-linear', ringClass)}
             strokeDasharray={RING_LENGTH}
@@ -299,46 +285,29 @@ function Dial({
         )}
       </svg>
 
-      {running ? (
-        <span className="font-mono text-xl font-semibold tracking-tight text-ink" data-numeric>
-          {elapsed}
+      <span className="relative flex flex-col items-center gap-1.5">
+        {running ? (
+          <span className="font-mono text-2xl font-semibold tracking-tight text-ink" data-numeric>
+            {elapsed}
+          </span>
+        ) : (
+          <state.icon className={cn('size-8', ringClass)} aria-hidden />
+        )}
+        <span className="flex items-center gap-1 text-2xs font-semibold uppercase tracking-wide text-ink-subtle">
+          <CaptionIcon className="size-3" aria-hidden />
+          {caption}
         </span>
-      ) : (
-        <state.icon className={cn('size-9', ringClass)} aria-hidden />
-      )}
-    </>
-  )
+      </span>
 
-  const shell = cn(
-    'relative flex size-32 items-center justify-center rounded-full transition-colors duration-500',
-    state.key === 'working' && 'bg-success-soft',
-    state.key === 'on_break' && 'bg-warning-soft',
-    state.key === 'completed' && 'bg-success-soft',
-    state.key === 'not_started' && 'bg-elevated',
-  )
-
-  if (state.key !== 'not_started') {
-    return <div className={shell}>{face}</div>
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onStart}
-      disabled={busy}
-      aria-label="Punch in and start the clock"
-      className={cn(
-        shell,
-        'group cursor-pointer hover:bg-elevated/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-        'active:scale-95 disabled:cursor-not-allowed disabled:opacity-60',
-        'transition-[background-color,transform] duration-200 ease-out-expo',
-      )}
-    >
-      {face}
       {/* A ring that widens on hover, so the circle reads as pressable before
-          it is pressed rather than only once the cursor is on it. */}
+          the cursor is on it. Tinted by the action: red-ish to punch out,
+          green-ish to punch in. */}
       <span
-        className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-transparent transition-all duration-200 group-hover:ring-danger/25 group-hover:ring-offset-2 group-hover:ring-offset-surface"
+        className={cn(
+          'pointer-events-none absolute inset-0 rounded-full ring-2 ring-transparent transition-all duration-200',
+          'group-hover:ring-offset-2 group-hover:ring-offset-surface',
+          running ? 'group-hover:ring-danger/25' : 'group-hover:ring-success/25',
+        )}
         aria-hidden
       />
     </button>

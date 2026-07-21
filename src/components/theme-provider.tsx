@@ -11,10 +11,21 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 const STORAGE_KEY = 'tomatovation-erp-theme'
 
+/**
+ * Dark is the default, not 'system'.
+ *
+ * The interface is designed around smoked glass over a lit graphite room, and
+ * that is the composition the identity was built for — a white logo, a metal
+ * rail, no colour but the status hues. Light mode still works and is a click
+ * away, but it is the variant, not the intent, and following the OS would
+ * hand most people the variant.
+ *
+ * An explicit choice always wins: this only sets where someone starts.
+ */
 function readStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'system'
+  if (typeof window === 'undefined') return 'dark'
   const stored = window.localStorage.getItem(STORAGE_KEY)
-  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'dark'
 }
 
 function systemPrefersDark(): boolean {

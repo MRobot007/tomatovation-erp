@@ -17,7 +17,10 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2',
-        'max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-lg border border-line bg-surface shadow-lg',
+        'max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-lg shadow-lg',
+        // Opaque enough to read a form through: a dialog is where the blur
+        // behind matters least and the legibility of what is on it matters most.
+        'glass [--glass-opacity:0.94] [--glass-blur:22px]',
         'data-[state=open]:animate-rise-in',
         className,
       )}

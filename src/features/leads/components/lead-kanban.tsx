@@ -39,7 +39,7 @@ export function LeadKanban({
 
   if (!leads || leads.length === 0) {
     return (
-      <div className="rounded-lg border border-line bg-surface">
+      <div className="glass-flat rounded-lg">
         <EmptyState
           title="No leads match these filters"
           description="Try widening the filters, or add the first lead."
@@ -96,7 +96,7 @@ function LeadCard({ lead, todayDate }: { lead: LeadRow; todayDate?: string }) {
   return (
     <Link
       to={`/leads/${lead.id}`}
-      className="group rounded-lg border border-line bg-surface p-3 shadow-sm transition-all hover:border-line-strong hover:shadow-md"
+      className="glass-flat group rounded-lg p-3 transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
       <p className="truncate font-medium text-ink group-hover:text-brand">{lead.company}</p>
       {lead.contact_name && (

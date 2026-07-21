@@ -70,7 +70,7 @@ export function AppShell() {
   if (!role) return null
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-paper">
+    <div className="ambient flex h-dvh overflow-hidden bg-paper">
       <Sidebar role={role} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
       <MobileNav role={role} open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
       <CommandPalette />

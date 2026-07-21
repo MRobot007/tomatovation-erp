@@ -231,6 +231,112 @@
     box-shadow: 0 0 8px 0 hsl(var(--rail-accent) / 0.7);
   }
 
+  /* ==========================================================================
+     Glass
+     ==========================================================================
+     Three things make a pane read as glass, and only one of them is the blur:
+
+     1. It is DARKER than the room, not lighter. Glass filters; a lighter fill
+        reads as paint. This is the difference most glassmorphism gets wrong.
+     2. It has a lit top bevel and a dark bottom one. A real edge catches the
+        light from above — that edge is what holds the shape together at 55%
+        opacity, and without it the card dissolves.
+     3. There is something behind it worth blurring. Hence .ambient below: on
+        a flat fill, backdrop-blur is an expensive no-op. */
+
+  .glass {
+    /* isolate + a negative z on the sheen below. Without the stacking context
+       the sheen is a positioned descendant, which paints ABOVE the card's own
+       text; with it, the sheen lands between the fill and the content, which
+       is where a reflection on a pane actually is. */
+    isolation: isolate;
+    background-color: hsl(var(--glass) / var(--glass-opacity));
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    box-shadow:
+      /* the lit top bevel */
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
+      /* the pane's own thickness, shadowed at the base */
+      inset 0 -1px 0 hsl(0 0% 0% / 0.25),
+      var(--shadow-md);
+  }
+
+  /* Glass without the blur, for anything that repeats.
+     backdrop-filter forces a fresh readback of everything behind the element
+     per frame; six of those on a dashboard is nothing, but a kanban column
+     with forty lead cards is a scroll that drops frames. Over a background
+     this soft the blur contributes almost nothing visually anyway — the fill
+     and the bevel are doing the work — so list items get those and skip it. */
+  .glass-flat {
+    isolation: isolate;
+    background-color: hsl(var(--glass) / calc(var(--glass-opacity) * 0.9));
+    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.2),
+      var(--shadow-sm);
+  }
+
+  :root:not(.dark) .glass-flat {
+    border-color: hsl(0 0% 0% / 0.06);
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.9),
+      var(--shadow-sm);
+  }
+
+  /* A single diagonal sheen across the top-left corner, the way a flat pane
+     picks up a window. One gradient, fixed — not animated, because a card that
+     shimmers on its own is a distraction on a screen holding fifteen of them. */
+  .glass::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
+    background-image: linear-gradient(
+      145deg,
+      hsl(var(--glass-edge) / 0.06) 0%,
+      transparent 38%
+    );
+  }
+
+  /* Light mode: the fill is brighter than the room, so the bevel has to invert
+     too or the edge reads upside down. */
+  :root:not(.dark) .glass {
+    border-color: hsl(0 0% 0% / 0.06);
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.9),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.04),
+      var(--shadow-md);
+  }
+
+  /* Ambient light for the glass to sit in.
+     Soft pools rather than the usual blurred colour blobs — this is an ERP,
+     and a purple orb behind a payroll table is a costume, not a design. The
+     light is achromatic, matching the identity: it reads as a lit room.
+
+     Painted as background-image ON the shell rather than as a pseudo-element
+     behind it. A `fixed; z-index: -10` child sits at step 2 of the paint order
+     while the parent's own background colour lands at step 3 — so the parent
+     would have covered the light completely and this would have looked like
+     nothing at all had shipped. background-image always paints above
+     background-color on the same element, which sidesteps it entirely.
+
+     The shell is h-dvh and does not itself scroll — only <main> inside it
+     does — so this stays put without needing background-attachment: fixed,
+     which is a known jank source on mobile. */
+  .ambient {
+    background-image:
+      radial-gradient(60% 50% at 12% 0%, hsl(210 30% 100% / 0.055) 0%, transparent 60%),
+      radial-gradient(50% 45% at 88% 8%, hsl(210 30% 100% / 0.035) 0%, transparent 62%),
+      radial-gradient(70% 60% at 50% 100%, hsl(220 40% 2% / 0.5) 0%, transparent 70%);
+  }
+
+  :root:not(.dark) .ambient {
+    background-image:
+      radial-gradient(60% 50% at 12% 0%, hsl(40 40% 100% / 0.9) 0%, transparent 60%),
+      radial-gradient(55% 45% at 88% 4%, hsl(220 30% 96% / 0.7) 0%, transparent 62%),
+      radial-gradient(80% 60% at 50% 100%, hsl(40 20% 88% / 0.35) 0%, transparent 70%);
+  }
+
   /* --- Cards ------------------------------------------------------------- */
 
   /* Applied to cards that DO something when clicked. Not to every card: if

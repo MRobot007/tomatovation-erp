@@ -118,6 +118,18 @@
        It is also, exactly, the logo. */
     --rail-accent: 0 0% 100%;
 
+    /* ---- Glass ----------------------------------------------------------
+     * Light mode gets frost, not smoked glass: a pane lighter than the paper
+     * behind it, with the same lit top edge. Inverting the fill rather than
+     * the idea — glass still filters what is behind, it is just a bright room
+     * now. Opacity runs higher because dark text on a busy translucent field
+     * is where legibility goes first.
+     */
+    --glass: 40 30% 100%;
+    --glass-opacity: 0.72;
+    --glass-edge: 0 0% 100%;
+    --glass-blur: 14px;
+
     /* ---- Elevation ------------------------------------------------------ */
     /* Warm-tinted shadows. A neutral black shadow on warm paper reads muddy. */
     --shadow-color: 30 25% 20%;
@@ -155,17 +167,38 @@
   }
 
   .dark {
-    --paper: 36 16% 8%;
-    --surface: 36 14% 11%;
-    --elevated: 36 13% 15%;
-    --sunken: 36 18% 6%;
+    /* Cool graphite at hue 220, the rail's own hue, not the warm 36deg these
+       started at. In the dark theme the rail is no longer a panel set against
+       paper — it is the same material as everything around it, and a warm
+       surface butted against a cool one just looked like two mistakes.
+       One material, lit from above. */
+    --paper: 220 14% 7%;
+    --surface: 220 12% 11%;
+    --elevated: 220 11% 15%;
+    --sunken: 220 16% 5%;
 
-    --ink: 40 25% 93%;
-    --ink-muted: 38 12% 65%;
-    --ink-subtle: 38 10% 50%;
+    --ink: 210 16% 95%;
+    --ink-muted: 214 10% 68%;
+    --ink-subtle: 214 8% 52%;
 
-    --line: 36 12% 20%;
-    --line-strong: 36 12% 28%;
+    --line: 220 9% 20%;
+    --line-strong: 220 9% 30%;
+
+    /* ---- Glass ----------------------------------------------------------
+     * Cards in the dark theme are panes of smoked glass over the ambient
+     * light behind them, not filled rectangles.
+     *
+     * The fill is deliberately DARKER than --surface and translucent: glass
+     * is a filter, so what you see through it should be dimmer and cooler
+     * than the room, never a lighter grey painted on top. The edge is the
+     * other half — a real pane catches light along its top bevel and goes
+     * dark at the bottom, and it is that edge, not the blur, that stops it
+     * reading as a flat box at 40% opacity.
+     */
+    --glass: 220 16% 9%;
+    --glass-opacity: 0.55;
+    --glass-edge: 210 30% 100%;
+    --glass-blur: 16px;
 
     /* The accent INVERTS. On paper it is the darkest thing present; in the dark
        theme it is the lightest. Same idea — maximum contrast against the
@@ -190,7 +223,7 @@
     --presence-break: 45 72% 58%;
     --presence-offline: 38 8% 38%;
 
-    --shadow-color: 36 40% 2%;
+    --shadow-color: 220 40% 2%;
     --shadow-sm: 0 1px 2px -1px hsl(var(--shadow-color) / 0.5);
     --shadow-md:
       0 2px 4px -2px hsl(var(--shadow-color) / 0.5), 0 4px 12px -4px hsl(var(--shadow-color) / 0.4);
@@ -198,7 +231,7 @@
       0 4px 8px -4px hsl(var(--shadow-color) / 0.6),
       0 12px 32px -8px hsl(var(--shadow-color) / 0.5);
 
-    --primary-foreground: 36 16% 8%;
-    --destructive-foreground: 36 16% 8%;
+    --primary-foreground: 220 14% 7%;
+    --destructive-foreground: 220 14% 7%;
   }
 }

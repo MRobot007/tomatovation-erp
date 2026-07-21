@@ -18,7 +18,10 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        'relative overflow-hidden rounded-lg border border-line bg-surface shadow-sm',
+        // `glass` carries its own border, fill and bevel, so no bg-surface or
+        // border-line here — they would paint over the pane and it would go
+        // back to being a rectangle.
+        'glass relative overflow-hidden rounded-lg',
         interactive && 'card-interactive',
         className,
       )}

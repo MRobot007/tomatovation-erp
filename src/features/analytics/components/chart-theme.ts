@@ -12,20 +12,23 @@ function cssVar(name: string, fallback: string): string {
 
 export function chartColors() {
   return {
-    // Fallbacks must track tokens.css. They were left on the old orange after
-    // the palette went achromatic, which would have put a stripe of the
-    // retired brand colour back on any chart that rendered before the
-    // stylesheet resolved — the one place it could still appear.
-    brand: cssVar('--brand', 'hsl(220 14% 16%)'),
-    success: cssVar('--success', 'hsl(152 39% 30%)'),
-    warning: cssVar('--warning', 'hsl(45 68% 36%)'),
-    danger: cssVar('--danger', 'hsl(356 60% 45%)'),
-    info: cssVar('--info', 'hsl(212 37% 37%)'),
-    ink: cssVar('--ink', 'hsl(36 12% 9%)'),
-    inkMuted: cssVar('--ink-muted', 'hsl(37 11% 39%)'),
-    inkSubtle: cssVar('--ink-subtle', 'hsl(38 10% 55%)'),
-    line: cssVar('--line', 'hsl(42 20% 87%)'),
-    surface: cssVar('--surface', 'hsl(40 40% 99%)'),
+    // On-glass values throughout: the chart is drawn on a dark pane, so the
+    // series need the lifted hues and the accent needs its white expression.
+    // Fallbacks must track tokens.css by hand.
+    brand: cssVar('--og-brand', 'hsl(210 16% 95%)'),
+    success: cssVar('--og-success', 'hsl(152 45% 58%)'),
+    warning: cssVar('--og-warning', 'hsl(45 75% 62%)'),
+    danger: cssVar('--og-danger', 'hsl(356 70% 68%)'),
+    info: cssVar('--og-info', 'hsl(212 55% 68%)'),
+    // Every chart lives inside a glass card, and a glass card flips its
+    // content tokens to light-on-dark. These read the on-glass values off the
+    // root because getComputedStyle here cannot see a card's cascade — read
+    // the plain --ink and the axes would be near-black on a near-black pane.
+    ink: cssVar('--og-ink', 'hsl(210 16% 96%)'),
+    inkMuted: cssVar('--og-ink-muted', 'hsl(214 10% 73%)'),
+    inkSubtle: cssVar('--og-ink-subtle', 'hsl(214 9% 57%)'),
+    line: cssVar('--og-line', 'hsl(214 12% 32%)'),
+    surface: cssVar('--og-surface', 'hsl(220 12% 17%)'),
   }
 }
 

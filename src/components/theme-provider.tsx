@@ -21,20 +21,19 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 const STORAGE_KEY = 'tomatovation-erp-theme-v2'
 
 /**
- * Dark is the default, not 'system'.
+ * Light is the default, not 'system'.
  *
- * The interface is designed around smoked glass over a lit graphite room, and
- * that is the composition the identity was built for — a white logo, a metal
- * rail, no colour but the status hues. Light mode still works and is a click
- * away, but it is the variant, not the intent, and following the OS would
- * hand most people the variant.
+ * The composition is black glass on a white page — the panes are the dark
+ * thing, and the page is what makes them read as panes. Following the OS would
+ * hand half of everyone the inverted version of a design whose whole point is
+ * that contrast. Dark mode still works and is a click away.
  *
  * An explicit choice always wins: this only sets where someone starts.
  */
 function readStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark'
+  if (typeof window === 'undefined') return 'light'
   const stored = window.localStorage.getItem(STORAGE_KEY)
-  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'dark'
+  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'light'
 }
 
 function systemPrefersDark(): boolean {

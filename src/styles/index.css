@@ -244,6 +244,64 @@
      3. There is something behind it worth blurring. Hence .ambient below: on
         a flat fill, backdrop-blur is an expensive no-op. */
 
+  /* Content on a dark pane is light-on-dark, so the semantic tokens flip at
+     the card boundary. Every component downstream already reads these — the
+     whole card inverts without a single one of them knowing it is on glass,
+     which is the entire return on having a token layer.
+
+     Applies in both themes. In light mode the card is dark against white; in
+     dark mode it is a lighter dark against near-black. Either way the content
+     sits on something dark, so it wants the same treatment. */
+  .glass,
+  .glass-flat {
+    --ink: var(--og-ink);
+    --ink-muted: var(--og-ink-muted);
+    --ink-subtle: var(--og-ink-subtle);
+    --line: var(--og-line);
+    --line-strong: var(--og-line-strong);
+    --surface: var(--og-surface);
+    --elevated: var(--og-elevated);
+    --sunken: var(--og-sunken);
+
+    /* A graphite primary button would vanish on a graphite card. Inside one,
+       the accent takes its dark-theme expression: white. */
+    --brand: var(--og-brand);
+    --brand-hover: 0 0% 100%;
+    --brand-soft: 220 10% 25%;
+    --brand-ink: 210 16% 93%;
+    --primary-foreground: 220 14% 10%;
+
+    /* Status hues lift and their soft fields darken. The light-mode softs are
+       near-white chips, which on a black card read as holes punched in it. */
+    --success: var(--og-success);
+    --success-soft: 152 30% 19%;
+    --warning: var(--og-warning);
+    --warning-soft: 45 40% 19%;
+    --danger: var(--og-danger);
+    --danger-soft: 356 40% 21%;
+    --info: var(--og-info);
+    --info-soft: 212 35% 21%;
+
+    /* shadcn's contract, re-pointed at the flipped values. */
+    --background: var(--og-surface);
+    --foreground: var(--og-ink);
+    --card: var(--og-surface);
+    --card-foreground: var(--og-ink);
+    --popover: var(--og-surface);
+    --popover-foreground: var(--og-ink);
+    --primary: var(--brand);
+    --secondary: var(--og-elevated);
+    --secondary-foreground: var(--og-ink);
+    --muted: var(--og-elevated);
+    --muted-foreground: var(--og-ink-muted);
+    --accent: var(--brand-soft);
+    --accent-foreground: var(--brand-ink);
+    --border: var(--og-line);
+    --input: var(--og-line-strong);
+    --ring: var(--brand);
+    --shadow-color: 220 40% 2%;
+  }
+
   .glass {
     /* isolate + a negative z on the sheen below. Without the stacking context
        the sheen is a positioned descendant, which paints ABOVE the card's own
@@ -279,10 +337,9 @@
   }
 
   :root:not(.dark) .glass-flat {
-    border-color: hsl(220 14% 30% / 0.14);
     box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 1),
-      var(--shadow-sm);
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
+      0 2px 6px -2px hsl(220 25% 12% / 0.16);
   }
 
   /* A single diagonal sheen across the top-left corner, the way a flat pane
@@ -298,15 +355,16 @@
     );
   }
 
-  /* Light mode: the pane is a thin cool tint, so the lit edge has to be strong
-     enough to still read against paper — a white bevel on a near-white card is
-     the same invisibility problem one layer up. */
+  /* Light mode needs no override any more: the pane is dark in both themes, so
+     the lit-top / shadowed-bottom bevel above is already correct. What it does
+     need is a heavier drop shadow — a black card on white paper casts a real
+     one, and without it the card looks pasted on rather than sitting above. */
   :root:not(.dark) .glass {
-    border-color: hsl(220 14% 30% / 0.14);
     box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 1),
-      inset 0 -1px 0 hsl(220 14% 20% / 0.06),
-      var(--shadow-md);
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.12),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.3),
+      0 2px 6px -2px hsl(220 25% 12% / 0.18),
+      0 12px 28px -8px hsl(220 25% 12% / 0.22);
   }
 
   /* Ambient light for the glass to sit in.

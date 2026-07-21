@@ -119,19 +119,45 @@
     --rail-accent: 0 0% 100%;
 
     /* ---- Glass ----------------------------------------------------------
-     * Light mode is smoked glass too, just thinner: a COOL, slightly darker
-     * pane over warm paper.
+     * Smoked black panes on a white page.
      *
-     * The first version was white at 72% over near-white paper, which is
-     * white — the panes were invisible and the cards looked exactly as flat as
-     * before. Glass has to be darker than the room in both themes; that is the
-     * whole mechanism. What changes between themes is how dark, not which
-     * direction.
+     * Opacity is high — 0.86, compositing to roughly 22% lightness over the
+     * paper. It has to be: white text on a translucent dark pane is where
+     * legibility dies, and a card at 40% would leave body copy floating on
+     * whatever happens to be behind it. Enough transmission to read as glass,
+     * not so much that the page shows through the numbers.
      */
-    --glass: 220 16% 40%;
-    --glass-opacity: 0.07;
-    --glass-edge: 0 0% 100%;
+    --glass: 220 16% 10%;
+    --glass-opacity: 0.86;
+    --glass-edge: 210 30% 100%;
     --glass-blur: 14px;
+
+    /* ---- On-glass content -----------------------------------------------
+     * A dark pane needs light content, so every semantic token flips inside
+     * one. Declared here rather than only inside .glass because the charts
+     * read their colours off the document root and cannot see a card's
+     * cascade — see chart-theme.ts. One source, two consumers.
+     */
+    /* These are solved against the composited card, not picked by eye. The
+       pane lands at 22.2% lightness over white paper, and at that ground 57%
+       gave the eyebrow labels 3.71:1 — under AA, on the smallest type in the
+       app. 64% clears 4.5:1. Lines need 3:1 as non-text UI, which puts the
+       hairline at 51%; below that the table dividers simply were not there. */
+    --og-ink: 210 16% 96%;
+    --og-ink-muted: 214 10% 73%;
+    --og-ink-subtle: 214 9% 64%;
+    --og-line: 214 12% 51%;
+    --og-line-strong: 214 12% 62%;
+    --og-surface: 220 12% 17%;
+    --og-elevated: 220 11% 23%;
+    --og-sunken: 220 14% 11%;
+    /* The accent and the status hues as a dark pane needs them: the accent
+       inverted to white, the hues lifted so they carry on a dark ground. */
+    --og-brand: 210 16% 95%;
+    --og-success: 152 45% 58%;
+    --og-warning: 45 75% 62%;
+    --og-danger: 356 70% 68%;
+    --og-info: 212 55% 68%;
 
     /* ---- Elevation ------------------------------------------------------ */
     /* Warm-tinted shadows. A neutral black shadow on warm paper reads muddy. */

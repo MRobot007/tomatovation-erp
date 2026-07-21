@@ -225,23 +225,36 @@ function Metric({
   const toneClass = tone === 'brand' ? 'text-brand' : tone === 'warning' ? 'text-warning' : 'text-ink'
 
   const body = (
-    <CardContent className="pt-5">
-      <div className="flex items-start justify-between">
+    <CardContent className="p-5">
+      <div className="flex items-start justify-between gap-3">
         <p className="eyebrow">{label}</p>
-        <Icon className="size-4 text-ink-subtle" aria-hidden />
+        {/* The icon sits in a recessed chip rather than floating. On a glass
+            pane a bare icon reads as debris; a chip makes it a component of
+            the card. */}
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-elevated/50 text-ink-subtle">
+          <Icon className="size-3.5" aria-hidden />
+        </span>
       </div>
+
       {loading ? (
-        <Skeleton className="mt-3 h-8 w-16" />
+        <Skeleton className="mt-4 h-10 w-20" />
       ) : (
         <p
           className={cn(
-            'mt-2 font-display text-3xl font-semibold leading-none tracking-tight',
+            // Bigger and tighter than it was. A metric card exists so the
+            // number can be read across a room, and 3xl at default tracking
+            // was competing with the label rather than dominating it.
+            'mt-3.5 font-display text-4xl font-semibold leading-none tracking-tighter',
             toneClass,
           )}
           data-numeric
         >
           {value ?? 0}
-          {of != null && <span className="text-lg text-ink-subtle"> / {of}</span>}
+          {of != null && (
+            <span className="ml-1 align-baseline text-xl font-medium tracking-normal text-ink-subtle">
+              /{of}
+            </span>
+          )}
         </p>
       )}
     </CardContent>
@@ -277,13 +290,18 @@ function QuickStat({
 
   return (
     <Card interactive>
-      <Link to={to} className="flex items-center gap-3 px-5 py-4">
-        <Icon className="size-4 shrink-0 text-ink-subtle" aria-hidden />
+      <Link to={to} className="flex items-center gap-3 px-4 py-3.5">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-elevated/50 text-ink-subtle">
+          <Icon className="size-3.5" aria-hidden />
+        </span>
         <span className="min-w-0 flex-1 truncate text-sm text-ink-muted">{label}</span>
         {loading ? (
-          <Skeleton className="h-5 w-8" />
+          <Skeleton className="h-6 w-8" />
         ) : (
-          <span className={cn('font-display text-xl font-semibold', toneClass)} data-numeric>
+          <span
+            className={cn('font-display text-xl font-semibold tracking-tight', toneClass)}
+            data-numeric
+          >
             {value ?? 0}
           </span>
         )}

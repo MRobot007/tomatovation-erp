@@ -24,25 +24,27 @@
 @layer base {
   :root {
     /* ---- Surfaces -------------------------------------------------------
-     * Hue kept, saturation pulled back by roughly a third from where it
-     * started. It was tuned against a warm red accent, where cream read as
-     * intentional; against cool graphite the same values read as tan, and a
-     * warm mid-tone under a cool accent is what makes a palette look muddy
-     * rather than considered. This is "warm white paper", not cream.
+     * Clean white. Zero saturation, not the warm cream this started as.
+     *
+     * The warmth was inherited from an identity built around a red accent. The
+     * accent is graphite now and the panes are black glass, and a cream page
+     * under a cool black card reads as a colour cast — as though the white
+     * balance is off — rather than as a deliberate warmth. Neutral throughout
+     * is what makes the black look black.
      */
-    --paper: 42 20% 97%;
-    --surface: 40 26% 99%;
-    --elevated: 42 15% 94%;
-    --sunken: 42 13% 91%;
+    --paper: 0 0% 100%;
+    --surface: 0 0% 100%;
+    --elevated: 0 0% 96%;
+    --sunken: 0 0% 93%;
 
     /* ---- Ink ------------------------------------------------------------ */
-    --ink: 36 12% 9%;
-    --ink-muted: 37 11% 39%;
-    --ink-subtle: 38 10% 55%;
+    --ink: 0 0% 7%;
+    --ink-muted: 0 0% 38%;
+    --ink-subtle: 0 0% 52%;
 
     /* ---- Lines ---------------------------------------------------------- */
-    --line: 42 12% 87%;
-    --line-strong: 40 10% 78%;
+    --line: 0 0% 90%;
+    --line-strong: 0 0% 80%;
 
     /* ---- Accent ---------------------------------------------------------
      * Graphite, at the rail's hue, so the primary button and the metal panel
@@ -127,8 +129,12 @@
      * whatever happens to be behind it. Enough transmission to read as glass,
      * not so much that the page shows through the numbers.
      */
-    --glass: 220 16% 10%;
-    --glass-opacity: 0.86;
+    /* Near-neutral black. The 16% saturation this had read as navy against a
+       genuinely white page — the cast only hides while the paper is cream.
+       5% keeps a whisper of the rail's coolness so the two dark surfaces
+       belong together, without the card looking blue. */
+    --glass: 220 5% 9%;
+    --glass-opacity: 0.87;
     --glass-edge: 210 30% 100%;
     --glass-blur: 14px;
 
@@ -138,16 +144,21 @@
      * read their colours off the document root and cannot see a card's
      * cascade — see chart-theme.ts. One source, two consumers.
      */
-    /* These are solved against the composited card, not picked by eye. The
-       pane lands at 22.2% lightness over white paper, and at that ground 57%
-       gave the eyebrow labels 3.71:1 — under AA, on the smallest type in the
-       app. 64% clears 4.5:1. Lines need 3:1 as non-text UI, which puts the
-       hairline at 51%; below that the table dividers simply were not there. */
-    --og-ink: 210 16% 96%;
-    --og-ink-muted: 214 10% 73%;
-    --og-ink-subtle: 214 9% 64%;
-    --og-line: 214 12% 51%;
-    --og-line-strong: 214 12% 62%;
+    /* Clean white, at ZERO saturation. These carried a blue cast at 9-16%
+       saturation, which is what makes light text on a dark card read as grey
+       rather than as white. Hierarchy comes from lightness alone now: pure
+       white for content, dimmed white for support. Nothing is tinted.
+
+       The steps are solved against the composited card, not picked by eye.
+       The pane lands at 22.2% lightness over white paper, and at that ground
+       57% gave the eyebrow labels 3.71:1 — under AA, on the smallest type in
+       the app. Lines need 3:1 as non-text UI, which puts the hairline at 51%;
+       below that the table dividers simply were not there. */
+    --og-ink: 0 0% 100%;
+    --og-ink-muted: 0 0% 80%;
+    --og-ink-subtle: 0 0% 65%;
+    --og-line: 0 0% 52%;
+    --og-line-strong: 0 0% 64%;
     --og-surface: 220 12% 17%;
     --og-elevated: 220 11% 23%;
     --og-sunken: 220 14% 11%;
@@ -160,8 +171,9 @@
     --og-info: 212 55% 68%;
 
     /* ---- Elevation ------------------------------------------------------ */
-    /* Warm-tinted shadows. A neutral black shadow on warm paper reads muddy. */
-    --shadow-color: 30 25% 20%;
+    /* Neutral now the paper is neutral. A warm shadow on a clean white page is
+       the one place a colour cast is most visible. */
+    --shadow-color: 220 8% 16%;
     --shadow-sm: 0 1px 2px -1px hsl(var(--shadow-color) / 0.1);
     --shadow-md:
       0 2px 4px -2px hsl(var(--shadow-color) / 0.1), 0 4px 12px -4px hsl(var(--shadow-color) / 0.08);

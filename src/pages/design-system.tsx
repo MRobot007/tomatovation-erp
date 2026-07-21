@@ -21,7 +21,7 @@ export function DesignSystemPage() {
       <PageHeader
         eyebrow="Reference"
         title="Design system"
-        description="Warm Editorial — warm-neutral paper surfaces, Fraunces display cut against Inter UI text, brand as the single brand signal, and status carried by soft tinted fields."
+        description="Clean white page, black glass panes. Achromatic identity — graphite on paper, white on glass — with Space Grotesk against Inter, and status hues as the only colour in the system."
       />
 
       <div className="grid gap-5 lg:grid-cols-2">

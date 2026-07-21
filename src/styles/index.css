@@ -22,13 +22,16 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Fraunces is a variable font — dial the optical size for display use so
-     large headings get the high-contrast cut rather than the text cut. */
+  /* Space Grotesk is already tight; headings just need the optical correction
+     that every geometric face wants as it scales up — negative tracking, so
+     large type does not read as loose. The old `opsz` axis went with Fraunces
+     and does nothing here. */
   h1,
   h2,
   h3 {
     @apply font-display;
-    font-variation-settings: 'opsz' 96;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'ss01', 'ss02';
   }
 
   /* Numbers in tables must align vertically. Non-negotiable for a data app. */
@@ -389,11 +392,14 @@
       radial-gradient(70% 60% at 50% 100%, hsl(220 40% 2% / 0.5) 0%, transparent 70%);
   }
 
+  /* On a genuinely white page the ambient wash has to be almost nothing —
+     just enough tonal drift for the panes to have something behind them.
+     Neutral, because any hue here is immediately visible against pure white. */
   :root:not(.dark) .ambient {
     background-image:
-      radial-gradient(60% 50% at 12% 0%, hsl(40 40% 100% / 0.9) 0%, transparent 60%),
-      radial-gradient(55% 45% at 88% 4%, hsl(220 30% 96% / 0.7) 0%, transparent 62%),
-      radial-gradient(80% 60% at 50% 100%, hsl(40 20% 88% / 0.35) 0%, transparent 70%);
+      radial-gradient(70% 55% at 15% 0%, hsl(0 0% 100%) 0%, transparent 60%),
+      radial-gradient(60% 50% at 88% 4%, hsl(220 12% 97% / 0.8) 0%, transparent 64%),
+      radial-gradient(90% 55% at 50% 100%, hsl(220 10% 95% / 0.5) 0%, transparent 72%);
   }
 
   /* --- Cards ------------------------------------------------------------- */

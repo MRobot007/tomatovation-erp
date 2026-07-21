@@ -38,23 +38,6 @@ export const loginSchema = z.object({
   remember: z.boolean().default(true),
 })
 
-export const signupSchema = z
-  .object({
-    // Same ordering trap as email: validating first would accept "   ",
-    // which passes min(1) at three characters and only then trims to empty.
-    name: z
-      .string()
-      .transform((value) => value.trim())
-      .pipe(z.string().min(1, 'Name is required').max(120, 'That name is too long')),
-    email,
-    password,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
-
 export const forgotPasswordSchema = z.object({ email })
 
 export const changePasswordSchema = z
@@ -83,7 +66,6 @@ export const resetPasswordSchema = z
   })
 
 export type LoginInput = z.infer<typeof loginSchema>
-export type SignupInput = z.infer<typeof signupSchema>
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

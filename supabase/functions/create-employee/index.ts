@@ -13,33 +13,8 @@
  * Deploy:  supabase functions deploy create-employee
  */
 
-import { createClient } from 'jsr:@supabase/supabase-js@2'
-
-/**
- * Allowed headers are REFLECTED from the preflight, not hardcoded.
- *
- * A hardcoded list has to predict every header the client will send, and it
- * silently failed the moment the app's Supabase client was configured with a
- * custom `x-application-name`. The browser asks permission for it, the function
- * refuses, and the request is blocked — surfacing only as "Failed to fetch",
- * with no CORS message and nothing in the network tab.
- *
- * Reflecting cannot drift out of step with the client. It is not a widening:
- * a request header is only useful to an attacker if the function reads it, and
- * this function reads exactly one — Authorization — which it verifies against
- * the database.
- */
-function corsHeaders(req: Request): Record<string, string> {
-  const requested = req.headers.get('Access-Control-Request-Headers')
-
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers':
-      requested ?? 'authorization, x-client-info, apikey, content-type, x-application-name',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Max-Age': '86400',
-  }
-}
+import { json, corsHeaders, temporaryPassword } from '../_shared/http.ts'
+import { readEnv, requireSuperAdmin, adminClient } from '../_shared/auth.ts'
 
 const ROLES = ['super_admin', 'manager', 'employee'] as const
 type Role = (typeof ROLES)[number]
@@ -52,64 +27,20 @@ interface Payload {
   manager_id?: unknown
 }
 
-function json(body: unknown, status = 200, req?: Request): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...(req ? corsHeaders(req) : {}),
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    },
-  })
-}
-
-/**
- * Crypto-random, not Math.random. This is a real credential that grants access
- * to employee records until it is changed.
- *
- * The alphabet omits characters that are easy to confuse when a password is
- * read aloud or copied off a screen: 0/O, 1/l/I.
- */
-function temporaryPassword(length = 16): string {
-  const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
-  const bytes = new Uint8Array(length)
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('')
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) })
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405, req)
 
-  const url = Deno.env.get('SUPABASE_URL')
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  const env = readEnv()
+  if (!env) return json({ error: 'Function is not configured' }, 500, req)
 
-  if (!url || !serviceKey || !anonKey) {
-    return json({ error: 'Function is not configured' }, 500, req)
-  }
-
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader) return json({ error: 'Not authenticated' }, 401, req)
-
-  // --- Authorise the caller -------------------------------------------------
-  // A client bound to the caller's JWT, so RLS applies exactly as it would in
-  // the app. The role is read from the database, never from the request body.
-  const caller = createClient(url, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  })
-
-  const { data: userData, error: userError } = await caller.auth.getUser()
-  if (userError || !userData.user) return json({ error: 'Not authenticated' }, 401, req)
-
-  const { data: callerProfile } = await caller
-    .from('profiles')
-    .select('role')
-    .eq('id', userData.user.id)
-    .maybeSingle()
-
-  if (callerProfile?.role !== 'super_admin') {
-    return json({ error: 'Only a super admin can create employees' }, 403, req)
+  const auth = await requireSuperAdmin(req, env)
+  if ('error' in auth) {
+    return json(
+      { error: auth.status === 403 ? 'Only a super admin can create employees' : auth.error },
+      auth.status,
+      req,
+    )
   }
 
   // --- Validate the payload -------------------------------------------------
@@ -131,24 +62,21 @@ Deno.serve(async (req: Request) => {
   if (!ROLES.includes(role)) return json({ error: 'Invalid role' }, 400, req)
 
   // --- Create -------------------------------------------------------------
-  const admin = createClient(url, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
+  const admin = adminClient(env)
 
   const password = temporaryPassword()
 
   // Record the invite BEFORE creating the user.
   //
-  // enforce_signup_domain runs on auth.users and would otherwise refuse any
-  // address outside the company allowlist — including a contractor an admin is
-  // deliberately onboarding. The trigger cannot distinguish this call from
-  // public /signup, because both are GoTrue and arrive as the same database
-  // role. The invite row is how the intent is communicated. It is single-use:
-  // the trigger consumes it.
+  // enforce_signup_domain runs on auth.users and would otherwise refuse the
+  // insert: self-signup is closed, so an invite is the only way in. The trigger
+  // cannot tell this call apart from a direct one, because both are GoTrue and
+  // arrive as the same database role. The invite row is how the intent is
+  // communicated. It is single-use: the trigger consumes it.
   const { error: inviteError } = await admin
     .from('invited_emails')
     .upsert(
-      { email, invited_by: userData.user.id, expires_at: new Date(Date.now() + 600_000).toISOString() },
+      { email, invited_by: auth.caller.id, expires_at: new Date(Date.now() + 600_000).toISOString() },
       { onConflict: 'email' },
     )
 
@@ -167,7 +95,7 @@ Deno.serve(async (req: Request) => {
 
   if (createError || !created.user) {
     // The invite was not consumed, so clear it rather than leaving a standing
-    // exemption to the domain allowlist for an address that has no account.
+    // exemption for an address that has no account.
     await admin.from('invited_emails').delete().eq('email', email)
 
     const message = createError?.message ?? 'Could not create the account'
@@ -196,6 +124,6 @@ Deno.serve(async (req: Request) => {
   }
 
   // The password is returned ONCE and never stored anywhere retrievable. If the
-  // admin loses it, the employee uses the forgot-password flow.
+  // admin loses it, they can reset it from the employees list.
   return json({ id: created.user.id, email, name, temporaryPassword: password }, 201, req)
 })

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Plus, Search, UserCheck, UserX, Users } from 'lucide-react'
+import { KeyRound, Pencil, Plus, Search, UserCheck, UserX, Users } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select'
 import { EmployeeEditDialog } from '@/features/employees/components/employee-edit-dialog'
 import { CreateEmployeeDialog } from '@/features/employees/components/create-employee-dialog'
+import { ResetPasswordDialog } from '@/features/employees/components/reset-password-dialog'
 import {
   useDepartments,
   useEmployees,
@@ -63,6 +64,7 @@ export function EmployeesPage() {
   const [editing, setEditing] = useState<EmployeeRow | null>(null)
   const [creating, setCreating] = useState(false)
   const [deactivating, setDeactivating] = useState<EmployeeRow | null>(null)
+  const [resettingPassword, setResettingPassword] = useState<EmployeeRow | null>(null)
   const setEmployeeStatus = useSetEmployeeStatus()
 
   const columns: ReadonlyArray<Column<EmployeeRow>> = [
@@ -226,6 +228,17 @@ export function EmployeesPage() {
             <Button
               variant="ghost"
               size="icon-sm"
+              aria-label={`Reset ${row.name}'s password`}
+              onClick={(event) => {
+                event.stopPropagation()
+                setResettingPassword(row)
+              }}
+            >
+              <KeyRound aria-hidden />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
               aria-label={row.status === 'active' ? `Deactivate ${row.name}` : `Reactivate ${row.name}`}
               onClick={(event) => {
                 event.stopPropagation()
@@ -245,6 +258,12 @@ export function EmployeesPage() {
         employee={editing}
         open={editing != null}
         onOpenChange={(open) => !open && setEditing(null)}
+      />
+
+      <ResetPasswordDialog
+        employee={resettingPassword}
+        open={resettingPassword != null}
+        onOpenChange={(open) => !open && setResettingPassword(null)}
       />
 
       <ConfirmDialog

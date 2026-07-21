@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { Check, Copy, KeyRound, TriangleAlert } from 'lucide-react'
+import { KeyRound, TriangleAlert } from 'lucide-react'
 import {
   Dialog,
   DialogBody,
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormError, FormField } from '@/components/ui/form-field'
+import { CopyRow } from '@/components/ui/copy-row'
 import {
   Select,
   SelectContent,
@@ -231,38 +232,5 @@ export function CreateEmployeeDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
-}
-
-function CopyRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  const [copied, setCopied] = useState(false)
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(value)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Clipboard is unavailable over plain http or without permission; the
-      // value is on screen and selectable either way.
-    }
-  }
-
-  return (
-    <div>
-      <p className="eyebrow mb-1.5">{label}</p>
-      <div className="flex items-center gap-2">
-        <code
-          className={`flex-1 select-all break-all rounded border border-line bg-sunken/50 px-2.5 py-2 text-sm text-ink ${
-            mono ? 'font-mono' : ''
-          }`}
-        >
-          {value}
-        </code>
-        <Button type="button" variant="outline" size="icon" aria-label={`Copy ${label}`} onClick={copy}>
-          {copied ? <Check aria-hidden className="text-success" /> : <Copy aria-hidden />}
-        </Button>
-      </div>
-    </div>
   )
 }

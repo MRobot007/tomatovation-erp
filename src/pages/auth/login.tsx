@@ -46,12 +46,10 @@ export function LoginPage() {
       title="Sign in to Tomatovation"
       description="Use the email address your workspace was set up with."
       footer={
-        <>
-          No account yet?{' '}
-          <Link to="/signup" className="font-medium text-tomato underline-offset-4 hover:underline">
-            Create one
-          </Link>
-        </>
+        // No "create an account" link: accounts are provisioned by a super
+        // admin, and self-signup is closed at the database (migration 0026).
+        // Offering it here would only lead to a refusal.
+        <>Need an account? Ask a super admin to set one up for you.</>
       }
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>

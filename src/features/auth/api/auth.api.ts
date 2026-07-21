@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/lib/database.types'
-import type { LoginInput, SignupInput } from '../schemas'
+import type { LoginInput } from '../schemas'
 
 export type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -49,21 +49,6 @@ export class AuthError extends Error {
 
 export async function signIn({ email, password }: Pick<LoginInput, 'email' | 'password'>) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) throw new AuthError(error.message)
-  return data
-}
-
-export async function signUp({ name, email, password }: Omit<SignupInput, 'confirmPassword'>) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      // Only `name` is read by the handle_new_user trigger. Role is never taken
-      // from here — this payload is fully client-controlled.
-      data: { name },
-      emailRedirectTo: `${window.location.origin}/login`,
-    },
-  })
   if (error) throw new AuthError(error.message)
   return data
 }

@@ -18,7 +18,9 @@ import type { Role } from '@/lib/roles'
  * screen is behind auth, so its chunk downloads while the session and profile
  * requests are already in flight.
  */
-const SignupPage = lazy(() => import('@/pages/auth/signup').then((m) => ({ default: m.SignupPage })))
+// No signup route. Accounts are provisioned by a super admin from the
+// employees screen, and self-signup is refused at the database (migration
+// 0026) — a route here would render a form that cannot succeed.
 const ForgotPasswordPage = lazy(() =>
   import('@/pages/auth/forgot-password').then((m) => ({ default: m.ForgotPasswordPage })),
 )
@@ -111,14 +113,6 @@ export function AppRoutes() {
           element={
             <PublicOnlyRoute>
               <LoginPage />
-            </PublicOnlyRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <PublicOnlyRoute>
-              <SignupPage />
             </PublicOnlyRoute>
           }
         />

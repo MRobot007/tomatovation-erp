@@ -27,7 +27,8 @@
     "test:invite": "vitest run --config vitest.rls.config.ts src/test/invite-bypass.integration.test.ts",
     "test:cors": "vitest run --config vitest.rls.config.ts src/test/function-cors.integration.test.ts",
     "test:task-notify": "vitest run --config vitest.rls.config.ts src/test/task-notification.integration.test.ts",
-    "test:autopunch": "supabase db query --linked --file supabase/tests/auto_punch_out.sql"
+    "test:autopunch": "supabase db query --linked --file supabase/tests/auto_punch_out.sql",
+    "test:reset-password": "vitest run --config vitest.rls.config.ts src/test/reset-password.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

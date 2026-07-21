@@ -4,7 +4,6 @@ import {
   forgotPasswordSchema,
   loginSchema,
   resetPasswordSchema,
-  signupSchema,
 } from './schemas'
 
 describe('loginSchema', () => {
@@ -33,46 +32,6 @@ describe('loginSchema', () => {
     // predate the current minimum.
     expect(loginSchema.safeParse({ email: 'a@b.com', password: '' }).success).toBe(false)
     expect(loginSchema.safeParse({ email: 'a@b.com', password: 'short' }).success).toBe(true)
-  })
-})
-
-describe('signupSchema', () => {
-  const valid = {
-    name: 'Priya Sharma',
-    email: 'priya@tomatovation.com',
-    password: 'longenough',
-    confirmPassword: 'longenough',
-  }
-
-  test('accepts a complete valid signup', () => {
-    expect(signupSchema.safeParse(valid).success).toBe(true)
-  })
-
-  test('trims the name', () => {
-    expect(signupSchema.parse({ ...valid, name: '  Priya Sharma  ' }).name).toBe('Priya Sharma')
-  })
-
-  test('rejects a password under 8 characters', () => {
-    const result = signupSchema.safeParse({ ...valid, password: 'short12', confirmPassword: 'short12' })
-    expect(result.success).toBe(false)
-  })
-
-  test('rejects mismatched passwords and points at the confirm field', () => {
-    const result = signupSchema.safeParse({ ...valid, confirmPassword: 'different1' })
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0]?.path).toEqual(['confirmPassword'])
-    }
-  })
-
-  test('rejects a password over the bcrypt 72-character ceiling', () => {
-    const long = 'a'.repeat(73)
-    const result = signupSchema.safeParse({ ...valid, password: long, confirmPassword: long })
-    expect(result.success).toBe(false)
-  })
-
-  test('rejects an empty name', () => {
-    expect(signupSchema.safeParse({ ...valid, name: '   ' }).success).toBe(false)
   })
 })
 

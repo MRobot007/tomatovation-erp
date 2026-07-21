@@ -13,9 +13,16 @@ import { supabaseConfig } from './fixtures'
  * paths go through GoTrue and arrive as the same database role, so the only
  * thing separating them is the invite row the Edge Function writes first.
  *
- * These assertions are the reason that mechanism exists — without the second
- * one, "make admin creation work" would have been satisfied by simply
- * exempting GoTrue, which silently reopens public signup to the whole internet.
+ * These assertions are the reason that mechanism exists — without them, "make
+ * admin creation work" would have been satisfied by simply exempting GoTrue,
+ * which silently reopens public signup to the whole internet.
+ *
+ * Since migration 0026 the rule is stricter still: an approved company domain
+ * is no longer a way in either. Removing the sign-up screen from the app did
+ * nothing on its own — /auth/v1/signup is public — so the test below that used
+ * to assert a company address CAN self-register now asserts the opposite. That
+ * inversion is the whole point of this file: it is what catches the UI being
+ * changed without the database.
  */
 
 const { url, key } = supabaseConfig()
@@ -37,7 +44,7 @@ afterAll(async () => {
   }
 }, 30_000)
 
-describe('the allowlist still holds for self-registration', () => {
+describe('self-registration is closed to everyone', () => {
   test('a stranger CANNOT self-register on an outside domain', async () => {
     const { error } = await anon().auth.signUp({
       email: OUTSIDE,
@@ -56,8 +63,11 @@ describe('the allowlist still holds for self-registration', () => {
     expect(error).not.toBeNull()
   })
 
-  test('a company-domain address can still self-register', async () => {
-    // The allowlist must not have become a blanket block.
+  test('nor can a company-domain address — an approved domain is not a way in', async () => {
+    // This asserted the opposite until migration 0026. Being on the company
+    // domain used to be enough to self-register, which meant anyone who could
+    // obtain or guess such an address could read the whole employee directory
+    // and the entire sales pipeline. Accounts now come from an admin, only.
     const email = `invite-probe-${Date.now()}@tomatovation.com`
     const { data, error } = await anon().auth.signUp({
       email,
@@ -65,9 +75,20 @@ describe('the allowlist still holds for self-registration', () => {
       options: { data: { name: 'Domain Probe' } },
     })
 
-    expect(error).toBeNull()
-    expect(data.user).not.toBeNull()
-    created.push(email)
+    expect(error).not.toBeNull()
+    expect(data.user).toBeNull()
+  })
+
+  test('and the refusal does not reveal why', async () => {
+    // Someone hitting this is either a new joiner who should be talking to an
+    // admin, or someone probing. Neither should learn about the allowlist.
+    const { error } = await anon().auth.signUp({
+      email: `invite-probe-${Date.now()}@tomatovation.com`,
+      password: 'probe-password-123',
+      options: { data: { name: 'Domain Probe' } },
+    })
+
+    expect(error?.message ?? '').not.toMatch(/domain|allowlist|allowed/i)
   })
 })
 

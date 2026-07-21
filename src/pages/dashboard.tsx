@@ -5,6 +5,7 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
+  ClipboardList,
   ListChecks,
   Target,
   Timer,
@@ -53,16 +54,26 @@ export function DashboardPage() {
         eyebrow={role ? ROLE_LABELS[role] : undefined}
         title={`${greeting}, ${firstName}`}
         description="Your day at a glance."
+        actions={
+          <span className="flex items-center gap-2 text-md text-ink-muted">
+            <CalendarDays className="size-4 text-ink-subtle" aria-hidden />
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </span>
+        }
       />
 
-      {/* Above the punch card: it is reference information, not an action, and
-          the primary action on this page should stay the most prominent thing. */}
-      <div className="mb-5">
-        <WorldClocks />
-      </div>
-
-      <div className="mb-6">
+      {/* The action and the reference sit side by side rather than stacked.
+          Punching in is what people came for, so it keeps the width; the
+          clocks are a glance, and a glance does not need half the page.
+          items-stretch so both panels share a height whatever fills them. */}
+      <div className="mb-5 grid items-stretch gap-5 lg:grid-cols-[1.6fr_1fr]">
         <PunchCard />
+        <WorldClocks />
       </div>
 
       {isManager && (
@@ -120,9 +131,23 @@ export function DashboardPage() {
             </div>
 
             {openTasks.length === 0 ? (
-              <p className="py-6 text-center text-sm text-ink-subtle">
-                Nothing assigned to you right now.
-              </p>
+              /* An empty list is good news here, and a single grey line of text
+                 reads like something failed to load. The mark and the second
+                 line say "nothing is wrong" without needing to be read. */
+              <div className="flex flex-col items-center gap-3 py-10 text-center">
+                <span
+                  className="flex size-16 items-center justify-center rounded-full bg-elevated text-ink-subtle"
+                  aria-hidden
+                >
+                  <ClipboardList className="size-7" />
+                </span>
+                <div>
+                  <p className="text-base font-medium text-ink">
+                    Nothing assigned to you right now.
+                  </p>
+                  <p className="mt-1 text-sm text-ink-muted">Enjoy your free time! 🎉</p>
+                </div>
+              </div>
             ) : (
               <ul className="divide-y divide-line">
                 {openTasks.slice(0, 6).map((task) => {

@@ -32,7 +32,11 @@
      * balance is off — rather than as a deliberate warmth. Neutral throughout
      * is what makes the black look black.
      */
-    --paper: 0 0% 100%;
+    /* The page is a shade off white and the cards are pure white. That gap is
+       what makes a card read as a card — with both at 100% the only thing
+       holding a panel together is its border, and the layout flattens into a
+       sheet of paper with lines drawn on it. */
+    --paper: 0 0% 97.5%;
     --surface: 0 0% 100%;
     --elevated: 0 0% 96%;
     --sunken: 0 0% 93%;

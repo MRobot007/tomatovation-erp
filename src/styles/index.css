@@ -255,8 +255,8 @@
      Applies in both themes. In light mode the card is dark against white; in
      dark mode it is a lighter dark against near-black. Either way the content
      sits on something dark, so it wants the same treatment. */
-  .glass,
-  .glass-flat {
+  .dark .glass,
+  .dark .glass-flat {
     --ink: var(--og-ink);
     --ink-muted: var(--og-ink-muted);
     --ink-subtle: var(--og-ink-subtle);
@@ -305,22 +305,36 @@
     --shadow-color: 220 40% 2%;
   }
 
+  /* Light: a clean white card on an off-white page. Not glass — the design
+     calls for panels that read as paper, and a translucent dark pane on a
+     white page is a different product. The dark theme keeps the smoked pane
+     below, where it has a lit room to sit in and earns the blur. */
   .glass {
-    /* isolate + a negative z on the sheen below. Without the stacking context
-       the sheen is a positioned descendant, which paints ABOVE the card's own
-       text; with it, the sheen lands between the fill and the content, which
-       is where a reflection on a pane actually is. */
     isolation: isolate;
+    background-color: hsl(var(--surface));
+    border: 1px solid hsl(var(--line));
+    box-shadow:
+      0 1px 2px -1px hsl(var(--shadow-color) / 0.06),
+      0 1px 3px 0 hsl(var(--shadow-color) / 0.04);
+  }
+
+  .dark .glass {
     background-color: hsl(var(--glass) / var(--glass-opacity));
     backdrop-filter: blur(var(--glass-blur)) saturate(140%);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    border-color: hsl(var(--glass-edge) / 0.08);
     box-shadow:
-      /* the lit top bevel */
       inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
-      /* the pane's own thickness, shadowed at the base */
       inset 0 -1px 0 hsl(0 0% 0% / 0.25),
       var(--shadow-md);
+  }
+
+  /* The corner sheen belongs to the dark pane only; on a white card it is a
+     smudge. */
+  .dark .glass::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
+    background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.06) 0%, transparent 38%);
   }
 
   /* Glass without the blur, for anything that repeats.
@@ -331,43 +345,18 @@
      and the bevel are doing the work — so list items get those and skip it. */
   .glass-flat {
     isolation: isolate;
+    background-color: hsl(var(--surface));
+    border: 1px solid hsl(var(--line));
+    box-shadow: 0 1px 2px -1px hsl(var(--shadow-color) / 0.06);
+  }
+
+  .dark .glass-flat {
     background-color: hsl(var(--glass) / calc(var(--glass-opacity) * 0.9));
-    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    border-color: hsl(var(--glass-edge) / 0.08);
     box-shadow:
       inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
       inset 0 -1px 0 hsl(0 0% 0% / 0.2),
       var(--shadow-sm);
-  }
-
-  :root:not(.dark) .glass-flat {
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
-      0 2px 6px -2px hsl(220 25% 12% / 0.16);
-  }
-
-  /* A single diagonal sheen across the top-left corner, the way a flat pane
-     picks up a window. One gradient, fixed — not animated, because a card that
-     shimmers on its own is a distraction on a screen holding fifteen of them. */
-  .glass::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
-    background-image: linear-gradient(
-      145deg,
-      hsl(var(--glass-edge) / 0.06) 0%,
-      transparent 38%
-    );
-  }
-
-  /* Light mode needs no override any more: the pane is dark in both themes, so
-     the lit-top / shadowed-bottom bevel above is already correct. What it does
-     need is a heavier drop shadow — a black card on white paper casts a real
-     one, and without it the card looks pasted on rather than sitting above. */
-  :root:not(.dark) .glass {
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.12),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.3),
-      0 2px 6px -2px hsl(220 25% 12% / 0.18),
-      0 12px 28px -8px hsl(220 25% 12% / 0.22);
   }
 
   /* Ambient light for the glass to sit in.

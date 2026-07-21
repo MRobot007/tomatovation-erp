@@ -93,10 +93,19 @@ export function AttentionPanel() {
                   )}
 
                   <span className="min-w-0 flex-1">
-                    <span className={cn('block truncate text-base', isBlocked ? 'text-ink' : 'text-ink-muted')}>
+                    {/* Weight, not colour. Everything on a dark pane is white
+                        now, so the title and the byline under it can only be
+                        told apart by size and weight — which is the stronger
+                        signal anyway, and survives being read at a glance. */}
+                    <span
+                      className={cn(
+                        'block truncate text-base',
+                        isBlocked ? 'font-semibold text-ink' : 'font-medium text-ink',
+                      )}
+                    >
                       {row.title}
                     </span>
-                    <span className="block truncate text-xs text-ink-subtle">
+                    <span className="block truncate text-xs font-normal text-ink-subtle">
                       {row.assignee_name}
                       {' · '}
                       {relative(row.status === 'done' ? (row.completed_at ?? row.updated_at) : row.updated_at)}

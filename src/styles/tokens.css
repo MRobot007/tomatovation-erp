@@ -104,13 +104,14 @@
     --rail-bottom: 220 11% 7%;
     --rail-raised: 220 8% 22%;
     --rail-line: 220 7% 24%;
-    --rail-ink: 210 14% 97%;
-    --rail-ink-muted: 214 8% 68%;
-    /* 60%, not the 48% this started at. Against the LIGHTEST point of the rail
-       gradient (17%) that was ~3.2:1 — under AA, and these are 11px uppercase
-       labels, which is the worst case for legibility, not the best. 60% clears
-       4.5:1 at the top of the panel and improves further down it. */
-    --rail-ink-subtle: 214 7% 60%;
+    /* The rail is black, so the same rule applies here as on the cards: white
+       text, not grey. Saturation to zero as well — 8% blue was the difference
+       between "white" and "cold grey" on a dark ground.
+       The nav still separates its states, just not with colour: the active
+       item has the lit marker, the wash and the heavier weight. */
+    --rail-ink: 0 0% 100%;
+    --rail-ink-muted: 0 0% 90%;
+    --rail-ink-subtle: 0 0% 78%;
     /* Specular highlight — the lit edge of a bevel. Kept as a raw channel
        triplet so it can be used at very low alpha without muddying. */
     --rail-sheen: 210 30% 100%;
@@ -154,9 +155,14 @@
        57% gave the eyebrow labels 3.71:1 — under AA, on the smallest type in
        the app. Lines need 3:1 as non-text UI, which puts the hairline at 51%;
        below that the table dividers simply were not there. */
+    /* All three read as white. 80% and 65% were still legible greys, and on a
+       black card a legible grey is exactly what "grey text" means.
+       Hierarchy moves off colour entirely and onto weight, size and the
+       spacing between things — which is where a monochrome system should be
+       carrying it anyway. */
     --og-ink: 0 0% 100%;
-    --og-ink-muted: 0 0% 80%;
-    --og-ink-subtle: 0 0% 65%;
+    --og-ink-muted: 0 0% 93%;
+    --og-ink-subtle: 0 0% 86%;
     --og-line: 0 0% 52%;
     --og-line-strong: 0 0% 64%;
     --og-surface: 220 12% 17%;

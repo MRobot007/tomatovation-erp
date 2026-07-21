@@ -1,5 +1,6 @@
-import { Loader2, UserX } from 'lucide-react'
+import { UserX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { logoLockup, LOGO_MARK_ASPECT } from '@/lib/logo'
 import { signOut } from '../api/auth.api'
 
 /**
@@ -9,15 +10,47 @@ import { signOut } from '../api/auth.api'
  */
 export function FullPageLoader() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-paper" role="status">
-      <div className="flex flex-col items-center gap-3">
-        <div
-          className="flex size-9 items-center justify-center rounded bg-brand font-display text-lg font-bold text-primary-foreground shadow-sm"
-          aria-hidden
-        >
-          T
+    <div
+      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-paper"
+      role="status"
+    >
+      {/* A whisper of tone from the top-left and a soft floor, so the white is
+          not a flat void behind the mark. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(60% 45% at 15% 0%, hsl(220 14% 96% / 0.9) 0%, transparent 60%), radial-gradient(70% 50% at 50% 100%, hsl(220 12% 95% / 0.6) 0%, transparent 70%)',
+        }}
+        aria-hidden
+      />
+
+      <div className="relative flex flex-col items-center gap-6 animate-fade-in">
+        {/* The white mark on a machined-dark chip — the same material as the
+            rail, and the one surface the white logo can sit on. It breathes
+            gently rather than spinning; a spinner reads as "busy", a breath
+            reads as "starting up". */}
+        <div className="relative animate-logo-breathe">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(220_9%_18%)] to-[hsl(220_14%_7%)] shadow-[0_12px_32px_-12px_hsl(220_30%_10%/0.55),inset_0_1px_0_hsl(0_0%_100%/0.07)]">
+            <div className="h-7 overflow-hidden" style={{ aspectRatio: LOGO_MARK_ASPECT }}>
+              <img src={logoLockup} alt="" className="block w-full select-none" draggable={false} />
+            </div>
+          </div>
+          <span
+            className="pointer-events-none absolute -inset-3 -z-10 rounded-[1.5rem] bg-ink/[0.06] blur-2xl"
+            aria-hidden
+          />
         </div>
-        <Loader2 className="size-4 animate-spin text-ink-subtle" aria-hidden />
+
+        {/* Indeterminate rail: a short bar sweeping a hairline track. Calmer and
+            more finished than a spinning ring. */}
+        <div className="relative h-[3px] w-28 overflow-hidden rounded-full bg-line">
+          <span
+            className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-ink/70 animate-loader-slide"
+            aria-hidden
+          />
+        </div>
+
         <span className="sr-only">Loading your account</span>
       </div>
     </div>

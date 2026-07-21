@@ -171,6 +171,17 @@ const config = {
           '70%': { transform: 'scale(1.6)', opacity: '0' },
           '100%': { transform: 'scale(1.6)', opacity: '0' },
         },
+        // Indeterminate progress: a short bar that sweeps the rail and eases
+        // at each end, so it reads as "still working" rather than a metronome.
+        'loader-slide': {
+          '0%': { transform: 'translateX(-120%)' },
+          '100%': { transform: 'translateX(360%)' },
+        },
+        // The logo chip breathing on the boot screen.
+        'logo-breathe': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.04)', opacity: '0.9' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.18s ease-out',
@@ -179,6 +190,8 @@ const config = {
         'rise-in': 'rise-in 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
         shimmer: 'shimmer 1.6s infinite',
         'pulse-ring': 'pulse-ring 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
+        'loader-slide': 'loader-slide 1.15s cubic-bezier(0.45, 0, 0.55, 1) infinite',
+        'logo-breathe': 'logo-breathe 2.4s ease-in-out infinite',
       },
 
       transitionTimingFunction: {

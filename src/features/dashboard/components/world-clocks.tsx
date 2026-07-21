@@ -70,7 +70,9 @@ function Clock({
       <span
         className={cn(
           'flex size-9 shrink-0 items-center justify-center rounded-full',
-          reading.isBusinessHours ? 'bg-success-soft text-success' : 'bg-elevated text-ink-subtle',
+          // No green: "likely reachable" is the bright white chip, "outside
+          // hours" is the dim one. Same signal, monochrome.
+          reading.isBusinessHours ? 'bg-brand/15 text-brand' : 'bg-elevated text-ink-subtle',
         )}
         aria-hidden
       >

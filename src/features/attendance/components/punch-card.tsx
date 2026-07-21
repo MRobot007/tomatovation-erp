@@ -164,7 +164,7 @@ export function PunchCard() {
       )}
 
       {state.key === 'completed' && (
-        <p className="mt-3 rounded-lg border border-success/25 bg-success-soft px-4 py-3 text-center text-sm font-medium text-success">
+        <p className="mt-3 rounded-lg border border-line bg-elevated px-4 py-3 text-center text-sm font-medium text-ink">
           {formatHours(today?.working_hours)} today — tap the dial to start another shift
         </p>
       )}
@@ -225,12 +225,15 @@ function Dial({
   const running = state.key === 'working' || state.key === 'on_break'
   const showTimer = state.key !== 'not_started'
 
+  // Monochrome to match the black-and-white identity: the active ring is the
+  // white accent, not green. Break stays amber because it is a genuine
+  // "paused" warning and reads clearly against the white.
   const ringClass =
     state.key === 'on_break'
       ? 'text-warning'
       : state.key === 'not_started'
         ? 'text-ink-subtle'
-        : 'text-success'
+        : 'text-brand'
 
   const caption = running ? 'Tap to punch out' : 'Tap to punch in'
   const CaptionIcon = running ? LogOut : LogIn
@@ -246,9 +249,9 @@ function Dial({
         'cursor-pointer transition-[background-color,transform] duration-300 ease-out-expo',
         'active:scale-95 disabled:cursor-not-allowed disabled:opacity-60',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-        state.key === 'working' && 'bg-success-soft',
+        state.key === 'working' && 'bg-elevated',
         state.key === 'on_break' && 'bg-warning-soft',
-        state.key === 'completed' && 'bg-success-soft',
+        state.key === 'completed' && 'bg-elevated',
         state.key === 'not_started' && 'bg-elevated hover:bg-elevated/70',
       )}
     >
@@ -294,7 +297,7 @@ function Dial({
         className={cn(
           'pointer-events-none absolute inset-0 rounded-full ring-2 ring-transparent transition-all duration-200',
           'group-hover:ring-offset-2 group-hover:ring-offset-surface',
-          running ? 'group-hover:ring-danger/25' : 'group-hover:ring-success/25',
+          running ? 'group-hover:ring-danger/25' : 'group-hover:ring-brand/30',
         )}
         aria-hidden
       />
@@ -305,7 +308,7 @@ function Dial({
 function StatusPill({ state }: { state: DerivedState }) {
   const tone =
     state.key === 'working' || state.key === 'completed'
-      ? 'border-success/25 bg-success-soft text-success'
+      ? 'border-brand/25 bg-brand/10 text-brand'
       : state.key === 'on_break'
         ? 'border-warning/25 bg-warning-soft text-warning'
         : 'border-line bg-elevated text-ink-muted'

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { logoLockup } from '@/lib/logo'
 
 /**
  * Split composition: an editorial brand panel on the left, the form on the
@@ -79,19 +80,14 @@ function BrandPanel() {
       <div className="grain absolute inset-0" aria-hidden />
 
       <div className="relative p-10">
-        <div className="flex items-center gap-3">
-          {/* Pure white, at display weight — this is the panel the real logo
-              will drop into, and it is the whole reason the panel is dark. */}
-          <span
-            className="font-display text-3xl font-bold leading-none text-white drop-shadow-[0_1px_3px_hsl(0_0%_0%/0.5)]"
-            aria-hidden
-          >
-            T
-          </span>
-          <span className="font-display text-lg font-semibold tracking-tight text-white/95">
-            Tomatovation
-          </span>
-        </div>
+        {/* The full white lockup, at last on the dark panel that was built for
+            it. The drop shadow lifts it a hair off the metal. */}
+        <img
+          src={logoLockup}
+          alt="Tomatovation"
+          className="w-48 select-none drop-shadow-[0_2px_8px_hsl(0_0%_0%/0.4)]"
+          draggable={false}
+        />
       </div>
 
       <div className="relative max-w-lg p-10">
@@ -106,10 +102,14 @@ function BrandPanel() {
             ['One trail', 'Every change audited'],
           ].map(([label, detail]) => (
             <div key={label}>
-              <p className="font-mono text-sm font-medium text-brand" data-numeric>
+              {/* Was text-brand — but --brand is graphite in the light theme,
+                  and this panel is always dark, so the labels were near-black
+                  on near-black and effectively invisible. White on the panel,
+                  with the detail one step dimmer for hierarchy. */}
+              <p className="font-mono text-sm font-semibold text-white" data-numeric>
                 {label}
               </p>
-              <p className="text-sm text-white/55">{detail}</p>
+              <p className="text-sm text-white/65">{detail}</p>
             </div>
           ))}
         </div>

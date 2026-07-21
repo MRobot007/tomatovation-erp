@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { groupedNavForRole } from '@/config/navigation'
 import { useLeadAccess } from '@/features/leads/hooks/use-lead-access'
 import { ROLE_LABELS, type Role } from '@/lib/roles'
+import { logoLockup, LOGO_MARK_ASPECT } from '@/lib/logo'
 import { cn } from '@/lib/utils'
 
 interface MobileNavProps {
@@ -34,12 +35,16 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
           )}
         >
           <div className="relative flex h-topbar shrink-0 items-center gap-2.5 px-3 shadow-[inset_0_-1px_0_hsl(0_0%_0%/0.4),inset_0_-2px_0_hsl(var(--rail-sheen)/0.04)]">
-            <span
-              className="flex size-8 shrink-0 items-center justify-center font-display text-2xl font-bold leading-none text-white drop-shadow-[0_1px_2px_hsl(0_0%_0%/0.6)]"
-              aria-hidden
-            >
-              T
-            </span>
+            {/* Same mark as the desktop rail: the lockup cropped to the
+                monogram, which is all that fits at header height. */}
+            <div className="h-7 shrink-0 overflow-hidden" style={{ aspectRatio: LOGO_MARK_ASPECT }}>
+              <img
+                src={logoLockup}
+                alt="Tomatovation"
+                className="block w-full select-none"
+                draggable={false}
+              />
+            </div>
             <div className="min-w-0 leading-tight">
               <Dialog.Title className="truncate font-display text-md font-semibold tracking-tight text-[hsl(var(--rail-ink))]">
                 Tomatovation

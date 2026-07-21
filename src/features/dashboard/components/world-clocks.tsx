@@ -37,7 +37,7 @@ export function WorldClocks() {
   const others = CLOCK_ZONES.map((zone) => readClock(zone, officeZone, now))
 
   return (
-    <Card dark className="flex h-full flex-col p-5">
+    <Card className="flex h-full flex-col p-5">
       <div className="mb-1 flex items-center gap-2">
         <Globe className="size-3.5 text-ink-subtle" aria-hidden />
         <p className="eyebrow">Time zones</p>

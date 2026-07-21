@@ -11,29 +11,17 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
    * ambient noise on a screen that already has fifteen of them.
    */
   interactive?: boolean
-  /**
-   * Force the "black morphism" treatment — a smoked dark frosted pane that
-   * stays dark in BOTH themes, rather than the default card which is white in
-   * light mode. Its own content (text, dividers, chips) flips to read on dark
-   * automatically, so nothing inside needs per-element colours.
-   *
-   * For a deliberate feature panel that should stand out against the paper —
-   * not something to reach for on every card, or the contrast the treatment
-   * buys is spent.
-   */
-  dark?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, interactive, dark, ...props }, ref) => (
+  ({ className, interactive, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        // The glass class carries its own border, fill and bevel, so no
-        // bg-surface or border-line here — they would paint over the pane and
-        // it would go back to being a rectangle.
-        'relative overflow-hidden rounded-lg',
-        dark ? 'glass-dark' : 'glass',
+        // `glass` carries its own border, fill and bevel — a dark frosted pane
+        // in both themes — so no bg-surface or border-line here; they would
+        // paint over it and it would go back to being a rectangle.
+        'glass relative overflow-hidden rounded-lg',
         interactive && 'card-interactive',
         className,
       )}

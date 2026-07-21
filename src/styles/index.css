@@ -247,17 +247,17 @@
      3. There is something behind it worth blurring. Hence .ambient below: on
         a flat fill, backdrop-blur is an expensive no-op. */
 
-  /* Content on a dark pane is light-on-dark, so the semantic tokens flip at
-     the card boundary. Every component downstream already reads these — the
-     whole card inverts without a single one of them knowing it is on glass,
-     which is the entire return on having a token layer.
+  /* Every card is a smoked-glass pane — dark in BOTH themes: a black frosted
+     panel on the white page in light mode, a lighter smoke on the dark page in
+     dark mode. The design is "dark cards on a light ground", so the card is the
+     dark thing everywhere and only the page changes.
 
-     Applies in both themes. In light mode the card is dark against white; in
-     dark mode it is a lighter dark against near-black. Either way the content
-     sits on something dark, so it wants the same treatment. */
-  .dark .glass,
-  .dark .glass-flat,
-  .glass-dark {
+     Content on a dark pane is light-on-dark, so the semantic tokens flip at the
+     card boundary. Every component downstream already reads these — the whole
+     card inverts without a single one of them knowing it is on glass, which is
+     the entire return on having a token layer. */
+  .glass,
+  .glass-flat {
     --ink: var(--og-ink);
     --ink-muted: var(--og-ink-muted);
     --ink-subtle: var(--og-ink-subtle);
@@ -306,46 +306,11 @@
     --shadow-color: 220 40% 2%;
   }
 
-  /* Light: a clean white card on an off-white page. Not glass — the design
-     calls for panels that read as paper, and a translucent dark pane on a
-     white page is a different product. The dark theme keeps the smoked pane
-     below, where it has a lit room to sit in and earns the blur. */
+  /* The pane. Same treatment in both themes — only the --glass token differs:
+     near-black over white paper in light mode, a lighter smoke over the dark
+     page in dark mode. The lit top bevel and the shadowed bottom are what hold
+     the shape together and stop it reading as a flat rectangle. */
   .glass {
-    isolation: isolate;
-    background-color: hsl(var(--surface));
-    border: 1px solid hsl(var(--line));
-    box-shadow:
-      0 1px 2px -1px hsl(var(--shadow-color) / 0.06),
-      0 1px 3px 0 hsl(var(--shadow-color) / 0.04);
-  }
-
-  .dark .glass {
-    background-color: hsl(var(--glass) / var(--glass-opacity));
-    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    border-color: hsl(var(--glass-edge) / 0.08);
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.25),
-      var(--shadow-md);
-  }
-
-  /* The corner sheen belongs to the dark pane only; on a white card it is a
-     smudge. */
-  .dark .glass::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
-    background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.06) 0%, transparent 38%);
-  }
-
-  /* Always-dark frosted glass — the "black morphism" card, on any theme.
-     Unlike .glass, which is a white card in light mode, this stays a smoked
-     dark pane so it reads as a deliberate feature panel against the paper. In
-     light mode the --glass token is the near-black pane; in dark mode it is
-     the theme's own glass. The content tokens are flipped in the block above,
-     so text and dividers come out white either way, with no per-element work
-     at the call site. */
-  .glass-dark {
     isolation: isolate;
     background-color: hsl(var(--glass) / var(--glass-opacity));
     backdrop-filter: blur(var(--glass-blur)) saturate(140%);
@@ -353,11 +318,25 @@
     border: 1px solid hsl(var(--glass-edge) / 0.08);
     box-shadow:
       inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.3),
-      var(--shadow-lg);
+      inset 0 -1px 0 hsl(0 0% 0% / 0.28),
+      var(--shadow-md);
   }
 
-  .glass-dark::before {
+  /* A black card on a white page casts a real drop shadow; without it the card
+     looks pasted on. Only in light mode — on the dark page the inset bevels do
+     the lifting and a heavy cast shadow would be mud. */
+  :root:not(.dark) .glass {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.14),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.4),
+      0 2px 8px -3px hsl(220 25% 12% / 0.18),
+      0 18px 34px -14px hsl(220 25% 12% / 0.24);
+  }
+
+  /* A single diagonal sheen across the top-left corner, the way a flat pane
+     picks up a window. One gradient, fixed — a card that shimmers on its own
+     is a distraction on a screen holding fifteen of them. */
+  .glass::before {
     content: '';
     @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
     background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.07) 0%, transparent 40%);
@@ -367,22 +346,21 @@
      backdrop-filter forces a fresh readback of everything behind the element
      per frame; six of those on a dashboard is nothing, but a kanban column
      with forty lead cards is a scroll that drops frames. Over a background
-     this soft the blur contributes almost nothing visually anyway — the fill
-     and the bevel are doing the work — so list items get those and skip it. */
+     this soft the blur contributes almost nothing anyway — the fill and the
+     bevel do the work — so list items get those and skip it. */
   .glass-flat {
     isolation: isolate;
-    background-color: hsl(var(--surface));
-    border: 1px solid hsl(var(--line));
-    box-shadow: 0 1px 2px -1px hsl(var(--shadow-color) / 0.06);
-  }
-
-  .dark .glass-flat {
-    background-color: hsl(var(--glass) / calc(var(--glass-opacity) * 0.9));
-    border-color: hsl(var(--glass-edge) / 0.08);
+    background-color: hsl(var(--glass) / calc(var(--glass-opacity) * 0.94));
+    border: 1px solid hsl(var(--glass-edge) / 0.08);
     box-shadow:
       inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.2),
       var(--shadow-sm);
+  }
+
+  :root:not(.dark) .glass-flat {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
+      0 2px 6px -2px hsl(220 25% 12% / 0.16);
   }
 
   /* Ambient light for the glass to sit in.

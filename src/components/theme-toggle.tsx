@@ -1,16 +1,17 @@
-import { Monitor, Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from 'lucide-react'
 import { useTheme } from './theme-provider'
 import { cn } from '@/lib/utils'
 
 const OPTIONS = [
   { value: 'light', icon: Sun, label: 'Light' },
-  { value: 'system', icon: Monitor, label: 'System' },
   { value: 'dark', icon: Moon, label: 'Dark' },
 ] as const
 
 /**
- * A three-way segmented control rather than a binary toggle — "system" is a
- * real preference, and hiding it forces people to re-toggle twice a day.
+ * A plain Light / Dark switch. "System" was dropped on request — most people
+ * pick one and stay, so a third option was a decision nobody wanted to make.
+ * The provider still honours a stored 'system' value if one lingers; this
+ * control just no longer offers it.
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()

@@ -13,7 +13,7 @@ const badgeVariants = cva(
     variants: {
       tone: {
         neutral: 'border-line bg-elevated text-ink-muted',
-        brand: 'border-tomato/25 bg-tomato-soft text-tomato-ink',
+        brand: 'border-brand/25 bg-brand-soft text-brand-ink',
         success: 'border-success/25 bg-success-soft text-success',
         warning: 'border-warning/25 bg-warning-soft text-warning',
         danger: 'border-danger/25 bg-danger-soft text-danger',

@@ -40,7 +40,7 @@ export function PunchCard() {
       <div
         className={cn(
           'relative px-5 py-6 transition-colors duration-300',
-          state.key === 'working' && 'bg-tomato-soft',
+          state.key === 'working' && 'bg-brand-soft',
           state.key === 'on_break' && 'bg-warning-soft',
           state.key === 'completed' && 'bg-success-soft',
         )}

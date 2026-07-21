@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<
       'flex h-9 w-full items-center justify-between gap-2 rounded border border-line-strong bg-sunken/50 px-2.5 text-base text-ink',
       'shadow-[inset_0_1px_2px_hsl(var(--shadow-color)/0.06)] transition-colors duration-150',
       'hover:border-ink-subtle/60',
-      'focus:border-tomato focus:bg-surface focus:outline-none focus:ring-2 focus:ring-tomato/25',
+      'focus:border-brand focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/25',
       'disabled:cursor-not-allowed disabled:opacity-50',
       'aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger-soft',
       'data-[placeholder]:text-ink-subtle',
@@ -76,7 +76,7 @@ const SelectItem = React.forwardRef<
   >
     <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="size-3.5 text-tomato" aria-hidden />
+        <Check className="size-3.5 text-brand" aria-hidden />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

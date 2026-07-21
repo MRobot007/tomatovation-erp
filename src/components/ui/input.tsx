@@ -17,11 +17,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       'shadow-[inset_0_1px_2px_hsl(var(--shadow-color)/0.06)] transition-colors duration-150',
       'placeholder:text-ink-subtle',
       'hover:border-ink-subtle/60',
-      'focus:border-tomato focus:bg-surface focus:outline-none focus:ring-2 focus:ring-tomato/25 focus:ring-offset-0',
+      'focus:border-brand focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/25 focus:ring-offset-0',
       'disabled:cursor-not-allowed disabled:opacity-50',
-      // Tomato (focus) and danger (error) sit only a few degrees apart, so a
-      // focused field would otherwise read as a broken one. The tinted fill
-      // is what separates them at a glance, before the message is read.
+      // The focus ring is graphite and the error ring is red, so the two no
+      // longer risk being confused the way a red brand and a red error did.
+      // The tinted fill stays anyway: it is what makes an invalid field
+      // scannable in a long form without reading a single message.
       'aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger-soft aria-[invalid=true]:ring-danger/25',
       'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-ink',
       className,
@@ -40,7 +41,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttribu
         'shadow-[inset_0_1px_2px_hsl(var(--shadow-color)/0.06)] transition-colors duration-150',
         'placeholder:text-ink-subtle',
         'hover:border-ink-subtle/60',
-        'focus:border-tomato focus:bg-surface focus:outline-none focus:ring-2 focus:ring-tomato/25',
+        'focus:border-brand focus:bg-surface focus:outline-none focus:ring-2 focus:ring-brand/25',
         'disabled:cursor-not-allowed disabled:opacity-50',
         'aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger-soft aria-[invalid=true]:ring-danger/25',
         className,

@@ -83,7 +83,7 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
                             // like response rather than movement.
                             'group-hover:scale-105',
                             isActive
-                              ? 'text-tomato drop-shadow-[0_0_6px_hsl(var(--tomato)/0.55)]'
+                              ? 'text-brand drop-shadow-[0_0_6px_hsl(var(--brand)/0.55)]'
                               : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
                           )}
                           aria-hidden

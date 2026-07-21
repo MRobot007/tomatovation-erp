@@ -83,7 +83,7 @@ export function CommandPalette() {
                 className="h-12 flex-1 bg-transparent text-md text-ink outline-none placeholder:text-ink-subtle"
               />
               {isFetching && (
-                <span className="size-3 animate-spin rounded-full border-2 border-line border-t-tomato" />
+                <span className="size-3 animate-spin rounded-full border-2 border-line border-t-brand" />
               )}
               <kbd className="hidden rounded-sm border border-line bg-elevated px-1 font-mono text-2xs text-ink-subtle sm:block">
                 ESC

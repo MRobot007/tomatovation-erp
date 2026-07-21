@@ -59,7 +59,10 @@ function BootError({ message }: { message: string }) {
             fontWeight: 600,
             letterSpacing: '0.09em',
             textTransform: 'uppercase',
-            color: 'hsl(4 62% 44%)',
+            // Inlined rather than tokenised on purpose: this screen renders
+            // when the app failed to boot, which may be before any stylesheet
+            // has. Kept in step with --danger by hand.
+            color: 'hsl(356 60% 45%)',
             margin: '0 0 0.5rem',
           }}
         >

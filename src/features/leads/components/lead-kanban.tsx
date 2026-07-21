@@ -98,7 +98,7 @@ function LeadCard({ lead, todayDate }: { lead: LeadRow; todayDate?: string }) {
       to={`/leads/${lead.id}`}
       className="group rounded-lg border border-line bg-surface p-3 shadow-sm transition-all hover:border-line-strong hover:shadow-md"
     >
-      <p className="truncate font-medium text-ink group-hover:text-tomato">{lead.company}</p>
+      <p className="truncate font-medium text-ink group-hover:text-brand">{lead.company}</p>
       {lead.contact_name && (
         <p className="truncate text-xs text-ink-subtle">{lead.contact_name}</p>
       )}

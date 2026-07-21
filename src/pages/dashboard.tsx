@@ -222,7 +222,7 @@ function Metric({
   tone?: 'brand' | 'warning'
   to?: string
 }) {
-  const toneClass = tone === 'brand' ? 'text-tomato' : tone === 'warning' ? 'text-warning' : 'text-ink'
+  const toneClass = tone === 'brand' ? 'text-brand' : tone === 'warning' ? 'text-warning' : 'text-ink'
 
   const body = (
     <CardContent className="pt-5">

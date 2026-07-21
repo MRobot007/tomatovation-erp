@@ -15,13 +15,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-tomato text-primary-foreground shadow-sm hover:bg-tomato-hover shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.16)]',
+          'bg-brand text-primary-foreground shadow-sm hover:bg-brand-hover shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.16)]',
         secondary: 'bg-elevated text-ink hover:bg-sunken border border-line',
         outline: 'border border-line-strong bg-surface text-ink hover:bg-elevated hover:border-ink-subtle',
         ghost: 'text-ink-muted hover:bg-elevated hover:text-ink',
         danger:
           'bg-danger text-destructive-foreground shadow-sm hover:brightness-110 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.16)]',
-        link: 'text-tomato underline-offset-4 hover:underline active:translate-y-0',
+        link: 'text-brand underline-offset-4 hover:underline active:translate-y-0',
       },
       size: {
         sm: 'h-7 px-2.5 text-xs [&_svg]:size-3.5',

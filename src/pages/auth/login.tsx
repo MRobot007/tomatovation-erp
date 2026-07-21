@@ -95,7 +95,7 @@ export function LoginPage() {
             <input
               type="checkbox"
               {...register('remember')}
-              className="size-3.5 rounded-sm border-line-strong text-tomato focus:ring-tomato/40"
+              className="size-3.5 rounded-sm border-line-strong text-brand focus:ring-brand/40"
             />
             Keep me signed in
           </label>

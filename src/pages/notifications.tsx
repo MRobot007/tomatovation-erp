@@ -114,7 +114,7 @@ export function NotificationsPage() {
                       'flex size-8 shrink-0 items-center justify-center rounded border',
                       notification.read
                         ? 'border-line bg-elevated text-ink-subtle'
-                        : 'border-tomato/25 bg-tomato-soft text-tomato',
+                        : 'border-brand/25 bg-brand-soft text-brand',
                     )}
                   >
                     <Icon className="size-4" aria-hidden />

@@ -84,7 +84,7 @@ export function AttentionPanel() {
               <li key={row.id}>
                 <Link
                   to={`/tasks?highlight=${row.id}`}
-                  className="flex items-center gap-2.5 py-2 transition-colors hover:text-tomato"
+                  className="flex items-center gap-2.5 py-2 transition-colors hover:text-brand"
                 >
                   {isBlocked ? (
                     <CircleAlert className="size-3.5 shrink-0 text-danger" aria-hidden />

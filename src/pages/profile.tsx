@@ -93,7 +93,7 @@ export function ProfilePage() {
                   aria-label="Profile completion"
                 >
                   <div
-                    className="h-full rounded-full bg-tomato transition-[width] duration-500 ease-out-expo"
+                    className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out-expo"
                     style={{ width: `${percent}%` }}
                   />
                 </div>

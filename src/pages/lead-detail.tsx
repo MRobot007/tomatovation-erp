@@ -248,7 +248,7 @@ export function LeadDetailPage() {
                 {lead.phone && (
                   <a
                     href={`tel:${lead.phone}`}
-                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-tomato"
+                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-brand"
                   >
                     <Phone className="size-3.5 shrink-0" aria-hidden />
                     <span className="truncate font-mono">{lead.phone}</span>
@@ -257,7 +257,7 @@ export function LeadDetailPage() {
                 {lead.email && (
                   <a
                     href={`mailto:${lead.email}`}
-                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-tomato"
+                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-brand"
                   >
                     <Mail className="size-3.5 shrink-0" aria-hidden />
                     <span className="truncate">{lead.email}</span>
@@ -270,7 +270,7 @@ export function LeadDetailPage() {
                     href={/^https?:\/\//i.test(lead.website) ? lead.website : `https://${lead.website}`}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-tomato"
+                    className="flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-brand"
                   >
                     <Globe className="size-3.5 shrink-0" aria-hidden />
                     <span className="truncate">{lead.website}</span>

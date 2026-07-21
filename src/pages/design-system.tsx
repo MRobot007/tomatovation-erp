@@ -21,7 +21,7 @@ export function DesignSystemPage() {
       <PageHeader
         eyebrow="Reference"
         title="Design system"
-        description="Warm Editorial — warm-neutral paper surfaces, Fraunces display cut against Inter UI text, tomato as the single brand signal, and status carried by soft tinted fields."
+        description="Warm Editorial — warm-neutral paper surfaces, Fraunces display cut against Inter UI text, brand as the single brand signal, and status carried by soft tinted fields."
       />
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -32,7 +32,7 @@ export function DesignSystemPage() {
               ['Surface', 'bg-surface'],
               ['Elevated', 'bg-elevated'],
               ['Sunken', 'bg-sunken'],
-              ['Tomato', 'bg-tomato'],
+              ['Brand', 'bg-brand'],
               ['Success', 'bg-success'],
               ['Warning', 'bg-warning'],
               ['Danger', 'bg-danger'],

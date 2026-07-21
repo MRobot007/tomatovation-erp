@@ -32,17 +32,12 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
           )}
         >
           <div className="relative flex h-topbar shrink-0 items-center gap-2.5 px-3 shadow-[inset_0_-1px_0_hsl(0_0%_0%/0.4),inset_0_-2px_0_hsl(var(--rail-sheen)/0.04)]">
-            <div
-              className={cn(
-                'flex size-8 items-center justify-center rounded-[0.3125rem]',
-                'bg-gradient-to-b from-tomato to-tomato-hover',
-                'font-display text-lg font-bold leading-none text-white',
-                'shadow-[inset_0_1px_0_hsl(var(--rail-sheen)/0.4),inset_0_-1px_0_hsl(0_0%_0%/0.25),0_1px_3px_hsl(0_0%_0%/0.4)]',
-              )}
+            <span
+              className="flex size-8 shrink-0 items-center justify-center font-display text-2xl font-bold leading-none text-white drop-shadow-[0_1px_2px_hsl(0_0%_0%/0.6)]"
               aria-hidden
             >
               T
-            </div>
+            </span>
             <div className="min-w-0 leading-tight">
               <Dialog.Title className="truncate font-display text-md font-semibold tracking-tight text-[hsl(var(--rail-ink))]">
                 Tomatovation
@@ -87,7 +82,7 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
                               className={cn(
                                 'size-4 shrink-0',
                                 isActive
-                                  ? 'text-tomato drop-shadow-[0_0_6px_hsl(var(--tomato)/0.55)]'
+                                  ? 'text-brand drop-shadow-[0_0_6px_hsl(var(--brand)/0.55)]'
                                   : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
                               )}
                               aria-hidden

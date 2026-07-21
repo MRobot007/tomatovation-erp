@@ -45,7 +45,7 @@ export function UserMenu({ presence }: { presence: PresenceStatus }) {
             <p className="truncate text-sm font-medium text-ink">{profile.name}</p>
             <p className="truncate text-xs text-ink-subtle">{profile.email}</p>
             {role && (
-              <p className="mt-1 text-2xs font-semibold uppercase tracking-wider text-tomato">
+              <p className="mt-1 text-2xs font-semibold uppercase tracking-wider text-brand">
                 {ROLE_LABELS[role]}
               </p>
             )}

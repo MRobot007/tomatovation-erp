@@ -61,24 +61,20 @@ export function Brand({ collapsed, role }: { collapsed: boolean; role: Role }) {
 }
 
 /**
- * Stand-in mark: a milled tile with a tomato face.
+ * Stand-in mark: a white letter, because that is what is coming.
  *
- * The bevel is two inset shadows — lit on the top edge, shadowed on the
- * bottom — which is the same trick the rail uses, so the placeholder belongs
- * to the surface it sits on instead of floating above it.
+ * Deliberately a plain white glyph rather than a tile or a badge. The real
+ * logo is a pure-white letterform, so the placeholder should occupy the same
+ * optical space and weight — anything with a filled background would look
+ * right here and then leave a hole the moment the real file replaced it.
  */
 function Lettermark() {
   return (
-    <div
-      className={cn(
-        'flex size-8 items-center justify-center rounded-[0.3125rem]',
-        'bg-gradient-to-b from-tomato to-tomato-hover',
-        'font-display text-lg font-bold leading-none text-white',
-        'shadow-[inset_0_1px_0_hsl(var(--rail-sheen)/0.4),inset_0_-1px_0_hsl(0_0%_0%/0.25),0_1px_3px_hsl(0_0%_0%/0.4)]',
-      )}
+    <span
+      className="font-display text-2xl font-bold leading-none text-white drop-shadow-[0_1px_2px_hsl(0_0%_0%/0.6)]"
       aria-hidden
     >
       T
-    </div>
+    </span>
   )
 }

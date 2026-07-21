@@ -152,7 +152,7 @@ export function DepartmentSelect({
 
         <SelectSeparator />
         <SelectItem value={ADD}>
-          <span className="flex items-center gap-2 text-tomato">
+          <span className="flex items-center gap-2 text-brand">
             <Plus className="size-3.5" aria-hidden />
             New department
           </span>

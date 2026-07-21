@@ -140,8 +140,8 @@ export function AnalyticsPage() {
               <AreaChart data={attendanceData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="presentFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={colors.tomato} stopOpacity={0.28} />
-                    <stop offset="100%" stopColor={colors.tomato} stopOpacity={0.02} />
+                    <stop offset="0%" stopColor={colors.brand} stopOpacity={0.28} />
+                    <stop offset="100%" stopColor={colors.brand} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke={colors.line} vertical={false} />
@@ -152,7 +152,7 @@ export function AnalyticsPage() {
                   type="monotone"
                   dataKey="present_count"
                   name="Present"
-                  stroke={colors.tomato}
+                  stroke={colors.brand}
                   strokeWidth={2}
                   fill="url(#presentFill)"
                 />
@@ -245,7 +245,7 @@ export function AnalyticsPage() {
                 <YAxis allowDecimals={false} {...axisProps(colors)} />
                 <Tooltip {...tooltipProps(colors)} />
                 <Legend wrapperStyle={{ fontSize: 12, color: colors.inkMuted }} />
-                <Bar dataKey="created" name="Created" fill={colors.tomato} radius={[3, 3, 0, 0]} />
+                <Bar dataKey="created" name="Created" fill={colors.brand} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="won" name="Won" fill={colors.success} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="lost" name="Lost" fill={colors.danger} radius={[3, 3, 0, 0]} />
               </BarChart>
@@ -306,7 +306,7 @@ export function AnalyticsPage() {
                   <Bar
                     dataKey="total_hours"
                     name="Hours"
-                    fill={colors.tomato}
+                    fill={colors.brand}
                     radius={[0, 3, 3, 0]}
                   />
                 </BarChart>

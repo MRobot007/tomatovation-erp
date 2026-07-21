@@ -213,7 +213,7 @@ function Metric({
 }) {
   const toneClass =
     tone === 'brand'
-      ? 'text-tomato'
+      ? 'text-brand'
       : tone === 'warning'
         ? 'text-warning'
         : tone === 'success'

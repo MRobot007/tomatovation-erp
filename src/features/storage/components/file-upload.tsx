@@ -116,13 +116,13 @@ export function FileUpload({ bucket, value, onChange, disabled, label }: FileUpl
         }}
         className={cn(
           'flex flex-col items-center justify-center rounded border border-dashed px-4 py-5 text-center transition-colors',
-          dragging ? 'border-tomato bg-tomato-soft' : 'border-line-strong bg-sunken/30',
+          dragging ? 'border-brand bg-brand-soft' : 'border-line-strong bg-sunken/30',
           disabled && 'pointer-events-none opacity-50',
         )}
       >
         {uploading ? (
           <>
-            <Loader2 className="size-4 animate-spin text-tomato" aria-hidden />
+            <Loader2 className="size-4 animate-spin text-brand" aria-hidden />
             <p className="mt-2 text-sm text-ink-muted">Uploading…</p>
           </>
         ) : (
@@ -133,7 +133,7 @@ export function FileUpload({ bucket, value, onChange, disabled, label }: FileUpl
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="font-medium text-tomato underline-offset-2 hover:underline"
+                className="font-medium text-brand underline-offset-2 hover:underline"
               >
                 browse
               </button>
@@ -203,7 +203,7 @@ export function AttachedFile({
       <button
         type="button"
         onClick={open}
-        className="min-w-0 flex-1 truncate text-left text-sm text-ink transition-colors hover:text-tomato"
+        className="min-w-0 flex-1 truncate text-left text-sm text-ink transition-colors hover:text-brand"
       >
         {name}
       </button>

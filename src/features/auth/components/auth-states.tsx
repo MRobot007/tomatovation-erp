@@ -12,7 +12,7 @@ export function FullPageLoader() {
     <div className="flex min-h-dvh items-center justify-center bg-paper" role="status">
       <div className="flex flex-col items-center gap-3">
         <div
-          className="flex size-9 items-center justify-center rounded bg-tomato font-display text-lg font-bold text-primary-foreground shadow-sm"
+          className="flex size-9 items-center justify-center rounded bg-brand font-display text-lg font-bold text-primary-foreground shadow-sm"
           aria-hidden
         >
           T

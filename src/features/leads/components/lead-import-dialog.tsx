@@ -164,7 +164,7 @@ export function LeadImportDialog({
                 }}
                 className={cn(
                   'rounded border border-dashed p-6 text-center transition-colors',
-                  dragging ? 'border-tomato bg-tomato/5' : 'border-line-strong bg-elevated/40',
+                  dragging ? 'border-brand bg-brand/5' : 'border-line-strong bg-elevated/40',
                 )}
               >
                 <FileSpreadsheet className="mx-auto size-7 text-ink-subtle" aria-hidden />
@@ -207,7 +207,7 @@ export function LeadImportDialog({
                   <button
                     type="button"
                     onClick={() => void downloadLeadTemplate()}
-                    className="font-medium text-tomato underline-offset-4 hover:underline"
+                    className="font-medium text-brand underline-offset-4 hover:underline"
                   >
                     Download the Excel template
                   </button>

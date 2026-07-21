@@ -1,6 +1,17 @@
 /**
  * Warm Editorial — design tokens.
  *
+ * The identity is ACHROMATIC. There is no brand colour in the decorative
+ * sense: the accent is graphite on paper and white on metal, which is the same
+ * mark expressed for the surface it lands on. A pure-white logo has nothing to
+ * clash with, and the only colour left in the interface is carrying meaning —
+ * green passed, red failed, gold needs attention — so when something IS
+ * coloured, it matters.
+ *
+ * That is why the neutrals stay warm while the accent is cool: paper and steel
+ * are the two materials, and the whole system reads off that opposition rather
+ * than off a hue.
+ *
  * All colour is authored as HSL triplets so Tailwind can compose them with
  * opacity modifiers (`bg-paper/60`). shadcn/ui's contract variables
  * (--background, --primary, ...) are mapped onto this palette at the bottom of
@@ -12,11 +23,17 @@
 
 @layer base {
   :root {
-    /* ---- Surfaces ------------------------------------------------------- */
-    --paper: 42 33% 97%;
-    --surface: 40 40% 99%;
-    --elevated: 42 25% 94%;
-    --sunken: 42 22% 91%;
+    /* ---- Surfaces -------------------------------------------------------
+     * Hue kept, saturation pulled back by roughly a third from where it
+     * started. It was tuned against a warm red accent, where cream read as
+     * intentional; against cool graphite the same values read as tan, and a
+     * warm mid-tone under a cool accent is what makes a palette look muddy
+     * rather than considered. This is "warm white paper", not cream.
+     */
+    --paper: 42 20% 97%;
+    --surface: 40 26% 99%;
+    --elevated: 42 15% 94%;
+    --sunken: 42 13% 91%;
 
     /* ---- Ink ------------------------------------------------------------ */
     --ink: 36 12% 9%;
@@ -24,29 +41,47 @@
     --ink-subtle: 38 10% 55%;
 
     /* ---- Lines ---------------------------------------------------------- */
-    --line: 42 20% 87%;
-    --line-strong: 40 16% 78%;
+    --line: 42 12% 87%;
+    --line-strong: 40 10% 78%;
 
-    /* ---- Brand ---------------------------------------------------------- */
-    --tomato: 9 61% 48%;
-    --tomato-hover: 9 65% 40%;
-    --tomato-soft: 9 60% 95%;
-    --tomato-ink: 9 70% 32%;
+    /* ---- Accent ---------------------------------------------------------
+     * Graphite, at the rail's hue, so the primary button and the metal panel
+     * are recognisably the same material. On paper the accent is the darkest
+     * thing on the page, which is how emphasis works in print — weight and
+     * contrast, not hue.
+     */
+    --brand: 220 14% 16%;
+    --brand-hover: 220 16% 9%;
+    /* Cool wash for selected rows and active fields. Deliberately cool where
+       --elevated is warm, so a selected row is distinguishable from a merely
+       raised one without needing a colour. */
+    --brand-soft: 220 16% 93%;
+    --brand-ink: 220 20% 22%;
 
-    /* ---- Status --------------------------------------------------------- */
+    /* ---- Status ---------------------------------------------------------
+     * The only hues left in the system, so each one has to earn its place.
+     */
     --success: 152 39% 30%;
     --success-soft: 152 35% 94%;
-    --warning: 35 62% 44%;
-    --warning-soft: 38 70% 94%;
-    --danger: 4 62% 44%;
-    --danger-soft: 4 65% 95%;
+    /* Gold at 45deg, not amber at 35deg. The old value was orange, and orange
+       is out of the palette entirely — including where it was hiding as a
+       status colour. Gold still reads as caution without recalling a brand. */
+    --warning: 45 68% 36%;
+    --warning-soft: 45 72% 93%;
+    /* 356deg is a true red. The old 4deg carried an orange cast that, next to
+       a gold warning, made the two hard to tell apart at a glance. */
+    --danger: 356 60% 45%;
+    --danger-soft: 356 62% 96%;
     --info: 212 37% 37%;
     --info-soft: 212 40% 95%;
 
     /* ---- Presence (online status dots) ---------------------------------- */
     --presence-online: 152 45% 38%;
-    --presence-working: 9 61% 48%;
-    --presence-break: 35 62% 48%;
+    /* Blue, not graphite. Graphite would be a step off the offline grey, and
+       "at their desk" versus "not here at all" is the one distinction on this
+       dot that has to survive a glance. */
+    --presence-working: 212 48% 46%;
+    --presence-break: 45 65% 42%;
     --presence-offline: 38 8% 66%;
 
     /* ---- Rail (the metallic sidebar) ------------------------------------
@@ -77,6 +112,11 @@
     /* Specular highlight — the lit edge of a bevel. Kept as a raw channel
        triplet so it can be used at very low alpha without muddying. */
     --rail-sheen: 210 30% 100%;
+    /* The accent as the rail expresses it: white. On paper the accent is the
+       darkest thing available; on metal it is the brightest. Using --brand here
+       would paint graphite on graphite and the active item would vanish.
+       It is also, exactly, the logo. */
+    --rail-accent: 0 0% 100%;
 
     /* ---- Elevation ------------------------------------------------------ */
     /* Warm-tinted shadows. A neutral black shadow on warm paper reads muddy. */
@@ -95,19 +135,22 @@
     --card-foreground: var(--ink);
     --popover: var(--surface);
     --popover-foreground: var(--ink);
-    --primary: var(--tomato);
+    --primary: var(--brand);
     --primary-foreground: 40 40% 99%;
     --secondary: var(--elevated);
     --secondary-foreground: var(--ink);
     --muted: var(--elevated);
     --muted-foreground: var(--ink-muted);
-    --accent: var(--tomato-soft);
-    --accent-foreground: var(--tomato-ink);
+    /* shadcn's --accent is its hover/selected wash, not a brand colour — which
+       is exactly why ours is called --brand. Mapping --brand here instead would
+       paint every dropdown hover near-black. */
+    --accent: var(--brand-soft);
+    --accent-foreground: var(--brand-ink);
     --destructive: var(--danger);
     --destructive-foreground: 40 40% 99%;
     --border: var(--line);
     --input: var(--line-strong);
-    --ring: var(--tomato);
+    --ring: var(--brand);
     --radius: 0.3125rem;
   }
 
@@ -124,23 +167,27 @@
     --line: 36 12% 20%;
     --line-strong: 36 12% 28%;
 
-    --tomato: 9 70% 60%;
-    --tomato-hover: 9 75% 68%;
-    --tomato-soft: 9 40% 18%;
-    --tomato-ink: 9 70% 75%;
+    /* The accent INVERTS. On paper it is the darkest thing present; in the dark
+       theme it is the lightest. Same idea — maximum contrast against the
+       surface — which is what keeps an achromatic identity legible in both,
+       and it matches the white logo exactly. */
+    --brand: 210 16% 95%;
+    --brand-hover: 0 0% 100%;
+    --brand-soft: 220 10% 20%;
+    --brand-ink: 210 16% 93%;
 
     --success: 152 45% 55%;
     --success-soft: 152 30% 15%;
-    --warning: 38 70% 60%;
-    --warning-soft: 38 40% 15%;
-    --danger: 4 70% 62%;
-    --danger-soft: 4 40% 16%;
+    --warning: 45 75% 60%;
+    --warning-soft: 45 40% 15%;
+    --danger: 356 70% 66%;
+    --danger-soft: 356 40% 17%;
     --info: 212 50% 65%;
     --info-soft: 212 35% 16%;
 
     --presence-online: 152 45% 50%;
-    --presence-working: 9 70% 60%;
-    --presence-break: 38 70% 58%;
+    --presence-working: 212 60% 62%;
+    --presence-break: 45 72% 58%;
     --presence-offline: 38 8% 38%;
 
     --shadow-color: 36 40% 2%;

@@ -27,7 +27,7 @@ export function AuthLayout({
         <div className="w-full max-w-sm">
           <div className="mb-7 flex items-center gap-2.5 lg:hidden">
             <div
-              className="flex size-8 items-center justify-center rounded bg-tomato font-display text-md font-bold text-primary-foreground shadow-sm"
+              className="flex size-8 items-center justify-center rounded bg-brand font-display text-md font-bold text-primary-foreground shadow-sm"
               aria-hidden
             >
               T
@@ -55,26 +55,39 @@ export function AuthLayout({
 function BrandPanel() {
   return (
     <div className="relative hidden overflow-hidden bg-ink lg:flex lg:flex-col lg:justify-between">
-      {/* Warm wash rather than a flat fill — a solid dark rectangle next to warm
-          paper reads as a missing image. */}
+      {/* The same machined metal as the rail, at panel scale: a light source
+          off the top-left, falling away to near-black. A flat dark rectangle
+          next to warm paper reads as a missing image. */}
       <div
-        className="absolute inset-0 opacity-90"
+        className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(120% 90% at 12% 8%, hsl(9 61% 30%) 0%, hsl(14 35% 14%) 45%, hsl(36 16% 8%) 100%)',
+            'radial-gradient(130% 95% at 14% 6%, hsl(220 10% 26%) 0%, hsl(220 11% 14%) 42%, hsl(220 13% 6%) 100%)',
+        }}
+        aria-hidden
+      />
+      {/* Brush grain, matching the rail. It is what stops a large dark field
+          from looking like an empty div at this size. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(90deg, hsl(210 30% 100% / 0.02) 0px, hsl(210 30% 100% / 0.02) 1px, transparent 1px, transparent 3px)',
         }}
         aria-hidden
       />
       <div className="grain absolute inset-0" aria-hidden />
 
       <div className="relative p-10">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="flex size-8 items-center justify-center rounded bg-tomato font-display text-md font-bold text-white shadow-sm"
+        <div className="flex items-center gap-3">
+          {/* Pure white, at display weight — this is the panel the real logo
+              will drop into, and it is the whole reason the panel is dark. */}
+          <span
+            className="font-display text-3xl font-bold leading-none text-white drop-shadow-[0_1px_3px_hsl(0_0%_0%/0.5)]"
             aria-hidden
           >
             T
-          </div>
+          </span>
           <span className="font-display text-lg font-semibold tracking-tight text-white/95">
             Tomatovation
           </span>
@@ -93,7 +106,7 @@ function BrandPanel() {
             ['One trail', 'Every change audited'],
           ].map(([label, detail]) => (
             <div key={label}>
-              <p className="font-mono text-sm font-medium text-tomato" data-numeric>
+              <p className="font-mono text-sm font-medium text-brand" data-numeric>
                 {label}
               </p>
               <p className="text-sm text-white/55">{detail}</p>

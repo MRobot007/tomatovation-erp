@@ -72,7 +72,7 @@ export function NotificationBell() {
             <span
               className={cn(
                 'absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full',
-                'bg-tomato px-1 font-mono text-[9px] font-bold leading-none text-primary-foreground',
+                'bg-brand px-1 font-mono text-[9px] font-bold leading-none text-primary-foreground',
                 'ring-2 ring-surface',
               )}
             >
@@ -88,7 +88,7 @@ export function NotificationBell() {
           {unread > 0 && (
             <button
               onClick={() => markAllAsRead.mutate()}
-              className="flex items-center gap-1 text-xs text-ink-muted transition-colors hover:text-tomato"
+              className="flex items-center gap-1 text-xs text-ink-muted transition-colors hover:text-brand"
             >
               <CheckCheck className="size-3" aria-hidden />
               Mark all read
@@ -151,13 +151,13 @@ function NotificationItem({
   const Icon = NOTIFICATION_ICONS[notification.type] ?? Bell
 
   const content = (
-    <div className={cn('flex gap-2.5 px-3 py-2.5', !notification.read && 'bg-tomato-soft/40')}>
+    <div className={cn('flex gap-2.5 px-3 py-2.5', !notification.read && 'bg-brand-soft/40')}>
       <span
         className={cn(
           'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded border',
           notification.read
             ? 'border-line bg-elevated text-ink-subtle'
-            : 'border-tomato/25 bg-surface text-tomato',
+            : 'border-brand/25 bg-surface text-brand',
         )}
       >
         <Icon className="size-3" aria-hidden />
@@ -179,7 +179,7 @@ function NotificationItem({
       </div>
 
       {!notification.read && (
-        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-tomato" aria-label="Unread" />
+        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand" aria-label="Unread" />
       )}
     </div>
   )

@@ -12,10 +12,14 @@ function cssVar(name: string, fallback: string): string {
 
 export function chartColors() {
   return {
-    tomato: cssVar('--tomato', 'hsl(9 61% 48%)'),
+    // Fallbacks must track tokens.css. They were left on the old orange after
+    // the palette went achromatic, which would have put a stripe of the
+    // retired brand colour back on any chart that rendered before the
+    // stylesheet resolved — the one place it could still appear.
+    brand: cssVar('--brand', 'hsl(220 14% 16%)'),
     success: cssVar('--success', 'hsl(152 39% 30%)'),
-    warning: cssVar('--warning', 'hsl(35 62% 44%)'),
-    danger: cssVar('--danger', 'hsl(4 62% 44%)'),
+    warning: cssVar('--warning', 'hsl(45 68% 36%)'),
+    danger: cssVar('--danger', 'hsl(356 60% 45%)'),
     info: cssVar('--info', 'hsl(212 37% 37%)'),
     ink: cssVar('--ink', 'hsl(36 12% 9%)'),
     inkMuted: cssVar('--ink-muted', 'hsl(37 11% 39%)'),
@@ -32,7 +36,7 @@ export function chartColors() {
  */
 export function categoricalPalette(): string[] {
   const colors = chartColors()
-  return [colors.tomato, colors.info, colors.success, colors.warning, colors.danger, colors.inkMuted]
+  return [colors.brand, colors.info, colors.success, colors.warning, colors.danger, colors.inkMuted]
 }
 
 export function axisProps(colors: ReturnType<typeof chartColors>) {

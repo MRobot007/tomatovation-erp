@@ -270,7 +270,7 @@ function AnnouncementDialog({
               <input
                 type="checkbox"
                 {...form.register('published')}
-                className="size-3.5 rounded-sm border-line-strong text-tomato focus:ring-tomato/40"
+                className="size-3.5 rounded-sm border-line-strong text-brand focus:ring-brand/40"
               />
               Publish now and notify everyone
             </label>

@@ -33,11 +33,11 @@ const config = {
           strong: 'hsl(var(--line-strong) / <alpha-value>)',
         },
 
-        tomato: {
-          DEFAULT: 'hsl(var(--tomato) / <alpha-value>)',
-          hover: 'hsl(var(--tomato-hover) / <alpha-value>)',
-          soft: 'hsl(var(--tomato-soft) / <alpha-value>)',
-          ink: 'hsl(var(--tomato-ink) / <alpha-value>)',
+        brand: {
+          DEFAULT: 'hsl(var(--brand) / <alpha-value>)',
+          hover: 'hsl(var(--brand-hover) / <alpha-value>)',
+          soft: 'hsl(var(--brand-soft) / <alpha-value>)',
+          ink: 'hsl(var(--brand-ink) / <alpha-value>)',
         },
 
         success: {

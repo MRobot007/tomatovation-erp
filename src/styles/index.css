@@ -97,302 +97,89 @@
   }
 
   /* ==========================================================================
-     The rail — a machined metal panel, not a dark div.
-     ==========================================================================
-     What separates "metallic" from "dark grey" is entirely about light: a
-     luminance gradient down the face, a lit bevel on the edges that catch the
-     light, a directional brush grain, and a specular sweep when something
-     moves across it. Each of the pieces below is one of those.
-
-     Everything animates on transform and opacity only, so the sweeps run on the
-     compositor and cost nothing on a 15-item nav list. */
+     The rail — a flat, solid dark sidebar panel.
+     ========================================================================== */
 
   .rail {
-    background-image: linear-gradient(
-      175deg,
-      hsl(var(--rail-top)) 0%,
-      hsl(var(--rail-bottom)) 100%
-    );
-    /* Two bevels: a bright hairline down the inner left, and a darker one on
-       the outer right where the panel turns away from the light. Without the
-       pair it reads as a flat fill with a border. */
-    box-shadow:
-      inset 1px 0 0 hsl(var(--rail-sheen) / 0.05),
-      inset -1px 0 0 hsl(0 0% 0% / 0.5),
-      2px 0 12px -6px hsl(0 0% 0% / 0.45);
-  }
-
-  /* Brushed grain. Vertical, because the rail is a vertical extrusion and the
-     brush follows the length of the stock. Deliberately near-invisible: at 2px
-     and 2.5% it reads as texture, and anything stronger reads as corduroy. */
-  .rail-grain::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0;
-    background-image: repeating-linear-gradient(
-      90deg,
-      hsl(var(--rail-sheen) / 0.025) 0px,
-      hsl(var(--rail-sheen) / 0.025) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-  }
-
-  /* A soft pool of light near the top, where a panel this size would catch a
-     ceiling source. Stops the gradient reading as a flat ramp. */
-  .rail-grain::after {
-    content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-48;
-    background-image: radial-gradient(
-      120% 100% at 50% 0%,
-      hsl(var(--rail-sheen) / 0.07) 0%,
-      transparent 70%
-    );
+    background-color: hsl(var(--rail-top));
+    border-right: 1px solid hsl(var(--rail-line));
   }
 
   /* --- Nav items --------------------------------------------------------- */
 
-  /* The global focus ring offsets against --paper, which on this panel draws a
-     cream halo around the key. On metal the ring reads better as a bright inset
-     edge with no offset at all — the light is coming from the panel, not from
-     the page behind it. */
   .rail-item:focus-visible,
   .rail :focus-visible {
     @apply outline-none ring-0;
-    box-shadow:
-      inset 0 0 0 1px hsl(var(--rail-sheen) / 0.55),
-      0 0 0 1px hsl(var(--rail-accent) / 0.9),
-      0 0 10px 0 hsl(var(--rail-accent) / 0.45);
+    box-shadow: inset 0 0 0 1px hsl(var(--rail-accent) / 0.9);
   }
 
   .rail-item {
-    @apply relative isolate overflow-hidden;
+    @apply relative isolate;
     transition:
-      color 160ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
-      background-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+      color 140ms ease,
+      background-color 140ms ease;
   }
 
-  /* The specular sweep: a narrow diagonal band of light that crosses the item
-     on hover, the way a highlight travels over metal as it tilts. It lives on
-     a pseudo-element so it never affects layout, and moves on transform only. */
-  .rail-item::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0 -z-10 opacity-0;
-    background-image: linear-gradient(
-      100deg,
-      transparent 20%,
-      hsl(var(--rail-sheen) / 0.14) 50%,
-      transparent 80%
-    );
-    transform: translateX(-100%);
-  }
-
-  .rail-item:hover::before {
-    @apply opacity-100;
-    transform: translateX(100%);
-    transition:
-      transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 120ms linear;
-  }
-
-  /* Raised face on hover: one step up the luminance ramp, plus a lit top edge.
-     Together they read as the key rising slightly out of the panel. */
+  /* Hover: lift the item one step up the panel's tone. */
   .rail-item:hover {
-    background-color: hsl(var(--rail-raised) / 0.75);
-    box-shadow: inset 0 1px 0 hsl(var(--rail-sheen) / 0.06);
+    background-color: hsl(var(--rail-raised));
   }
 
-  /* Active: the brand colour has to survive on metal, so it arrives as emitted
-     light — a glowing edge bar and a wash — rather than as a flat brand pill,
-     which would sit on the surface like a sticker. */
-  .rail-item-active {
-    background-image: linear-gradient(
-      90deg,
-      hsl(var(--rail-accent) / 0.22) 0%,
-      hsl(var(--rail-accent) / 0.06) 45%,
-      transparent 100%
-    );
-    box-shadow:
-      inset 0 1px 0 hsl(var(--rail-sheen) / 0.08),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.35);
-  }
-
+  /* Active: a faint tomato wash; the edge marker below carries the rest. */
+  .rail-item-active,
   .rail-item-active:hover {
-    background-color: transparent;
+    background-color: hsl(var(--rail-accent) / 0.14);
   }
 
-  /* The lit edge marker. The blur behind it is what makes it read as glowing
-     rather than as a painted line. */
+  /* The active edge marker — a solid tomato bar down the left of the item. */
   .rail-marker {
     @apply absolute inset-y-1 left-0 w-[2px] rounded-full;
-    background-image: linear-gradient(
-      180deg,
-      hsl(var(--rail-accent) / 0.55),
-      hsl(var(--rail-accent)) 35%,
-      hsl(var(--rail-accent)) 65%,
-      hsl(var(--rail-accent) / 0.55)
-    );
-    box-shadow: 0 0 8px 0 hsl(var(--rail-accent) / 0.7);
+    background-color: hsl(var(--rail-accent));
   }
 
   /* ==========================================================================
-     Glass
+     Cards (.glass / .glass-flat)
      ==========================================================================
-     Three things make a pane read as glass, and only one of them is the blur:
+     Flat panels, no translucency or blur. The class names are kept so the many
+     components that reference them do not all have to change; what they render
+     is now a plain surface with a hairline border and a light shadow. */
 
-     1. It is DARKER than the room, not lighter. Glass filters; a lighter fill
-        reads as paint. This is the difference most glassmorphism gets wrong.
-     2. It has a lit top bevel and a dark bottom one. A real edge catches the
-        light from above — that edge is what holds the shape together at 55%
-        opacity, and without it the card dissolves.
-     3. There is something behind it worth blurring. Hence .ambient below: on
-        a flat fill, backdrop-blur is an expensive no-op. */
-
-  /* Every card is a smoked-glass pane — dark in BOTH themes: a black frosted
-     panel on the white page in light mode, a lighter smoke on the dark page in
-     dark mode. The design is "dark cards on a light ground", so the card is the
-     dark thing everywhere and only the page changes.
-
-     Content on a dark pane is light-on-dark, so the semantic tokens flip at the
-     card boundary. Every component downstream already reads these — the whole
-     card inverts without a single one of them knowing it is on glass, which is
-     the entire return on having a token layer. */
-  .glass,
-  .glass-flat {
-    --ink: var(--og-ink);
-    --ink-muted: var(--og-ink-muted);
-    --ink-subtle: var(--og-ink-subtle);
-    --line: var(--og-line);
-    --line-strong: var(--og-line-strong);
-    --surface: var(--og-surface);
-    --elevated: var(--og-elevated);
-    --sunken: var(--og-sunken);
-
-    /* A graphite primary button would vanish on a graphite card. Inside one,
-       the accent takes its dark-theme expression: white. */
-    --brand: var(--og-brand);
-    --brand-hover: 0 0% 100%;
-    --brand-soft: 220 10% 25%;
-    --brand-ink: 210 16% 93%;
-    --primary-foreground: 220 14% 10%;
-
-    /* Status hues lift and their soft fields darken. The light-mode softs are
-       near-white chips, which on a black card read as holes punched in it. */
-    --success: var(--og-success);
-    --success-soft: 152 30% 19%;
-    --warning: var(--og-warning);
-    --warning-soft: 45 40% 19%;
-    --danger: var(--og-danger);
-    --danger-soft: 356 40% 21%;
-    --info: var(--og-info);
-    --info-soft: 212 35% 21%;
-
-    /* shadcn's contract, re-pointed at the flipped values. */
-    --background: var(--og-surface);
-    --foreground: var(--og-ink);
-    --card: var(--og-surface);
-    --card-foreground: var(--og-ink);
-    --popover: var(--og-surface);
-    --popover-foreground: var(--og-ink);
-    --primary: var(--brand);
-    --secondary: var(--og-elevated);
-    --secondary-foreground: var(--og-ink);
-    --muted: var(--og-elevated);
-    --muted-foreground: var(--og-ink-muted);
-    --accent: var(--brand-soft);
-    --accent-foreground: var(--brand-ink);
-    --border: var(--og-line);
-    --input: var(--og-line-strong);
-    --ring: var(--brand);
-    --shadow-color: 220 40% 2%;
-  }
-
-  /* The pane. Same treatment in both themes — only the --glass token differs:
-     near-black over white paper in light mode, a lighter smoke over the dark
-     page in dark mode. The lit top bevel and the shadowed bottom are what hold
-     the shape together and stop it reading as a flat rectangle. */
+  /* A card is a flat panel in both themes: a white card on an off-white page
+     in light, a raised dark surface on near-black in dark. The content tokens
+     already flip per theme at the root, so a card needs no local overrides —
+     only its own fill, border and a light shadow. */
   .glass {
     isolation: isolate;
-    background-color: hsl(var(--glass) / var(--glass-opacity));
-    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    border: 1px solid hsl(var(--glass-edge) / 0.08);
+    background-color: hsl(var(--surface));
+    border: 1px solid hsl(var(--line));
     box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.1),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.28),
-      var(--shadow-md);
+      0 1px 2px -1px hsl(var(--shadow-color) / 0.06),
+      0 1px 3px 0 hsl(var(--shadow-color) / 0.04);
   }
 
-  /* A black card on a white page casts a real drop shadow; without it the card
-     looks pasted on. Only in light mode — on the dark page the inset bevels do
-     the lifting and a heavy cast shadow would be mud. */
-  :root:not(.dark) .glass {
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.14),
-      inset 0 -1px 0 hsl(0 0% 0% / 0.4),
-      0 2px 8px -3px hsl(220 25% 12% / 0.18),
-      0 18px 34px -14px hsl(220 25% 12% / 0.24);
-  }
-
-  /* A single diagonal sheen across the top-left corner, the way a flat pane
-     picks up a window. One gradient, fixed — a card that shimmers on its own
-     is a distraction on a screen holding fifteen of them. */
-  .glass::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0 -z-10 rounded-[inherit];
-    background-image: linear-gradient(145deg, hsl(var(--glass-edge) / 0.07) 0%, transparent 40%);
+  .dark .glass {
+    background-color: hsl(var(--surface));
+    border-color: hsl(var(--line));
+    box-shadow: var(--shadow-md);
   }
 
   /* Glass without the blur, for anything that repeats.
      backdrop-filter forces a fresh readback of everything behind the element
      per frame; six of those on a dashboard is nothing, but a kanban column
      with forty lead cards is a scroll that drops frames. Over a background
-     this soft the blur contributes almost nothing anyway — the fill and the
-     bevel do the work — so list items get those and skip it. */
+     this soft the blur contributes almost nothing visually anyway — the fill
+     and the bevel are doing the work — so list items get those and skip it. */
   .glass-flat {
     isolation: isolate;
-    background-color: hsl(var(--glass) / calc(var(--glass-opacity) * 0.94));
-    border: 1px solid hsl(var(--glass-edge) / 0.08);
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
-      var(--shadow-sm);
+    background-color: hsl(var(--surface));
+    border: 1px solid hsl(var(--line));
+    box-shadow: 0 1px 2px -1px hsl(var(--shadow-color) / 0.06);
   }
 
-  :root:not(.dark) .glass-flat {
-    box-shadow:
-      inset 0 1px 0 hsl(var(--glass-edge) / 0.08),
-      0 2px 6px -2px hsl(220 25% 12% / 0.16);
-  }
-
-  /* Ambient light for the glass to sit in.
-     Soft pools rather than the usual blurred colour blobs — this is an ERP,
-     and a purple orb behind a payroll table is a costume, not a design. The
-     light is achromatic, matching the identity: it reads as a lit room.
-
-     Painted as background-image ON the shell rather than as a pseudo-element
-     behind it. A `fixed; z-index: -10` child sits at step 2 of the paint order
-     while the parent's own background colour lands at step 3 — so the parent
-     would have covered the light completely and this would have looked like
-     nothing at all had shipped. background-image always paints above
-     background-color on the same element, which sidesteps it entirely.
-
-     The shell is h-dvh and does not itself scroll — only <main> inside it
-     does — so this stays put without needing background-attachment: fixed,
-     which is a known jank source on mobile. */
-  .ambient {
-    background-image:
-      radial-gradient(60% 50% at 12% 0%, hsl(210 30% 100% / 0.055) 0%, transparent 60%),
-      radial-gradient(50% 45% at 88% 8%, hsl(210 30% 100% / 0.035) 0%, transparent 62%),
-      radial-gradient(70% 60% at 50% 100%, hsl(220 40% 2% / 0.5) 0%, transparent 70%);
-  }
-
-  /* On a genuinely white page the ambient wash has to be almost nothing —
-     just enough tonal drift for the panes to have something behind them.
-     Neutral, because any hue here is immediately visible against pure white. */
-  :root:not(.dark) .ambient {
-    background-image:
-      radial-gradient(70% 55% at 15% 0%, hsl(0 0% 100%) 0%, transparent 60%),
-      radial-gradient(60% 50% at 88% 4%, hsl(220 12% 97% / 0.8) 0%, transparent 64%),
-      radial-gradient(90% 55% at 50% 100%, hsl(220 10% 95% / 0.5) 0%, transparent 72%);
+  .dark .glass-flat {
+    background-color: hsl(var(--surface));
+    border-color: hsl(var(--line));
+    box-shadow: var(--shadow-sm);
   }
 
   /* --- Cards ------------------------------------------------------------- */
@@ -425,25 +212,6 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
-
-  /* A hairline of light along the top edge on hover — the same bevel logic as
-     the rail, which is what ties the two surfaces together as one system. */
-  .card-interactive::after {
-    content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-px opacity-0;
-    background-image: linear-gradient(
-      90deg,
-      transparent,
-      hsl(var(--brand) / 0.5) 50%,
-      transparent
-    );
-    transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .card-interactive:hover::after,
-  .card-interactive:focus-within::after {
-    @apply opacity-100;
-  }
 }
 
 /* Motion is decoration here, never information: every effect above has a
@@ -454,11 +222,6 @@
    each rule — the global reduced-motion block in base handles durations, and
    this neutralises the transforms those durations would have driven. */
 @media (prefers-reduced-motion: reduce) {
-  .rail-item::before,
-  .card-interactive::after {
-    display: none;
-  }
-
   .card-interactive:hover,
   .card-interactive:focus-within,
   .card-interactive:active {
@@ -516,18 +279,3 @@
   }
 }
 
-@layer utilities {
-  /* Grain: a faint noise wash that keeps large paper areas from looking flat.
-     SVG is inlined so it costs no request and survives the artifact CSP. */
-  .grain {
-    position: relative;
-  }
-  .grain::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.028;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-}

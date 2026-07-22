@@ -26,12 +26,12 @@ export function FullPageLoader() {
       />
 
       <div className="relative flex flex-col items-center gap-6 animate-fade-in">
-        {/* The white mark on a machined-dark chip — the same material as the
+        {/* The white mark on a solid dark chip — the same flat dark as the
             rail, and the one surface the white logo can sit on. It breathes
             gently rather than spinning; a spinner reads as "busy", a breath
             reads as "starting up". */}
         <div className="relative animate-logo-breathe">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-b from-[hsl(220_9%_18%)] to-[hsl(220_14%_7%)] shadow-[0_12px_32px_-12px_hsl(220_30%_10%/0.55),inset_0_1px_0_hsl(0_0%_100%/0.07)]">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-[hsl(var(--rail-top))] shadow-[0_10px_28px_-12px_hsl(220_30%_10%/0.5)]">
             <div className="h-7 overflow-hidden" style={{ aspectRatio: LOGO_MARK_ASPECT }}>
               <img src={logoLockup} alt="" className="block w-full select-none" draggable={false} />
             </div>

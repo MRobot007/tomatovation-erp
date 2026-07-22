@@ -13,7 +13,7 @@ interface TopbarProps {
 
 export function Topbar({ title, presence, onOpenMobileNav, onOpenSearch }: TopbarProps) {
   return (
-    <header className="flex h-topbar shrink-0 items-center gap-3 border-b border-line bg-surface/85 px-3 backdrop-blur-sm md:px-4">
+    <header className="flex h-topbar shrink-0 items-center gap-3 border-b border-line bg-surface px-3 md:px-4">
       <Button
         variant="ghost"
         size="icon-sm"

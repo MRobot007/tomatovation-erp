@@ -14,11 +14,8 @@ interface MobileNavProps {
 }
 
 /**
- * The same metal panel as the desktop rail, on a drawer.
- *
- * Deliberately not a lighter "mobile variant": the rail is a material, and a
- * material that changes when the window narrows stops being one. Same tokens,
- * same bevels, same sweep.
+ * The same flat dark panel as the desktop rail, on a drawer. Same tokens, so it
+ * does not become a lighter "mobile variant" when the window narrows.
  */
 export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
   const { canAccessLeads } = useLeadAccess()
@@ -30,11 +27,11 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
         <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px] data-[state=open]:animate-fade-in lg:hidden" />
         <Dialog.Content
           className={cn(
-            'rail rail-grain fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col shadow-lg lg:hidden',
+            'rail fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col shadow-lg lg:hidden',
             'data-[state=open]:animate-rise-in',
           )}
         >
-          <div className="relative flex h-topbar shrink-0 items-center gap-2.5 px-3 shadow-[inset_0_-1px_0_hsl(0_0%_0%/0.4),inset_0_-2px_0_hsl(var(--rail-sheen)/0.04)]">
+          <div className="relative flex h-topbar shrink-0 items-center gap-2.5 border-b border-[hsl(var(--rail-line))] px-3">
             {/* Same mark as the desktop rail: the lockup cropped to the
                 monogram, which is all that fits at header height. */}
             <div className="h-7 shrink-0 overflow-hidden" style={{ aspectRatio: LOGO_MARK_ASPECT }}>
@@ -88,9 +85,7 @@ export function MobileNav({ role, open, onOpenChange }: MobileNavProps) {
                             <item.icon
                               className={cn(
                                 'size-4 shrink-0',
-                                isActive
-                                  ? 'text-brand drop-shadow-[0_0_6px_hsl(var(--brand)/0.55)]'
-                                  : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
+                                isActive && 'text-[hsl(var(--rail-accent))]',
                               )}
                               aria-hidden
                             />

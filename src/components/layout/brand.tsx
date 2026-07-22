@@ -14,10 +14,7 @@ export function Brand({ collapsed, role }: { collapsed: boolean; role: Role }) {
   return (
     <div
       className={cn(
-        'relative flex h-topbar shrink-0 items-center gap-2.5 px-3',
-        // Not a border: a hairline of shadow under a lit edge is how a real
-        // panel joint reads, and it keeps the metal continuous.
-        'shadow-[inset_0_-1px_0_hsl(0_0%_0%/0.4),inset_0_-2px_0_hsl(var(--rail-sheen)/0.04)]',
+        'relative flex h-topbar shrink-0 items-center gap-2.5 border-b border-[hsl(var(--rail-line))] px-3',
         collapsed && 'justify-center px-0',
       )}
     >

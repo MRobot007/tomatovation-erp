@@ -23,7 +23,7 @@ export function AuthLayout({
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       <BrandPanel />
 
-      <div className="grain flex items-center justify-center bg-paper px-6 py-12">
+      <div className="flex items-center justify-center bg-paper px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="mb-7 flex items-center gap-2.5 lg:hidden">
             <div
@@ -54,30 +54,7 @@ export function AuthLayout({
 
 function BrandPanel() {
   return (
-    <div className="relative hidden overflow-hidden bg-ink lg:flex lg:flex-col lg:justify-between">
-      {/* The same machined metal as the rail, at panel scale: a light source
-          off the top-left, falling away to near-black. A flat dark rectangle
-          next to warm paper reads as a missing image. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(130% 95% at 14% 6%, hsl(220 10% 26%) 0%, hsl(220 11% 14%) 42%, hsl(220 13% 6%) 100%)',
-        }}
-        aria-hidden
-      />
-      {/* Brush grain, matching the rail. It is what stops a large dark field
-          from looking like an empty div at this size. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(90deg, hsl(210 30% 100% / 0.02) 0px, hsl(210 30% 100% / 0.02) 1px, transparent 1px, transparent 3px)',
-        }}
-        aria-hidden
-      />
-      <div className="grain absolute inset-0" aria-hidden />
-
+    <div className="relative hidden overflow-hidden bg-[hsl(var(--rail-top))] lg:flex lg:flex-col lg:justify-between">
       <div className="relative p-10">
         <div className="flex items-center gap-3">
           {/* Pure white, at display weight — this is the panel the real logo

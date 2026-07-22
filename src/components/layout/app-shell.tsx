@@ -70,7 +70,7 @@ export function AppShell() {
   if (!role) return null
 
   return (
-    <div className="ambient flex h-dvh overflow-hidden bg-paper">
+    <div className="flex h-dvh overflow-hidden bg-paper">
       <Sidebar role={role} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
       <MobileNav role={role} open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
       <CommandPalette />
@@ -83,7 +83,7 @@ export function AppShell() {
           onOpenSearch={openSearch}
         />
 
-        <main className="grain flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[1600px] px-4 py-6 md:px-6 md:py-8">
             <Outlet />
           </div>

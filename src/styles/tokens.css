@@ -51,18 +51,17 @@
     --line-strong: 0 0% 80%;
 
     /* ---- Accent ---------------------------------------------------------
-     * Graphite, at the rail's hue, so the primary button and the metal panel
-     * are recognisably the same material. On paper the accent is the darkest
-     * thing on the page, which is how emphasis works in print — weight and
-     * contrast, not hue.
+     * Tomato red — the brand colour, and the one deliberate hue in the
+     * interface. Held at ~47% lightness so white text clears legibility on a
+     * primary button, and at 8deg (orange-red) so it stays a step off the
+     * crimson --danger below and the two never read as the same red.
      */
-    --brand: 220 14% 16%;
-    --brand-hover: 220 16% 9%;
-    /* Cool wash for selected rows and active fields. Deliberately cool where
-       --elevated is warm, so a selected row is distinguishable from a merely
-       raised one without needing a colour. */
-    --brand-soft: 220 16% 93%;
-    --brand-ink: 220 20% 22%;
+    --brand: 8 74% 47%;
+    --brand-hover: 8 78% 40%;
+    /* A pale red wash for selected rows, brand badges and active fields —
+       enough tint to read as "chosen" without competing with content. */
+    --brand-soft: 8 70% 96%;
+    --brand-ink: 8 68% 40%;
 
     /* ---- Status ---------------------------------------------------------
      * The only hues left in the system, so each one has to earn its place.
@@ -90,40 +89,29 @@
     --presence-break: 45 65% 42%;
     --presence-offline: 38 8% 66%;
 
-    /* ---- Rail (the metallic sidebar) ------------------------------------
-     * Deliberately COOL, at hue 220, against a palette where every other
-     * neutral is warm at 36-42deg. That opposition is the whole point: the rail
-     * reads as machined steel set beside paper, and the white logo has
-     * somewhere dark to sit. Matching the warm hue here would make the sidebar
-     * look like a dimmer version of the page rather than a different material.
+    /* ---- Rail (the sidebar) ---------------------------------------------
+     * A flat, solid dark slate panel — one colour, no gradient or bevel. It is
+     * the constant the content area flips against, so these values are the same
+     * in light and dark mode.
      *
-     * Saturation stays under 10% — enough for the eye to read "steel" rather
-     * than "navy", which is where a blue-black sidebar usually lands.
-     *
-     * These are the same in light and dark mode. The rail is the constant the
-     * content area flips against; a metal panel does not become paper when the
-     * lights go out.
+     * Saturation stays low (hue 222, ~15%) so it reads as a neutral dark slate
+     * rather than navy. --rail-raised lifts the hovered item one step; the
+     * active item is marked with the tomato accent below.
      */
-    --rail-top: 220 8% 17%;
-    --rail-bottom: 220 11% 7%;
-    --rail-raised: 220 8% 22%;
-    --rail-line: 220 7% 24%;
-    /* The rail is black, so the same rule applies here as on the cards: white
-       text, not grey. Saturation to zero as well — 8% blue was the difference
-       between "white" and "cold grey" on a dark ground.
-       The nav still separates its states, just not with colour: the active
-       item has the lit marker, the wash and the heavier weight. */
+    --rail-top: 222 15% 13%;
+    --rail-bottom: 222 15% 13%;
+    --rail-raised: 222 13% 19%;
+    --rail-line: 222 12% 22%;
+    /* Text on the dark rail: white for the active item, dimming for the rest.
+       Hierarchy comes from lightness and weight, not colour. */
     --rail-ink: 0 0% 100%;
-    --rail-ink-muted: 0 0% 90%;
-    --rail-ink-subtle: 0 0% 78%;
-    /* Specular highlight — the lit edge of a bevel. Kept as a raw channel
-       triplet so it can be used at very low alpha without muddying. */
+    --rail-ink-muted: 0 0% 66%;
+    --rail-ink-subtle: 0 0% 48%;
+    /* Retained for any inset-edge references; unused now the panel is flat. */
     --rail-sheen: 210 30% 100%;
-    /* The accent as the rail expresses it: white. On paper the accent is the
-       darkest thing available; on metal it is the brightest. Using --brand here
-       would paint graphite on graphite and the active item would vanish.
-       It is also, exactly, the logo. */
-    --rail-accent: 0 0% 100%;
+    /* The accent on the rail: the tomato brand, lifted a little so it carries
+       on the dark ground. It marks the active nav item and its icon. */
+    --rail-accent: 8 78% 56%;
 
     /* ---- Glass ----------------------------------------------------------
      * Smoked black panes on a white page.
@@ -142,43 +130,6 @@
     --glass-opacity: 0.87;
     --glass-edge: 210 30% 100%;
     --glass-blur: 14px;
-
-    /* ---- On-glass content -----------------------------------------------
-     * A dark pane needs light content, so every semantic token flips inside
-     * one. Declared here rather than only inside .glass because the charts
-     * read their colours off the document root and cannot see a card's
-     * cascade — see chart-theme.ts. One source, two consumers.
-     */
-    /* Clean white, at ZERO saturation. These carried a blue cast at 9-16%
-       saturation, which is what makes light text on a dark card read as grey
-       rather than as white. Hierarchy comes from lightness alone now: pure
-       white for content, dimmed white for support. Nothing is tinted.
-
-       The steps are solved against the composited card, not picked by eye.
-       The pane lands at 22.2% lightness over white paper, and at that ground
-       57% gave the eyebrow labels 3.71:1 — under AA, on the smallest type in
-       the app. Lines need 3:1 as non-text UI, which puts the hairline at 51%;
-       below that the table dividers simply were not there. */
-    /* All three read as white. 80% and 65% were still legible greys, and on a
-       black card a legible grey is exactly what "grey text" means.
-       Hierarchy moves off colour entirely and onto weight, size and the
-       spacing between things — which is where a monochrome system should be
-       carrying it anyway. */
-    --og-ink: 0 0% 100%;
-    --og-ink-muted: 0 0% 93%;
-    --og-ink-subtle: 0 0% 86%;
-    --og-line: 0 0% 52%;
-    --og-line-strong: 0 0% 64%;
-    --og-surface: 220 12% 17%;
-    --og-elevated: 220 11% 23%;
-    --og-sunken: 220 14% 11%;
-    /* The accent and the status hues as a dark pane needs them: the accent
-       inverted to white, the hues lifted so they carry on a dark ground. */
-    --og-brand: 210 16% 95%;
-    --og-success: 152 45% 58%;
-    --og-warning: 45 75% 62%;
-    --og-danger: 356 70% 68%;
-    --og-info: 212 55% 68%;
 
     /* ---- Elevation ------------------------------------------------------ */
     /* Neutral now the paper is neutral. A warm shadow on a clean white page is
@@ -199,7 +150,7 @@
     --popover: var(--surface);
     --popover-foreground: var(--ink);
     --primary: var(--brand);
-    --primary-foreground: 40 40% 99%;
+    --primary-foreground: 0 0% 100%;
     --secondary: var(--elevated);
     --secondary-foreground: var(--ink);
     --muted: var(--elevated);
@@ -255,14 +206,13 @@
     --glass-edge: 210 30% 100%;
     --glass-blur: 16px;
 
-    /* The accent INVERTS. On paper it is the darkest thing present; in the dark
-       theme it is the lightest. Same idea — maximum contrast against the
-       surface — which is what keeps an achromatic identity legible in both,
-       and it matches the white logo exactly. */
-    --brand: 210 16% 95%;
-    --brand-hover: 0 0% 100%;
-    --brand-soft: 220 10% 20%;
-    --brand-ink: 210 16% 93%;
+    /* The tomato accent, lifted for the dark ground so it stays vivid and keeps
+       white button text legible. --brand-soft is a dark red tint for selected
+       rows; --brand-ink a light red for text on it. */
+    --brand: 8 76% 55%;
+    --brand-hover: 8 80% 62%;
+    --brand-soft: 8 42% 18%;
+    --brand-ink: 8 72% 72%;
 
     --success: 152 45% 55%;
     --success-soft: 152 30% 15%;
@@ -286,7 +236,7 @@
       0 4px 8px -4px hsl(var(--shadow-color) / 0.6),
       0 12px 32px -8px hsl(var(--shadow-color) / 0.5);
 
-    --primary-foreground: 220 14% 7%;
+    --primary-foreground: 0 0% 100%;
     --destructive-foreground: 220 14% 7%;
   }
 }

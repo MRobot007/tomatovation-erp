@@ -13,17 +13,12 @@ interface SidebarProps {
 }
 
 /**
- * A machined metal rail, cool against the warm paper of the content area.
+ * A flat, solid dark sidebar panel against the light content area.
  *
- * The opposition is the point. Everything to the right of this panel is warm
- * neutral and lightly shadowed; the rail is cool, dark and hard-edged, so the
- * eye reads them as two materials rather than two shades. It also gives the
- * white logo the one surface in the app it can sit on at full strength.
- *
- * The active item is marked with a lit edge and a directional wash rather than
+ * The active item is marked with a tomato edge bar and a faint wash rather than
  * a filled pill — it keeps the vertical rhythm of the list unbroken, which
- * matters at 15+ entries, and emitted light is how a brand colour survives on
- * a dark metal ground without looking stuck on.
+ * matters at 15+ entries. The dark panel is also the one surface a white logo
+ * can sit on at full strength.
  */
 export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
   const { canAccessLeads } = useLeadAccess()
@@ -32,7 +27,7 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'rail rail-grain relative hidden h-full shrink-0 flex-col transition-[width] duration-300 ease-out-expo lg:flex',
+        'rail relative hidden h-full shrink-0 flex-col transition-[width] duration-300 ease-out-expo lg:flex',
         collapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
       )}
     >
@@ -50,13 +45,9 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
               </p>
             )}
             {/* Collapsed: the group heading has nowhere to go, so the grouping
-                is carried by an etched divider instead — a dark score with a
-                lit edge under it, the way a seam in metal catches light. */}
+                is carried by a plain hairline divider instead. */}
             {collapsed && (
-              <div
-                className="mx-3 my-2.5 h-px bg-[hsl(0_0%_0%/0.5)] shadow-[0_1px_0_hsl(var(--rail-sheen)/0.06)]"
-                aria-hidden
-              />
+              <div className="mx-3 my-2.5 h-px bg-[hsl(var(--rail-line))]" aria-hidden />
             )}
 
             <ul className="flex flex-col gap-0.5">
@@ -80,13 +71,8 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
                         {isActive && <span className="rail-marker" aria-hidden />}
                         <item.icon
                           className={cn(
-                            'size-4 shrink-0 transition-transform duration-200 ease-out-expo',
-                            // Icons lift a hair on hover. Small enough to feel
-                            // like response rather than movement.
-                            'group-hover:scale-105',
-                            isActive
-                              ? 'text-brand drop-shadow-[0_0_6px_hsl(var(--brand)/0.55)]'
-                              : 'drop-shadow-[0_1px_0_hsl(0_0%_0%/0.5)]',
+                            'size-4 shrink-0',
+                            isActive && 'text-[hsl(var(--rail-accent))]',
                           )}
                           aria-hidden
                         />
@@ -101,7 +87,7 @@ export function Sidebar({ role, collapsed, onToggleCollapsed }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="relative p-2 shadow-[inset_0_1px_0_hsl(var(--rail-sheen)/0.05)]">
+      <div className="relative border-t border-[hsl(var(--rail-line))] p-2">
         <button
           type="button"
           onClick={onToggleCollapsed}

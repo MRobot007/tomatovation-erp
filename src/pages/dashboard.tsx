@@ -136,7 +136,7 @@ export function DashboardPage() {
                   <p className="text-base font-medium text-ink">
                     Nothing assigned to you right now.
                   </p>
-                  <p className="mt-1 text-sm text-ink-muted">Enjoy your free time! 🎉</p>
+                  <p className="mt-1 text-sm text-ink-muted">Enjoy your free time.</p>
                 </div>
               </div>
             ) : (

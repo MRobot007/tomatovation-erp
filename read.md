@@ -132,8 +132,8 @@ their role (and, for the pipeline, their department).
   React Hook Form + Zod for every form, Recharts for charts.
 - **Supabase** back end — Postgres, Auth, Row-Level Security, Storage, Realtime,
   and Edge Functions.
-- **Design** — a monochrome black-glass card system on a clean page, with the
-  brand logo, a machined-metal navigation rail, and considered motion.
+- **Design** — one consistent design system across every screen, with the brand
+  logo, a dark navigation rail, and colour reserved for meaning (status, alerts).
 - **Light and dark themes**, chosen from the user menu.
 - **Mobile-friendly** — the whole app adapts to phone screens: the sidebar
   becomes a drawer, actions stay reachable on touch, and nothing scrolls sideways.
